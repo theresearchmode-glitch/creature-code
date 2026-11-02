@@ -9,28 +9,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap">
 <style>
-/* Layout: a handheld console. Top bar (hearts, berries, quest), the game screen,
-   then a D-pad and A/B buttons. Code is written in a console that slides up.
+/* Layout: a handheld console. Top bar (bag, quest), the game screen, then a
+   D-pad and A/B buttons. Code is written in a console that slides up.
    One cozy pixel look in every theme, so every colour is set here on purpose. */
 :root {
-  --shell: #2A1E27;       /* console body */
-  --shell-2: #3B2A35;
-  --ink: #2B1D2E;
-  --cream: #FBF0D5;
-  --cream-dark: #EAD9B0;
-  --muted: #7A6670;
-  --yolk: #F5C04A;
-  --yolk-dark: #B9851A;
-  --leaf: #7DB35A;
-  --leaf-dark: #4E7D3A;
-  --berry: #E0475B;
-  --berry-dark: #9E2A3B;
-  --good-bg: #DDF0C8;
-  --bad-bg: #FBD9DD;
-  --near-bg: #FFEFC2;
-  --code-bg: #2B1D2E;
-  --code-fg: #F6EBD0;
-  --code-dim: #8C7A86;
+  --shell: #2A1E27; --shell-2: #3B2A35; --ink: #2B1D2E;
+  --cream: #FBF0D5; --cream-dark: #EAD9B0; --muted: #7A6670;
+  --yolk: #F5C04A; --yolk-dark: #B9851A; --leaf: #7DB35A; --leaf-dark: #4E7D3A;
+  --berry: #E0475B; --berry-dark: #9E2A3B;
+  --good-bg: #DDF0C8; --bad-bg: #FBD9DD; --near-bg: #FFEFC2;
+  --code-bg: #2B1D2E; --code-fg: #F6EBD0; --code-dim: #8C7A86;
   --font-ui: "Pixelify Sans", "Courier New", monospace;
   --font-code: "VT323", "Courier New", monospace;
   color-scheme: dark;
@@ -49,32 +37,26 @@ button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-c
 canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; background: var(--code-bg); color: var(--code-fg); padding: 0 4px; white-space: pre-wrap; }
 .stack { display: grid; gap: 10px; }
-
 .app {
   max-width: 480px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; gap: 8px;
-  padding-top: max(8px, env(safe-area-inset-top, 0px));
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  padding-left: max(12px, env(safe-area-inset-left, 0px));
-  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-top: max(8px, env(safe-area-inset-top, 0px)); padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px));
 }
 
 /* ---------- Top bar ---------- */
-.hud { display: flex; align-items: center; gap: 10px; }
+.hud { display: flex; align-items: center; gap: 12px; }
 .hud .grow { flex: 1; }
-.hearts { display: flex; gap: 3px; }
-.hearts img, .battle-hearts img { width: 21px; height: 18px; image-rendering: pixelated; }
-.hearts img.lost, .battle-hearts img.lost { opacity: 0.25; filter: grayscale(1); }
-.count { display: flex; align-items: center; gap: 5px; font-weight: 700; font-size: 17px; }
-.count img { width: 22px; height: 22px; image-rendering: pixelated; }
+.count { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 17px; }
+.count img { width: 20px; height: 20px; image-rendering: pixelated; }
 .icon-btn {
-  background: var(--cream); color: var(--ink); border: 0; min-width: 34px; height: 30px; padding: 0 6px; font-weight: 700; font-size: 16px;
-  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink); margin: 3px;
+  background: var(--cream); color: var(--ink); border: 0; min-width: 34px; height: 30px; padding: 0 6px; font-weight: 700; font-size: 16px; margin: 3px;
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
 }
-.quest { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: var(--cream); padding: 0 2px; min-height: 22px; }
-.quest b { background: var(--yolk); color: var(--ink); padding: 0 6px; font-size: 13px; letter-spacing: 0.08em; }
+.quest { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; padding: 0 2px; min-height: 22px; }
+.quest b { background: var(--yolk); color: var(--ink); padding: 0 6px; font-size: 13px; letter-spacing: 0.08em; flex: none; }
 
 /* ---------- Game screen ---------- */
-.screen { position: relative; background: #000; box-shadow: 0 0 0 4px var(--ink), 0 0 0 8px var(--shell-2); margin: 8px; }
+.screen { position: relative; background: #000; box-shadow: 0 0 0 4px var(--ink), 0 0 0 8px var(--shell-2); margin: 8px; overflow: hidden; }
 #game { display: block; width: 100%; height: auto; }
 .speech {
   position: absolute; z-index: 3; transform: translate(-50%, -100%); max-width: 70%;
@@ -83,32 +65,57 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
 }
 .toast { position: absolute; z-index: 4; left: 50%; top: 8px; transform: translateX(-50%); background: var(--ink); color: var(--yolk); font-weight: 700; font-size: 15px; padding: 3px 10px; white-space: nowrap; pointer-events: none; }
 .dialog {
-  position: absolute; z-index: 5; left: 6px; right: 6px; bottom: 6px; min-height: 42%;
+  position: absolute; z-index: 6; left: 6px; right: 6px; bottom: 6px; min-height: 40%;
   background: var(--cream); color: var(--ink); padding: 10px 12px 18px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer;
   box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink);
 }
 .dialog.noface { grid-template-columns: minmax(0, 1fr); }
 .dialog.noface .face { display: none; }
+.dialog.short { min-height: 31%; }
 .dialog .face { width: 48px; height: auto; background: var(--cream-dark); box-shadow: 0 0 0 3px var(--ink); }
 .dialog .who { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; color: var(--leaf-dark); }
 .dialog .text { font-size: 18px; line-height: 1.35; }
 .dialog .next { position: absolute; right: 10px; bottom: 4px; font-size: 14px; animation: blink 0.7s steps(2) infinite; }
-.fade { position: absolute; inset: 0; z-index: 6; background: #000; opacity: 0; pointer-events: none; transition: opacity 0.35s steps(5); }
+.fade { position: absolute; inset: 0; z-index: 9; background: #000; opacity: 0; pointer-events: none; transition: opacity 0.3s steps(5); }
 .fade.on { opacity: 1; }
+
+/* Battle overlays */
+.hpbox { position: absolute; z-index: 4; background: var(--cream); color: var(--ink); padding: 4px 8px 6px; font-size: 14px; font-weight: 700;
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink); }
+.hpbox.foe { left: 3%; top: 5%; width: 52%; }
+.hpbox.me { right: 3%; top: 44%; width: 50%; }
+.hpbox .top { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; }
+.hpbox .top span { overflow: hidden; text-overflow: ellipsis; }
+.bar { height: 8px; background: var(--ink); margin-top: 4px; padding: 1px; }
+.bar i { display: block; height: 100%; background: #5BC46A; transition: width 0.5s steps(8); }
+.bar i.mid { background: var(--yolk); } .bar i.low { background: var(--berry); }
+.hpbox small { display: block; text-align: right; font-size: 12px; margin-top: 1px; }
+.tag { font-size: 10px; padding: 0 4px; color: #fff; margin-left: 4px; vertical-align: 2px; }
+.tag.fire { background: #E2602F; } .tag.water { background: #2E86D0; } .tag.leaf { background: #4E9A3B; } .tag.normal { background: #8A7F78; } .tag.glitch { background: #7A4FC9; } .tag.none { background: #8A7F78; }
+.bmenu { position: absolute; z-index: 5; left: 6px; right: 6px; bottom: 6px; background: var(--cream); padding: 8px; color: var(--ink);
+  box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink); }
+.bgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.bgrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bbtn { border: 0; background: var(--cream-dark); color: var(--ink); font-weight: 700; font-size: 16px; padding: 7px 4px; box-shadow: 0 0 0 3px var(--ink), inset 0 -3px 0 0 #CDB98A; margin: 3px; line-height: 1.1; }
+.bbtn small { display: block; font-size: 11px; font-weight: 600; color: var(--muted); }
+.bbtn.hot { background: var(--yolk); box-shadow: 0 0 0 3px var(--ink), inset 0 -3px 0 0 var(--yolk-dark); }
+.bbtn.code { background: #CFE8FF; }
+.bbtn:disabled { opacity: 0.45; }
+.bbtn:active { transform: translateY(2px); }
 
 /* ---------- Controls ---------- */
 .controls { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px 0; gap: 12px; }
 .dpad { display: grid; grid-template-columns: repeat(3, 54px); grid-template-rows: repeat(3, 54px); }
 .dpad button, .ab button { border: 0; background: var(--shell-2); color: var(--cream); font-size: 20px; touch-action: none; }
 .dpad button { box-shadow: 0 0 0 3px var(--ink), inset 0 -4px 0 0 #241A22; }
-.dpad button.held, .ab button.held { background: #4E3A47; transform: translateY(2px); }
+.dpad button.held { background: #4E3A47; transform: translateY(2px); }
 .dpad .u { grid-area: 1 / 2; } .dpad .l { grid-area: 2 / 1; } .dpad .r { grid-area: 2 / 3; } .dpad .d { grid-area: 3 / 2; }
-.dpad .c { grid-area: 2 / 2; background: var(--shell-2); box-shadow: 0 0 0 3px var(--ink); pointer-events: none; }
+.dpad .c { grid-area: 2 / 2; background: var(--shell-2); box-shadow: 0 0 0 3px var(--ink); }
 .ab { display: flex; gap: 14px; align-items: center; transform: rotate(-12deg); }
 .ab button { width: 66px; height: 66px; border-radius: 50%; font-weight: 700; font-size: 22px; box-shadow: 0 0 0 4px var(--ink), inset 0 -5px 0 0 rgba(0,0,0,0.25); }
 .ab .a { background: var(--berry); margin-top: -36px; }
 .ab .b { background: var(--yolk-dark); }
-.ab button.held { filter: brightness(0.85); }
+.ab button.held { filter: brightness(0.85); transform: translateY(2px); }
 .ab span { display: block; font-size: 11px; letter-spacing: 0.08em; margin-top: -2px; }
 .hint-line { text-align: center; font-size: 13px; color: var(--muted); margin: 0; }
 
@@ -118,11 +125,11 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
   box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink), inset 0 -4px 0 0 var(--cream-dark);
 }
 .btn.go { background: var(--yolk); box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink), inset 0 -4px 0 0 var(--yolk-dark); }
-.btn.red { background: var(--berry); color: #fff; box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink), inset 0 -4px 0 0 var(--berry-dark); }
 .btn:active { transform: translateY(2px); }
 .btn:disabled { opacity: 0.5; }
 .btn.wide { width: calc(100% - 8px); }
-.row { display: flex; gap: 10px; }
+.btn.small { font-size: 15px; padding: 4px 10px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
 .row .btn { flex: 1; }
 .linkish { background: none; border: 0; color: var(--muted); font-size: 15px; font-weight: 600; text-decoration: underline; padding: 4px 0; }
 .say-box { padding: 10px 12px; margin: 4px; color: var(--ink); }
@@ -177,20 +184,28 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
 .log li { padding-left: 14px; position: relative; }
 .log li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 6px; height: 6px; background: var(--ink); }
 .log li.err::before { background: var(--berry); }
-.battle-hearts { display: flex; gap: 4px; align-items: center; }
-.sheet-inner.hit { animation: shake 0.3s steps(4); }
+.budget { font-weight: 700; font-size: 16px; }
 
-/* ---------- Title, menus, level clear ---------- */
+/* ---------- Overlays: title, team, menu, level clear ---------- */
 .overlay { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; background: rgba(20, 13, 18, 0.85); overflow-y: auto; }
 .card {
   width: 100%; max-width: 420px; background: var(--cream); color: var(--ink); padding: 18px; display: grid; gap: 12px; margin: 4px;
   box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink);
 }
-.card h2 { margin: 0; font-size: 26px; text-wrap: balance; }
+.card h2 { margin: 0; font-size: 24px; text-wrap: balance; }
 .card p { margin: 0; }
 .logo { font-size: 46px; font-weight: 700; line-height: 0.92; margin: 0; letter-spacing: 0.02em; }
 .logo span { display: block; color: var(--berry); }
-.title-card canvas { width: 208px; max-width: 100%; justify-self: center; }
+.title-card canvas { width: 100%; max-width: 300px; justify-self: center; }
+.mon { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; padding: 8px; background: #fff; box-shadow: 0 0 0 3px var(--ink); margin: 3px; }
+.mon canvas { width: 48px; height: 48px; }
+.mon .info { min-width: 0; display: grid; gap: 3px; font-size: 15px; }
+.mon .info b { font-size: 17px; }
+.mon .row { gap: 6px; }
+.dex { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.dex div { background: #fff; box-shadow: 0 0 0 3px var(--ink); margin: 3px; padding: 4px; text-align: center; font-size: 12px; font-weight: 700; }
+.dex canvas { width: 40px; height: 40px; display: block; margin: 0 auto; }
+.dex .unseen canvas { filter: brightness(0); opacity: 0.35; }
 .howto { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 16px; }
 .howto li { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; align-items: start; }
 .howto li b { display: grid; place-items: center; height: 26px; background: var(--ink); color: var(--cream); font-size: 13px; }
@@ -202,12 +217,11 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
 .skill .front .big { font-size: 28px; font-weight: 700; }
 .skill .back { background: #fff; transform: rotateY(180deg); font-size: 14px; }
 .skill .back ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
-.stats { display: flex; gap: 16px; flex-wrap: wrap; font-weight: 700; }
+.stats { display: flex; gap: 6px 16px; flex-wrap: wrap; font-weight: 700; }
 .share-text { width: calc(100% - 6px); min-height: 84px; font: inherit; font-size: 15px; padding: 8px; border: 0; border-radius: 0; background: #fff; color: var(--ink); box-shadow: 0 0 0 3px var(--ink); margin: 3px; resize: vertical; -webkit-user-select: text; user-select: text; }
 
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes pop { from { transform: scale(0.85); } to { transform: scale(1); } }
-@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 @keyframes slideup { from { transform: translateY(40%); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -216,8 +230,8 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
 <div class="app" id="app">
   <header class="hud">
     <button class="icon-btn" id="menuBtn" aria-label="Menu">≡</button>
-    <div class="hearts" id="hearts" aria-label="Hearts"></div>
     <div class="grow"></div>
+    <div class="count" id="jarCount" aria-label="Code jars"></div>
     <div class="count" id="berryCount" aria-label="Berries"></div>
     <button class="icon-btn" id="soundBtn" aria-label="Sound on or off">♪</button>
   </header>
@@ -227,6 +241,9 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
     <canvas id="game" width="160" height="144" aria-label="Game world"></canvas>
     <div class="speech" id="speech" hidden></div>
     <div class="toast" id="toast" hidden></div>
+    <div class="hpbox foe" id="foeBox" hidden><div class="top"><span id="foeName"></span><span id="foeLv"></span></div><div class="bar"><i id="foeBar"></i></div></div>
+    <div class="hpbox me" id="myBox" hidden><div class="top"><span id="myName"></span><span id="myLv"></span></div><div class="bar"><i id="myBar"></i></div><small id="myHp"></small></div>
+    <div class="bmenu" id="bmenu" hidden><div class="bgrid" id="bgrid"></div></div>
     <div class="dialog" id="dialog" hidden>
       <canvas class="face" width="16" height="16"></canvas>
       <div><div class="who" id="who"></div><div class="text" id="dtext"></div></div>
@@ -244,57 +261,55 @@ code { font-family: var(--font-code); font-size: 1.25em; line-height: 1; backgro
       <button class="d" data-dir="down" aria-label="Down">▼</button>
     </div>
     <div class="ab">
-      <button class="b" id="bBtn" aria-label="B: look inside your creature's brain">B<span>BRAIN</span></button>
+      <button class="b" id="bBtn" aria-label="B: your team">B<span>TEAM</span></button>
       <button class="a" id="aBtn" aria-label="A: talk or use">A<span>USE</span></button>
     </div>
   </div>
-  <p class="hint-line">D-pad to walk · A to talk and use · B to peek in your creature's brain</p>
+  <p class="hint-line">D-pad: walk · A: talk and use · B: your team and their code</p>
 </div>
 
-<!-- Code console -->
 <div class="sheet" id="sheet" hidden><div class="sheet-inner" id="sheetInner"></div></div>
 
-<!-- Title screen -->
 <div class="overlay" id="title">
   <div class="card title-card">
-    <canvas id="titleArt" width="52" height="18"></canvas>
+    <canvas id="titleArt" width="88" height="18"></canvas>
     <h1 class="logo">CREATURE<span>CODE</span></h1>
-    <p>The Glitch Moth ate the village's memory. Hatch a creature, teach it real Python, and win the memories back.</p>
+    <p>Explore Mossbrook, catch wild creatures, and battle with brains you write in real Python.</p>
     <button class="btn go wide" id="startBtn">START</button>
     <button class="btn wide" id="newBtn" hidden>NEW GAME</button>
     <p class="eyebrow" style="text-align:center">Turn your sound on</p>
   </div>
 </div>
 
-<!-- Menu -->
+<div class="overlay" id="teamView" hidden><div class="card" id="teamCard"></div></div>
+
 <div class="overlay" id="menu" hidden>
   <div class="card">
     <h2>How to play</h2>
     <ul class="howto">
-      <li><b>✥</b><span>Walk with the D-pad (or arrow keys).</span></li>
-      <li><b>A</b><span>Talk to villagers, read signs, and touch glowing memory stones.</span></li>
-      <li><b>B</b><span>Peek inside your creature's brain: every variable your code made.</span></li>
-      <li><b>!</b><span>Memory stones open a code console. Type real Python, press RUN, and watch the world change.</span></li>
-      <li><b>?</b><span>Stuck? Tap HINT in the console. Each tap helps a bit more.</span></li>
+      <li><b>✥</b><span>Walk with the D-pad. Wild creatures hide in tall grass.</span></li>
+      <li><b>A</b><span>Talk to people and use things.</span></li>
+      <li><b>B</b><span>See your team. Every creature's brain is Python code you can read and edit.</span></li>
+      <li><b>⚔</b><span>In battle: FIGHT to attack. CODE to rewrite your creature's brain (it uses your turn). BAG for jars and berries.</span></li>
+      <li><b>▣</b><span>Weaken a wild creature, then catch it with a Code Jar by writing its name in Python.</span></li>
       <li><b>✱</b><span>Errors spawn bugs. Fix your code to catch them for your bug jar.</span></li>
     </ul>
+    <p class="eyebrow">Elements</p>
+    <p>Fire beats leaf. Leaf beats water. Water beats fire.</p>
     <p class="eyebrow">Bug jar</p>
-    <p id="jar">Empty. Bugs appear when code breaks.</p>
+    <p id="jarList">Empty. Bugs appear when code breaks.</p>
     <button class="btn go wide" id="closeMenu">BACK TO GAME</button>
     <button class="linkish" id="resetBtn">Erase progress and start over</button>
   </div>
 </div>
 
-<!-- Level clear -->
-<div class="overlay" id="clear" hidden>
-  <div class="card" id="clearCard"></div>
-</div>
+<div class="overlay" id="clear" hidden><div class="card" id="clearCard"></div></div>
 
 <script>
 /* =====================================================================
-   CREATURE CODE · Level 1: The Forgetful Village
-   JavaScript runs the game world. The Python you type is run by Pyodide:
-   the real Python language, packed so it can run inside a web page.
+   CREATURE CODE · Level 1: Mossbrook
+   Explore, catch creatures, and battle. Every creature's brain is a small
+   Python program. Your Python is run by Pyodide (real Python in the page).
    ===================================================================== */
 
 // ---------- 1. Pixel art ----------
@@ -317,9 +332,14 @@ const SPRITES = {
   moth_l: ["................", "...........o....", "............o...", "..oooo.......o..", ".owwwwoo......o.", "owwppwwwoo....ob", "owpggpwwwwo..obb", "owpggpwwwwwoobbb", "owwppwwwwwwwobbr", "owwwwwwwwwwwobbb", ".owwwwwwwwwwobbb", "..oowwwwwwwwobbb", "..owwppwwwwoobbb", ".owpggpwwwo.obbb", ".owpggpwwo..obbb", ".owwppwwo....obb", "..owwwwo......ob", "...oooo.......o.", "................"],
   berry: ["...gg...", "..gg....", ".oooo...", "orrwro..", "orrrro..", "orrrro..", ".oooo...", "........"],
   heart: [".oo.oo.", "orrorro", "orrrrro", ".orrro.", "..oro..", "...o..."],
+  leaflet: ["................", "..oo........oo..", ".ogdo......odgo.", ".ogggo....ogggo.", "..oggdo..odggo..", "...oodboobdoo...", "....obbbbbbo....", "...obbbbbbbbo...", "..obbkebbkebbo..", "..obbeebbeebbo..", "..obbbbbbbbbbo..", "..obgbbmmbbgbo..", "...obbbbbbbbo...", "....obbbbbbo....", "...odo.oo.odo...", "...oo......oo..."],
+  bubbit: ["................", "................", "...oo.....oo....", "..obpo...obpo...", "..obpo...obpo...", "..obpo...obpo...", "..obbo...obbo...", "...obboooobbo...", "..obbbbbbbbbbo..", ".obbkebbbbkebbo.", ".obbeebbbbeebbo.", ".obpbbbmmbbbpbo.", ".obbbllllllbbbo.", "..obbllllllbbo..", "...obbbbbbbbo...", "....oddooddo...."],
+  cindle: [".......oo.......", "......oyyo......", ".....oyffyo.....", ".....ofyyfo.....", "......offo......", ".......oo.......", "....oooooooo....", "...owwwwwwwwo...", "...owkewwkewo...", "...oweewweewo...", "...owwwmmwwwo...", "..oowwwwwwwwoo..", "..odwwwwwwwwdo..", "...owwwwwwwdo...", "..oddddddddddo..", "..oooooooooooo.."],
+  pebblit: ["................", "................", "................", "................", ".....mmmmm......", "...ommmmmmmo....", "..olllggggggo...", ".ollgggggggggo..", ".olgeegggeeggo..", "oggggggggggggdo.", "ogggggmmgggggdo.", "oggggggggggddddo", ".odggggggggdddo.", "..oodddddddddo..", "....oooooooo....", "................"],
+  jar: ["..cccc..", ".oooooo.", "ogllgggo", "oglggggo", "ogggggyo", "oggggggo", "oggggggo", ".oooooo."],
 };
 
-const BASE_PAL = { o: "#2B1D2E", e: "#2B1D2E", m: "#2B1D2E", k: "#FFFFFF", c: "#FF8FA3", y: "#FFD447" };
+const O = { o: "#2B1D2E", e: "#2B1D2E", m: "#2B1D2E", k: "#FFFFFF" };
 const ELEMENTS = {
   none:  { b: "#B79CED", d: "#7E62C4", l: "#E9DDFF" },
   fire:  { b: "#F7894A", d: "#C2522A", l: "#FFD9A8", f: "#F2542D", particle: ["#F2542D", "#FFC93C", "#FF8A3D"] },
@@ -329,16 +349,19 @@ const ELEMENTS = {
 const PAL = {
   egg: { o: "#2B1D2E", w: "#FFF4DC", s: "#C9A8F0", h: "#FFFFFF" },
   moss: { o: "#2B1D2E", e: "#2B1D2E", m: "#2B1D2E", w: "#FFFFFF", g: "#6FA84B", d: "#3F6B2E", k: "#A7C957", c: "#FF8FA3", y: "#E6E9B8" },
-  stone: { o: "#2B1D2E", l: "#B9BCD0", g: "#8C8FA6", d: "#5E6178", r: "#5E6178" },
-  stoneOn: { o: "#2B1D2E", l: "#B9BCD0", g: "#8C8FA6", d: "#5E6178", r: "#7FF3E8" },
+  stone: { o: "#2B1D2E", l: "#B9BCD0", g: "#8C8FA6", d: "#5E6178", r: "#7FF3E8" },
+  stoneOff: { o: "#2B1D2E", l: "#B9BCD0", g: "#8C8FA6", d: "#5E6178", r: "#5E6178" },
   stoneDone: { o: "#2B1D2E", l: "#B9BCD0", g: "#8C8FA6", d: "#5E6178", r: "#F5C04A" },
-  boulder: { o: "#2B1D2E", l: "#C9BFB4", g: "#9A8F86", d: "#6B615A" },
   snail: { o: "#2B1D2E", s: "#E0A060", w: "#B9733A", b: "#C9D18A", e: "#2B1D2E" },
   cap: { o: "#2B1D2E", r: "#D9534F", w: "#FFFFFF", f: "#F6D7B0", e: "#2B1D2E", m: "#2B1D2E", b: "#6B8FD6" },
   moth: { o: "#2B1D2E", w: "#7A4FC9", p: "#C9A8F0", g: "#39F3D8", b: "#2B1D2E", r: "#FF4D6D" },
-  mothHit: { o: "#FFFFFF", w: "#FFFFFF", p: "#FFFFFF", g: "#FFFFFF", b: "#FFFFFF", r: "#FFFFFF" },
+  white: { o: "#FFFFFF", w: "#FFFFFF", p: "#FFFFFF", g: "#FFFFFF", b: "#FFFFFF", r: "#FFFFFF", e: "#FFFFFF", m: "#FFFFFF", k: "#FFFFFF", l: "#FFFFFF", d: "#FFFFFF", f: "#FFFFFF", y: "#FFFFFF", c: "#FFFFFF", h: "#FFFFFF", s: "#FFFFFF" },
   berry: { o: "#2B1D2E", r: "#E0475B", w: "#FFFFFF", g: "#4E7D3A" },
-  heart: { o: "#2B1D2E", r: "#E0475B" },
+  jar: { o: "#2B1D2E", c: "#A0703C", g: "#9FE0E8", l: "#E6FBFF", y: "#F5C04A" },
+  leaflet: Object.assign({ g: "#A8E06C", d: "#3E8C3B", b: "#6CC35A" }, O),
+  bubbit: Object.assign({ b: "#6FC3F0", d: "#2E6FB0", l: "#E0F5FF", p: "#FF8FA3" }, O),
+  cindle: Object.assign({ w: "#FFF0D0", d: "#E8C9A0", f: "#F2542D", y: "#FFD447" }, O),
+  pebblit: Object.assign({ g: "#9A8F86", l: "#C9BFB4", d: "#6B615A" }, O, { m: "#7DB35A" }),
 };
 function drawSprite(ctx, rows, x, y, pal, flip, scale) {
   const s = scale || 1;
@@ -353,92 +376,146 @@ function drawSprite(ctx, rows, x, y, pal, flip, scale) {
   }
 }
 function spriteCanvas(rows, pal, flip) {
-  const c = document.createElement("canvas");
-  c.width = rows[0].length; c.height = rows.length;
-  drawSprite(c.getContext("2d"), rows, 0, 0, pal, flip);
-  return c;
+  const c = document.createElement("canvas"); c.width = rows[0].length; c.height = rows.length;
+  drawSprite(c.getContext("2d"), rows, 0, 0, pal, flip); return c;
 }
-const creaturePal = (el) => Object.assign({}, BASE_PAL, ELEMENTS[el] || ELEMENTS.none);
 const MOTH_ROWS = SPRITES.moth_l.map((r) => r + r.split("").reverse().join(""));
 
-// ---------- 2. The village map ----------
-// Each letter is one 16 x 16 tile:
-// . grass   , flowers   = path   T tree   ~ water   B bridge   * brambles
-// # cliff   C cave      H roof   h wall   d door
+// ---------- 2. Creatures ----------
+// Fire beats leaf, leaf beats water, water beats fire.
+const BEATS = { fire: "leaf", leaf: "water", water: "fire" };
+const effect = (a, d) => (BEATS[a] === d ? 2 : BEATS[d] === a ? 0.5 : 1);
+const MOVES = { fire: "Flare Puff", water: "Wave Bop", leaf: "Leaf Toss", normal: "Rock Roll", glitch: "Static Bite" };
+const SPECIES = {
+  starter: { name: "Hatchling", element: null },
+  leaflet: { name: "Leaflet", element: "leaf", base: [3, 3, 3], desc: "Sunbathes in tall grass. Its leaf ears twitch when it's happy." },
+  bubbit: { name: "Bubbit", element: "water", base: [3, 2, 5], desc: "Hops between puddles. Very fast, a bit fragile." },
+  cindle: { name: "Cindle", element: "fire", base: [5, 2, 3], desc: "A living candle. Its flame flickers when it's nervous." },
+  pebblit: { name: "Pebblit", element: "normal", base: [2, 6, 1], desc: "Naps all day. Almost impossible to hurt." },
+  moth: { name: "Glitch Moth", element: "glitch", base: [5, 3, 4] },
+};
+const DEX = ["leaflet", "bubbit", "cindle", "pebblit"];
+const budget = (lv) => 8 + lv * 2;               // stat points a creature can spend
+const maxHp = (c) => 20 + c.level * 5 + (c.species === "moth" ? 10 : 0);
+let uidN = Date.now();
+function sv(value) { // turn a JavaScript value into a "variable" record
+  const t = typeof value === "string" ? "str" : Number.isInteger(value) ? "int" : "float";
+  return { type: t, value, show: t === "str" ? '"' + value + '"' : String(value) };
+}
+function makeCreature(species, level) {
+  const sp = SPECIES[species], st = sp.base.slice();
+  for (let i = 0; i < (level - 1) * 2; i++) st[i % 2 === 0 ? 0 : st.indexOf(Math.max(st[1], st[2]))]++;
+  const vars = { name: sv(sp.name), element: sv(sp.element), power: sv(st[0]), guard: sv(st[1]), speed: sv(st[2]) };
+  const c = { uid: uidN++, species, level, xp: 0, vars, broken: null };
+  c.code = Object.entries(vars).map(([k, v]) => k + " = " + v.show).join("\n") + "\n";
+  c.hp = maxHp(c);
+  return c;
+}
+// What a creature's code means in battle.
+function stats(c) {
+  const v = c.vars || {};
+  const num = (k) => (v[k] && (v[k].type === "int" || v[k].type === "float") ? Math.max(0, v[k].value) : v[k] ? null : 0);
+  let el = SPECIES[c.species].element;
+  if (c.species === "starter") el = v.element && v.element.type === "str" && BEATS[v.element.value] ? v.element.value : "none";
+  return { name: (v.name && v.name.type === "str" && v.name.value) || SPECIES[c.species].name, element: el, power: num("power"), guard: num("guard"), speed: num("speed") };
+}
+// Rules a brain must follow before a creature will accept it.
+function checkBrain(c, v) {
+  const sp = SPECIES[c.species];
+  if (!v.name) return "There's no box called name. Every creature needs a name!";
+  if (v.name.type !== "str" || !v.name.value.trim()) return "name should hold some text, in quotes.";
+  if (!v.element) return "There's no box called element. Is it spelled right?";
+  if (v.element.type !== "str") return "element should be text, in quotes.";
+  if (c.species === "starter" && !BEATS[v.element.value]) return "element must be \"fire\", \"water\" or \"leaf\" (all lowercase).";
+  if (c.species !== "starter" && v.element.value !== sp.element) return sp.name + " is a " + sp.element + " creature. It can't change element, so element must be \"" + sp.element + "\".";
+  for (const k of ["power", "guard", "speed"]) {
+    if (!v[k]) return "There's no box called " + k + ". Is something misspelled?";
+    if (v[k].type === "str") return k + " is " + v[k].show + ", which is text. Stats are numbers: no quotes!";
+    if (v[k].type !== "int") return k + " should be a whole number, like 3.";
+    if (v[k].value < 0) return k + " can't be below 0.";
+  }
+  const total = v.power.value + v.guard.value + v.speed.value, max = budget(c.level);
+  if (total > max) return "Too many points! power + guard + speed is " + total + ", but at level " + c.level + " the limit is " + max + ".";
+  return null;
+}
+
+// ---------- 3. The map ----------
+// . grass  , flowers  g tall grass (wild creatures!)  = path  T tree
+// ~ water  B bridge  # cliff  C cave  H roof  h wall  d door
 const MAP = [
   "TTTTTTTTTTTTTTTTTTTT",
-  "T,..HHHH...TT.,....T",
-  "T...hhdh...TT......T",
-  "T.....=....TT......T",
+  "T,..HHHH...TTggggg.T",
+  "T...hhdh...TTggggg.T",
   "T.....=....TT..,...T",
-  "T,....======*====..T",
-  "T.....,....TT...=..T",
-  "T..........TT..T=T.T",
-  "T,.........TT..T=..T",
-  "T....,.....TT...=..T",
+  "T.....=....TT......T",
+  "T,....===========..T",
+  "Tgggggg...,TT...=..T",
+  "Tgggggg....TT...=..T",
+  "Tgggggg....TT...=..T",
+  "T,.........TT...=..T",
   "~~~~~~~~~~~~~~~~B~~~",
   "~~~~~~~~~~~~~~~~B~~~",
-  "T...............=..T",
-  "T.,.....T.......=..T",
-  "T...............=..T",
+  "Tggggggggg......=..T",
+  "Tggggggggg..T...=..T",
+  "Tggggg..........=..T",
   "################C###",
   "####################",
   "####################",
 ];
 const MW = MAP[0].length, MH = MAP.length, T = 16, VW = 160, VH = 144;
-
-// Things in the world. Stones open a code challenge (see PUZZLES).
 const ENTITIES = [
   { id: "nest", kind: "nest", x: 2, y: 3 },
   { id: "moss", kind: "npc", x: 4, y: 3, sprite: "moss", solid: true },
-  { id: "sign", kind: "sign", x: 3, y: 5, solid: true },
-  { id: "cap", kind: "npc", x: 8, y: 8, sprite: "cap", solid: true },
-  { id: "stone_element", kind: "stone", puzzle: "element", quest: 1, x: 10, y: 4, solid: true },
-  { id: "stone_strength", kind: "stone", puzzle: "strength", quest: 2, x: 18, y: 6, solid: true },
-  { id: "boulder", kind: "boulder", x: 16, y: 7, solid: true },
-  { id: "stone_voice", kind: "stone", puzzle: "voice", quest: 3, x: 15, y: 9, solid: true },
+  { id: "sign", kind: "sign", x: 3, y: 4, solid: true },
+  { id: "cap", kind: "npc", x: 12, y: 5, sprite: "cap", solid: true },
+  { id: "stone", kind: "stone", x: 15, y: 9, solid: true },
   { id: "pebble", kind: "npc", x: 17, y: 9, sprite: "snail", solid: true },
-  { id: "stone_mood", kind: "stone", puzzle: "mood", quest: 4, x: 15, y: 14, solid: true },
 ];
-const BERRIES = [[3, 7], [9, 9], [15, 1], [14, 8], [18, 7], [2, 13], [9, 12], [18, 13]];
-
+const BERRIES = [[9, 3], [3, 9], [15, 4], [18, 8], [13, 9], [14, 13], [8, 14]];
+const WILD = { // which creatures live where: [species, min level, max level]
+  west: [["leaflet", 1, 2], ["leaflet", 1, 2], ["pebblit", 1, 2], ["bubbit", 2, 2]],
+  east: [["bubbit", 2, 3], ["leaflet", 2, 3], ["cindle", 2, 3]],
+  south: [["cindle", 3, 4], ["pebblit", 3, 4], ["bubbit", 3, 4], ["leaflet", 3, 4]],
+};
 const QUESTS = [
   "Hatch your egg",
-  "Clear the brambles (east)",
-  "Move the boulder",
+  "Talk to Old Moss",
+  "Catch a wild creature in the tall grass",
+  "Battle Cap (on the path east)",
   "Wake Pebble the snail",
-  "Enter the dark cave",
-  "Defeat the Glitch Moth",
-  "Explore Mossbrook · Level 2 soon",
+  "Defeat the Glitch Moth (cave)",
+  "Catch all 4 kinds of creature",
+  "Level 1 complete! Level 2 soon",
 ];
 
-// ---------- 3. Saving progress in this browser ----------
-const KEY = "creature-code:v3";
+// ---------- 4. Saving progress in this browser ----------
+const KEY = "creature-code:v4";
 const fresh = () => ({
-  started: false, quest: 0, vars: {}, x: 2, y: 3, dir: "right",
-  berries: [], bugs: {}, pendingBug: null, hearts: 3, drafts: {},
-  flags: { hatched: false, bramble: false, boulder: false, bridge: false, pebble: false, cave: false, boss: false, evolved: false },
+  started: false, quest: 0, x: 2, y: 3, dir: "right", team: [], bag: { jar: 0, berry: 0 },
+  berries: [], bugs: {}, pendingBug: null, seen: {}, caught: {}, tips: {}, drafts: {},
+  flags: { hatched: false, cap: false, pebble: false, boss: false, evolved: false },
 });
 let state = fresh();
 try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.flags) state = Object.assign(fresh(), s, { flags: Object.assign(fresh().flags, s.flags) }); } catch (e) {}
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-// ---------- 4. Helpers ----------
+// ---------- 5. Helpers ----------
 const $ = (id) => document.getElementById(id);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const cname = () => (state.vars.name && state.vars.name.type === "str" && state.vars.name.value) || "your creature";
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const starter = () => state.team.find((c) => c.species === "starter") || state.team[0];
+const cname = () => (starter() ? stats(starter()).name : "your creature");
 const fill = (s) => s.replaceAll("{name}", cname());
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function rich(text) { // `backticks` become code chips
+function rich(text) {
   const f = document.createDocumentFragment();
   fill(text).split("`").forEach((p, i) => { if (p) f.append(i % 2 ? el("code", null, p) : document.createTextNode(p)); });
   return f;
 }
 function button(label, cls, fn) { const b = el("button", "btn " + (cls || ""), label); b.addEventListener("click", fn); return b; }
 const hash = (x, y, k = 0) => { let h = (x * 374761393 + y * 668265263 + k * 2147483647) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return (h ^ (h >>> 16)) >>> 0; };
-const elementOf = () => (state.vars.element && state.vars.element.type === "str" && ELEMENTS[state.vars.element.value] ? state.vars.element.value : "none");
 
-// ---------- 5. Sound: tiny chiptune made in code ----------
+// ---------- 6. Sound: chiptune made in code ----------
 let AC = null, soundOn = true, musicTimer = null, musicTrack = null;
 function audio() {
   if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
@@ -464,7 +541,7 @@ const SFX = {
   talk: () => tone(500 + Math.random() * 120, 0.035, "square", 0.02),
   step: () => tone(120, 0.03, "triangle", 0.03),
   bump: () => tone(90, 0.08, "square", 0.04, 60),
-  select: () => { tone(660, 0.06); tone(990, 0.09, "square", 0.05, null, 0.06); },
+  select: () => { tone(660, 0.05); tone(990, 0.07, "square", 0.05, null, 0.05); },
   open: () => tone(300, 0.12, "triangle", 0.06, 900),
   berry: () => [72, 76, 79, 84].forEach((n, i) => tone(midi(n), 0.08, "square", 0.04, null, i * 0.05)),
   error: () => tone(220, 0.25, "sawtooth", 0.05, 80),
@@ -472,23 +549,31 @@ const SFX = {
   hatch: () => [60, 64, 67, 72, 67, 72, 76].forEach((n, i) => tone(midi(n), 0.12, "square", 0.05, null, i * 0.09)),
   boom: () => { noise(0.4, 0.15); tone(80, 0.4, "triangle", 0.1, 40); },
   hit: () => { noise(0.15, 0.12); tone(160, 0.15, "square", 0.06, 60); },
+  super: () => { noise(0.2, 0.14); [76, 84].forEach((n, i) => tone(midi(n), 0.08, "square", 0.05, null, i * 0.06)); },
   hurt: () => tone(400, 0.3, "sawtooth", 0.06, 100),
+  faint: () => tone(500, 0.6, "square", 0.05, 80),
+  encounter: () => [64, 67, 70, 73, 76].forEach((n, i) => tone(midi(n), 0.06, "square", 0.05, null, i * 0.04)),
+  jar: () => tone(900, 0.1, "triangle", 0.06, 300),
+  wobble: () => tone(300, 0.08, "square", 0.04, 250),
+  caught: () => [72, 76, 79, 84, 79, 84].forEach((n, i) => tone(midi(n), 0.1, "square", 0.05, null, i * 0.08)),
+  levelup: () => [60, 64, 67, 72, 76, 79, 84].forEach((n, i) => tone(midi(n), 0.07, "square", 0.04, null, i * 0.05)),
   win: () => [[72, 0, 0.1], [72, 0.12, 0.1], [72, 0.24, 0.1], [72, 0.36, 0.3], [68, 0.7, 0.3], [70, 1.0, 0.3], [72, 1.3, 0.15], [70, 1.48, 0.1], [72, 1.6, 0.5]].forEach(([n, at, d]) => tone(midi(n), d, "square", 0.05, null, at)),
   splash: () => { noise(0.35, 0.08); tone(600, 0.2, "sine", 0.05, 200); },
 };
-// Background music: little loops of notes, scheduled just ahead of time.
 const TRACKS = {
   village: { bpm: 100, lead: [72,null,76,79, 77,76,74,null, 72,74,76,null, 79,null,null,null, 77,null,76,74, 72,74,76,null, 74,null,null,null, null,null,null,null],
              bass: [48,55,52,55, 53,57,53,57, 48,55,52,55, 43,50,47,50] },
-  battle:  { bpm: 140, lead: [69,72,76,72, 69,72,76,77, 76,74,72,71, 69,null,64,null, 69,72,76,79, 77,76,74,72, 71,72,74,71, 69,null,null,null],
+  battle:  { bpm: 150, lead: [76,null,76,79, 81,null,79,76, 74,null,74,76, 79,null,null,null, 76,null,76,79, 81,null,84,83, 81,79,76,74, 76,null,null,null],
+             bass: [52,52,59,52, 50,50,57,50, 48,48,55,48, 52,52,59,52] },
+  boss:    { bpm: 140, lead: [69,72,76,72, 69,72,76,77, 76,74,72,71, 69,null,64,null, 69,72,76,79, 77,76,74,72, 71,72,74,71, 69,null,null,null],
              bass: [45,45,52,52, 41,41,48,48, 43,43,50,50, 45,45,40,40] },
 };
 function playMusic(name) {
-  musicTrack = name || musicTrack;
+  if (name !== undefined) musicTrack = name;
   clearInterval(musicTimer); musicTimer = null;
-  if (!soundOn || !name) return;
+  if (!soundOn || !musicTrack) return;
   const a = audio(); if (!a) return;
-  const tr = TRACKS[name], step = 60 / tr.bpm / 2;
+  const tr = TRACKS[musicTrack], step = 60 / tr.bpm / 2;
   let i = 0, next = a.currentTime + 0.1;
   musicTimer = setInterval(() => {
     while (next < a.currentTime + 0.25) {
@@ -506,16 +591,24 @@ function note(n, dur, type, vol, at) {
 }
 $("soundBtn").addEventListener("click", () => {
   soundOn = !soundOn; $("soundBtn").textContent = soundOn ? "♪" : "×";
-  if (soundOn) playMusic(musicTrack || "village"); else { clearInterval(musicTimer); musicTimer = null; }
+  if (soundOn) playMusic(); else { clearInterval(musicTimer); musicTimer = null; }
 });
 
-// ---------- 6. Drawing tiles ----------
+// ---------- 7. Drawing tiles ----------
 const isWater = (ch) => ch === "~" || ch === "B";
 function tileAt(x, y) { return x < 0 || y < 0 || x >= MW || y >= MH ? "T" : MAP[y][x]; }
 function grass(c, x, y, tx, ty) {
   c.fillStyle = "#7DB35A"; c.fillRect(x, y, T, T);
   c.fillStyle = "#5E9444";
   for (let k = 0; k < 4; k++) { const h = hash(tx, ty, k); const px = h % 14, py = (h >> 5) % 14; c.fillRect(x + px, y + py, 1, 2); c.fillRect(x + px + 1, y + py + 1, 1, 1); }
+}
+function tallGrass(c, x, y, top) { // blades of tall grass (also drawn over the player)
+  for (let i = 0; i < 16; i += 4) for (const [dy, col] of [[0, "#3E7D34"], [4, "#4E8F3E"], [8, "#3E7D34"]]) {
+    if (top && dy < 8) continue;
+    const yy = y + dy + (top ? 0 : 2);
+    c.fillStyle = col; c.fillRect(x + i, yy + 2, 1, 5); c.fillRect(x + i + 1, yy, 1, 7); c.fillRect(x + i + 2, yy + 3, 1, 4);
+    c.fillStyle = "#6FB55A"; c.fillRect(x + i + 1, yy, 1, 2);
+  }
 }
 function drawTile(c, ch, tx, ty) {
   const x = tx * T, y = ty * T;
@@ -526,7 +619,9 @@ function drawTile(c, ch, tx, ty) {
       c.fillStyle = k ? "#FFFFFF" : "#F7A1C4"; c.fillRect(x + px - 1, y + py, 3, 1); c.fillRect(x + px, y + py - 1, 1, 3);
       c.fillStyle = "#FFD447"; c.fillRect(x + px, y + py, 1, 1);
     }
-  } else if (ch === "=" || (ch === "*" && state.flags.bramble)) {
+  } else if (ch === "g") {
+    c.fillStyle = "#5E9E4A"; c.fillRect(x, y, T, T); tallGrass(c, x, y);
+  } else if (ch === "=") {
     c.fillStyle = "#D9B98A"; c.fillRect(x, y, T, T);
     for (let k = 0; k < 5; k++) { const h = hash(tx, ty, k); c.fillStyle = k % 2 ? "#BFA070" : "#E8CFA6"; c.fillRect(x + (h % 15), y + ((h >> 4) % 15), 2, 1); }
   } else if (ch === "T") {
@@ -543,13 +638,11 @@ function drawTile(c, ch, tx, ty) {
     c.fillStyle = "#6E5A4E"; for (let j = 4; j < 16; j += 5) c.fillRect(x, y + j, T, 1);
     c.fillStyle = "#A68F7F"; for (let k = 0; k < 3; k++) { const h = hash(tx, ty, k); c.fillRect(x + (h % 14), y + ((h >> 4) % 14), 2, 1); }
     if (tileAt(tx, ty - 1) !== "#" && tileAt(tx, ty - 1) !== "C") { c.fillStyle = "#7DB35A"; c.fillRect(x, y, T, 3); c.fillStyle = "#5E9444"; c.fillRect(x, y + 3, T, 1); }
-    if (ch === "C") {
-      for (let j = 4; j < 16; j++) for (let i = 2; i < 14; i++) {
-        if (!(j >= 9 || Math.hypot(i - 7.5, j - 9) < 5.6)) continue;
-        const inner = j >= 9 ? (i > 2 && i < 13) : Math.hypot(i - 7.5, j - 9) < 4.7;
-        c.fillStyle = !inner ? "#2B1D2E" : state.flags.boss ? "#3B2A35" : state.flags.cave ? "#2A1638" : "#140C12";
-        c.fillRect(x + i, y + j, 1, 1);
-      }
+    if (ch === "C") for (let j = 4; j < 16; j++) for (let i = 2; i < 14; i++) {
+      if (!(j >= 9 || Math.hypot(i - 7.5, j - 9) < 5.6)) continue;
+      const inner = j >= 9 ? (i > 2 && i < 13) : Math.hypot(i - 7.5, j - 9) < 4.7;
+      c.fillStyle = !inner ? "#2B1D2E" : state.flags.boss ? "#3B2A35" : "#2A1638";
+      c.fillRect(x + i, y + j, 1, 1);
     }
   } else if (ch === "H") {
     c.fillStyle = "#B5523B"; c.fillRect(x, y, T, T);
@@ -572,18 +665,8 @@ function drawTile(c, ch, tx, ty) {
       c.fillStyle = "#2B1D2E"; c.fillRect(x + 7, y + 5, 1, 6); c.fillRect(x + 4, y + 8, 8, 1);
       c.fillStyle = "#FFFFFF"; c.fillRect(x + 5, y + 6, 1, 1);
     }
-  } else if (ch === "*") {
-    grass(c, x, y, tx, ty);
-    for (let k = 0; k < 70; k++) {
-      const h = hash(tx, ty, k), i = h % 16, j = (h >> 4) % 16;
-      if (Math.hypot(i - 7.5, j - 8) > 7.6) continue;
-      c.fillStyle = ["#2B1D2E", "#4B3A5A", "#6E5B7B", "#4B3A5A", "#C9B6D6"][k % 5];
-      c.fillRect(x + i, y + j, k % 5 === 4 ? 1 : 2, 1);
-    }
-    c.fillStyle = "#9E2A3B"; c.fillRect(x + 5, y + 6, 2, 2); c.fillRect(x + 10, y + 10, 2, 2);
   }
 }
-// The still parts of the map are drawn once onto a big canvas, then reused.
 const mapCanvas = document.createElement("canvas");
 mapCanvas.width = MW * T; mapCanvas.height = MH * T;
 function buildMap() {
@@ -597,68 +680,63 @@ function drawWater(c, tx, ty, sx, sy, f) {
   if (!isWater(tileAt(tx, ty - 1))) { c.fillStyle = "#BDEBFF"; c.fillRect(sx, sy, T, 2); }
   if (MAP[ty][tx] === "B") {
     c.fillStyle = "#5A3A22";
-    if (state.flags.bridge) {
+    if (state.flags.pebble) {
       c.fillStyle = "#A0703C"; c.fillRect(sx + 2, sy, 12, T);
       c.fillStyle = "#7A4E2D"; for (let j = 3; j < 16; j += 4) c.fillRect(sx + 2, sy + j, 12, 1);
       c.fillStyle = "#5A3A22"; c.fillRect(sx + 1, sy, 1, T); c.fillRect(sx + 14, sy, 1, T);
-    } else if (ty === 10) {
-      c.fillRect(sx + 2, sy, 2, 6); c.fillRect(sx + 12, sy, 2, 6);
-      c.fillStyle = "#A0703C"; c.fillRect(sx + 4, sy + 1, 6, 2);
-    } else {
-      c.fillRect(sx + 2, sy + 10, 2, 6); c.fillRect(sx + 12, sy + 10, 2, 6);
-      c.fillStyle = "#A0703C"; c.fillRect(sx + 7, sy + 12, 5, 2);
-    }
+    } else if (ty === 10) { c.fillRect(sx + 2, sy, 2, 6); c.fillRect(sx + 12, sy, 2, 6); c.fillStyle = "#A0703C"; c.fillRect(sx + 4, sy + 1, 6, 2); }
+    else { c.fillRect(sx + 2, sy + 10, 2, 6); c.fillRect(sx + 12, sy + 10, 2, 6); c.fillStyle = "#A0703C"; c.fillRect(sx + 7, sy + 12, 5, 2); }
   }
 }
 
-// ---------- 7. The player and world objects ----------
+// ---------- 8. Player, movement and encounters ----------
 const player = { x: state.x, y: state.y, px: state.x * T, py: state.y * T, dir: state.dir, moving: null, walk: 0 };
-const scene = { mode: "world", shake: 0, flash: 0, flashColor: "#FFFFFF", crack: false, wobble: false, sparkle: 0, bounce: 0, boulderAnim: null };
-let particles = [];
-let busy = false;       // true while talking or coding
-let cutscene = false;   // true while the game moves things for you
-let held = null;        // which D-pad direction is held down
-
+const scene = { mode: "world", shake: 0, flash: 0, flashColor: "#FFFFFF", crack: false, wobble: false, sparkle: 0, bounce: 0 };
+let particles = [], busy = false, cutscene = false, held = null, safeSteps = 4;
 const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-function entityAt(x, y) { return ENTITIES.find((e) => e.x === x && e.y === y && !(e.kind === "boulder" && state.flags.boulder)); }
+const capSpot = () => (state.flags.cap ? { x: 13, y: 4 } : { x: 12, y: 5 });
+function entityAt(x, y) {
+  return ENTITIES.find((e) => { const p = e.id === "cap" ? capSpot() : e; return p.x === x && p.y === y; });
+}
 function solidAt(x, y) {
   const ch = tileAt(x, y);
   if ("T~#Hhd".includes(ch)) return true;
-  if (ch === "*" && !state.flags.bramble) return true;
-  if (ch === "B" && !state.flags.bridge) return true;
-  if (ch === "C" && !state.flags.cave) return true;
+  if (ch === "B" && !state.flags.pebble) return true;
   const e = entityAt(x, y);
   return !!(e && e.solid);
 }
 let lastBump = 0;
 function tryMove(dir) {
   player.dir = dir;
-  const [dx, dy] = DIRS[dir], nx = player.x + dx, ny = player.y + dy;
-  if (solidAt(nx, ny)) { if (performance.now() - lastBump > 300) { SFX.bump(); lastBump = performance.now(); } return; }
+  const [dx, dy] = DIRS[dir];
+  if (solidAt(player.x + dx, player.y + dy)) { if (performance.now() - lastBump > 300) { SFX.bump(); lastBump = performance.now(); } return; }
   startStep(dx, dy);
 }
-function startStep(dx, dy) {
-  player.moving = { fx: player.x, fy: player.y, tx: player.x + dx, ty: player.y + dy, t: 0 };
-  player.x += dx; player.y += dy;
-}
+function startStep(dx, dy) { player.moving = { fx: player.x, fy: player.y, tx: player.x + dx, ty: player.y + dy, t: 0 }; player.x += dx; player.y += dy; }
 function arrived() {
   state.x = player.x; state.y = player.y; state.dir = player.dir; save();
   player.walk++; if (player.walk % 2) SFX.step();
   const bi = BERRIES.findIndex(([bx, by]) => bx === player.x && by === player.y);
   if (bi >= 0 && !state.berries.includes(bi)) {
-    state.berries.push(bi); save(); SFX.berry(); drawHud();
+    state.berries.push(bi); state.bag.berry++; save(); SFX.berry(); drawHud();
     burst(player.x * T + 8, player.y * T + 6, ["#E0475B", "#FFFFFF", "#F5C04A"], 10);
-    toast("Berry! " + state.berries.length + " / " + BERRIES.length);
+    toast("Found a berry! (heals in battle)");
   }
-  if (tileAt(player.x, player.y) === "C" && state.flags.cave && !state.flags.boss && !cutscene) startBoss();
+  if (cutscene) return;
+  if (tileAt(player.x, player.y) === "C" && state.quest === 5) { held = null; startBoss(); return; }
+  safeSteps--;
+  if (tileAt(player.x, player.y) === "g" && state.quest >= 2 && safeSteps <= 0 && Math.random() < 0.16) {
+    held = null;
+    const area = player.y >= 12 ? "south" : player.x >= 13 ? "east" : "west";
+    const [sp, lo, hi] = WILD[area][rnd(0, WILD[area].length - 1)];
+    wildBattle(sp, rnd(lo, hi));
+  }
 }
 function burst(x, y, colors, n, up) {
   for (let i = 0; i < n; i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 1.6, vy: up ? -Math.random() * 1.4 - 0.3 : (Math.random() - 0.7) * 1.6, life: 30 + Math.random() * 20, c: colors[i % colors.length] });
 }
 let toastTimer = null;
-function toast(t) { const e = $("toast"); e.textContent = t; e.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (e.hidden = true), 1600); }
-
-// Walk the creature to a tile by itself (for cutscenes).
+function toast(t) { const e = $("toast"); e.textContent = t; e.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => (e.hidden = true), 1800); }
 async function walkTo(tx, ty, faceDir) {
   for (let guard = 0; guard < 24 && (player.x !== tx || player.y !== ty); guard++) {
     const opts = [];
@@ -670,10 +748,11 @@ async function walkTo(tx, ty, faceDir) {
     while (player.moving) await sleep(16);
   }
   if (faceDir) player.dir = faceDir;
-  await sleep(150);
+  await sleep(120);
 }
+function placePlayer(x, y, dir) { player.x = x; player.y = y; player.px = x * T; player.py = y * T; player.dir = dir; state.x = x; state.y = y; state.dir = dir; save(); }
 
-// ---------- 8. Game loop: move things, then draw ----------
+// ---------- 9. Game loop ----------
 const cv = $("game"), ctx = cv.getContext("2d");
 let frame = 0, last = performance.now(), cam = { x: 0, y: 0 };
 function loop(now) {
@@ -702,15 +781,13 @@ function drawWorld() {
   for (let ty = Math.floor(cam.y / T); ty <= Math.floor((cam.y + VH) / T) && ty < MH; ty++)
     for (let tx = Math.floor(cam.x / T); tx <= Math.floor((cam.x + VW) / T) && tx < MW; tx++)
       if (isWater(MAP[ty][tx])) drawWater(ctx, tx, ty, tx * T + ox, ty * T + oy, wf);
-
   BERRIES.forEach(([bx, by], i) => { if (!state.berries.includes(i)) drawSprite(ctx, SPRITES.berry, bx * T + 4 + ox, by * T + 4 + oy + (Math.floor(frame / 15) % 2), PAL.berry); });
-  // objects are drawn top to bottom, so nearer things overlap farther ones
-  const things = ENTITIES.filter((e) => !(e.kind === "boulder" && state.flags.boulder)).map((e) => ({ e, y: e.y }));
+  const things = ENTITIES.map((e) => ({ e, y: e.id === "cap" ? capSpot().y : e.y }));
   things.push({ player: true, y: player.py / T + 0.01 });
   things.sort((a, b) => a.y - b.y);
   for (const t of things) {
     if (t.player) { drawPlayer(ox, oy); continue; }
-    const e = t.e, x = e.x * T + ox, y = e.y * T + oy;
+    const e = t.e, p = e.id === "cap" ? capSpot() : e, x = p.x * T + ox, y = p.y * T + oy;
     if (e.kind === "nest") {
       ctx.fillStyle = "#7A4E2D"; ctx.fillRect(x + 2, y + 11, 12, 4); ctx.fillStyle = "#D9B98A";
       for (let i = 0; i < 12; i += 2) ctx.fillRect(x + 2 + i, y + 10 + (i % 4 ? 1 : 0), 2, 1);
@@ -718,24 +795,22 @@ function drawWorld() {
       const asleep = e.id === "pebble" && !state.flags.pebble;
       drawSprite(ctx, SPRITES[e.sprite], x, y - (asleep ? 0 : Math.floor(frame / 30) % 2), PAL[e.sprite], e.sprite === "snail");
       if (asleep) { ctx.fillStyle = "#FFFFFF"; const z = Math.floor(frame / 20) % 3; ctx.fillRect(x + 2 + z, y - 2 - z * 2, 3, 1); ctx.fillRect(x + 4 + z, y - 1 - z * 2, 1, 1); ctx.fillRect(x + 2 + z, y - z * 2, 3, 1); }
+      if ((e.id === "moss" && state.quest === 1) || (e.id === "cap" && state.quest === 3)) bang(x + 5, y - 9);
     } else if (e.kind === "sign") {
       ctx.fillStyle = "#5A3A22"; ctx.fillRect(x + 7, y + 8, 2, 8);
       ctx.fillStyle = "#2B1D2E"; ctx.fillRect(x + 1, y + 2, 14, 8);
       ctx.fillStyle = "#A0703C"; ctx.fillRect(x + 2, y + 3, 12, 6);
       ctx.fillStyle = "#7A4E2D"; ctx.fillRect(x + 4, y + 5, 8, 1); ctx.fillRect(x + 4, y + 7, 6, 1);
     } else if (e.kind === "stone") {
-      const on = state.quest === e.quest, done = state.quest > e.quest;
-      drawSprite(ctx, SPRITES.stone, x, y, done ? PAL.stoneDone : on && Math.floor(frame / 12) % 2 ? PAL.stoneOn : PAL.stone);
+      const on = state.quest === 4;
+      drawSprite(ctx, SPRITES.stone, x, y, state.quest > 4 ? PAL.stoneDone : on && Math.floor(frame / 12) % 2 ? PAL.stone : PAL.stoneOff);
       if (on) bang(x + 5, y - 9);
-    } else if (e.kind === "boulder") {
-      const a = scene.boulderAnim || { dx: 0, dy: 0 };
-      drawSprite(ctx, SPRITES.boulder, x + a.dx, y + a.dy, PAL.boulder);
     }
   }
   particles.forEach((p) => { ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x + ox), Math.round(p.y + oy), 1, 1); });
   if (scene.flash > 0) { ctx.globalAlpha = Math.min(1, scene.flash / 8); ctx.fillStyle = scene.flashColor; ctx.fillRect(0, 0, VW, VH); ctx.globalAlpha = 1; scene.flash--; }
 }
-function bang(x, y) { // a little "!" bubble over things that need you
+function bang(x, y) {
   const b = Math.floor(frame / 15) % 2;
   ctx.fillStyle = "#2B1D2E"; ctx.fillRect(x, y - b, 7, 8);
   ctx.fillStyle = "#F5C04A"; ctx.fillRect(x + 1, y + 1 - b, 5, 6);
@@ -750,32 +825,41 @@ function drawPlayer(ox, oy) {
     if (scene.crack) { ctx.fillStyle = "#2B1D2E"; [[3,7],[4,8],[5,7],[6,8],[7,7],[8,8],[9,7],[10,8],[11,7],[12,8]].forEach(([a, b]) => ctx.fillRect(x + wob + a, y - 1 + b, 1, 1)); }
     return;
   }
-  drawCreature(ctx, x, y, 1, player.dir === "left");
-  if (scene.sparkle > 0) { scene.sparkle--; sparkles(x + 8, y + 7, 12); }
-}
-function drawCreature(c, x, y, s, flip, evolvedOverride) {
-  const pal = creaturePal(elementOf());
-  const evolved = evolvedOverride !== undefined ? evolvedOverride : state.flags.evolved;
+  const lead = state.team[0];
   let bob = player.moving ? Math.floor(frame / 5) % 2 : Math.floor(frame / 25) % 2;
   if (scene.bounce > 0) { bob += [0, 2, 4, 3, 1][scene.bounce % 5]; scene.bounce--; }
-  y -= bob * s;
-  let body = SPRITES.body;
-  if (player.moving && Math.floor(frame / 6) % 2) body = body.slice(0, 15).concat(["..oddo....oddo.."]);
-  if (frame % 160 < 5) body = body.map((r, i) => (i === 7 ? r.replace(/[ke]/g, "b") : r));
-  if (evolved) { drawSprite(c, SPRITES.wing_l, x - 3 * s, y + 7 * s, pal, false, s); drawSprite(c, SPRITES.wing_l, x + 15 * s, y + 7 * s, pal, true, s); }
-  drawSprite(c, body, x, y, pal, flip, s);
-  drawSprite(c, SPRITES["tuft_" + elementOf()], x, y, pal, flip, s);
-  if (evolved) drawSprite(c, SPRITES.star, x + 5 * s, y + 10 * s, pal, false, s);
+  drawMon(ctx, lead, x, y - bob, 1, player.dir === "left", { walking: player.moving });
+  if (tileAt(player.x, player.y) === "g" && !player.moving) tallGrass(ctx, x, y + 2, true);
+  if (scene.sparkle > 0) { scene.sparkle--; sparkles(ctx, x + 8, y + 7, 12); }
 }
-function sparkles(cx, cy, r) {
-  ctx.fillStyle = "#FFF6B0";
-  for (let s = 0; s < 6; s++) {
-    const a = s + frame / 6, sx = Math.round(cx + r * Math.cos(a)), sy = Math.round(cy + r * 0.8 * Math.sin(a * 1.3));
-    ctx.fillRect(sx, sy - 1, 1, 3); ctx.fillRect(sx - 1, sy, 3, 1);
+// Draws any creature: your hatchling (colour from its element) or a wild species.
+function drawMon(c2, mon, x, y, s, flip, opt = {}) {
+  if (!mon) return;
+  if (mon.species === "starter") {
+    const elm = stats(mon).element, pal = Object.assign({}, O, { c: "#FF8FA3", y: "#FFD447" }, ELEMENTS[elm] || ELEMENTS.none);
+    const p = opt.white ? PAL.white : pal;
+    const evolved = opt.evolved !== undefined ? opt.evolved : state.flags.evolved;
+    let body = SPRITES.body;
+    if (opt.walking && Math.floor(frame / 6) % 2) body = body.slice(0, 15).concat(["..oddo....oddo.."]);
+    if (frame % 160 < 5) body = body.map((r, i) => (i === 7 ? r.replace(/[ke]/g, "b") : r));
+    if (evolved) { drawSprite(c2, SPRITES.wing_l, x - 3 * s, y + 7 * s, p, false, s); drawSprite(c2, SPRITES.wing_l, x + 15 * s, y + 7 * s, p, true, s); }
+    drawSprite(c2, body, x, y, p, flip, s);
+    drawSprite(c2, SPRITES["tuft_" + (BEATS[elm] ? elm : "none")], x, y, p, flip, s);
+    if (evolved) drawSprite(c2, SPRITES.star, x + 5 * s, y + 10 * s, p, false, s);
+  } else if (mon.species === "moth") {
+    drawSprite(c2, MOTH_ROWS, x, y, opt.white ? PAL.white : PAL.moth, false, s);
+  } else {
+    drawSprite(c2, SPRITES[mon.species], x, y, opt.white ? PAL.white : PAL[mon.species], flip, s);
   }
 }
-
-// Speech bubbles float above your creature when it print()s.
+function monCanvas(mon) { const c = el("canvas"); const w = mon.species === "moth" ? 32 : 22; c.width = w; c.height = w === 32 ? 19 : 18; drawMon(c.getContext("2d"), mon, w === 32 ? 0 : 3, 1, 1, false); return c; }
+function sparkles(c2, cx, cy, r) {
+  c2.fillStyle = "#FFF6B0";
+  for (let s = 0; s < 6; s++) {
+    const a = s + frame / 6, sx = Math.round(cx + r * Math.cos(a)), sy = Math.round(cy + r * 0.8 * Math.sin(a * 1.3));
+    c2.fillRect(sx, sy - 1, 1, 3); c2.fillRect(sx - 1, sy, 3, 1);
+  }
+}
 let speechUntil = 0;
 function speak(text, ms = 2600) { const s = $("speech"); s.textContent = text; s.hidden = false; speechUntil = performance.now() + ms; }
 function placeSpeech() {
@@ -783,30 +867,31 @@ function placeSpeech() {
   if (s.hidden) return;
   if (performance.now() > speechUntil) { s.hidden = true; return; }
   const k = cv.clientWidth / VW;
-  const x = scene.mode === "battle" ? 52 * k : (player.px - cam.x + 8) * k;
-  const y = scene.mode === "battle" ? 74 * k : (player.py - cam.y - 2) * k;
+  const x = scene.mode === "battle" ? 40 * k : (player.px - cam.x + 8) * k;
+  const y = scene.mode === "battle" ? 48 * k : (player.py - cam.y - 2) * k;
   s.style.left = Math.max(70, Math.min(cv.clientWidth - 70, x)) + "px";
   s.style.top = Math.max(34, y) + "px";
 }
 
-// ---------- 9. Talking ----------
-// dialog([...lines], who) shows lines one by one. A line can be text, or {who, text}.
+// ---------- 10. Talking ----------
 const FACES = {
   moss: () => spriteCanvas(SPRITES.moss, PAL.moss),
-  stone: () => spriteCanvas(SPRITES.stone, PAL.stoneOn),
+  stone: () => spriteCanvas(SPRITES.stone, PAL.stone),
   cap: () => spriteCanvas(SPRITES.cap, PAL.cap),
   pebble: () => spriteCanvas(SPRITES.snail, PAL.snail, true),
   moth: () => spriteCanvas(MOTH_ROWS, PAL.moth),
-  you: () => { const c = spriteCanvas(SPRITES.body, creaturePal(elementOf())); drawSprite(c.getContext("2d"), SPRITES["tuft_" + elementOf()], 0, 0, creaturePal(elementOf())); return c; },
+  you: () => monCanvas(starter()),
 };
-const NAMES = { moss: "OLD MOSS", stone: "MEMORY STONE", cap: "CAP", pebble: "PEBBLE", moth: "GLITCH MOTH", sign: "SIGN" };
+const NAMES = { moss: "OLD MOSS", stone: "VOICE STONE", cap: "CAP", pebble: "PEBBLE", moth: "GLITCH MOTH", sign: "SIGN" };
 let dialogState = null;
-function dialog(lines, who) {
+// Shows lines one at a time. In battle, lines move on by themselves after a moment.
+function dialog(lines, who, auto) {
   return new Promise((done) => {
     busy = true; held = null;
     const items = lines.map((l) => (typeof l === "string" ? { who, text: l } : l));
-    let i = 0, typing = null;
+    let i = 0, typing = null, autoT = null;
     const box = $("dialog"), text = $("dtext");
+    box.classList.toggle("short", scene.mode === "battle");
     function show() {
       const w = items[i].who;
       $("who").textContent = w === "you" ? cname().toUpperCase() : NAMES[w] || "";
@@ -816,18 +901,19 @@ function dialog(lines, who) {
       const nodes = []; const walk = (n) => n.childNodes.forEach((c) => (c.nodeType === 3 ? nodes.push([c, c.textContent]) : walk(c)));
       walk(text); nodes.forEach(([c]) => (c.textContent = ""));
       let ni = 0, ci = 0;
-      clearInterval(typing);
+      clearInterval(typing); clearTimeout(autoT);
       typing = setInterval(() => {
-        if (ni >= nodes.length) { clearInterval(typing); typing = null; return; }
+        if (ni >= nodes.length) { clearInterval(typing); typing = null; if (auto) autoT = setTimeout(() => dialogState && dialogState.advance(), auto); return; }
         const [c, full] = nodes[ni]; ci++; c.textContent = full.slice(0, ci);
         if (ci % 3 === 0) SFX.talk();
         if (ci >= full.length) { ni++; ci = 0; }
-      }, 24);
-      dialogState.finish = () => { clearInterval(typing); typing = null; nodes.forEach(([c, full]) => (c.textContent = full)); };
+      }, 20);
+      dialogState.finish = () => { clearInterval(typing); typing = null; nodes.forEach(([c, full]) => (c.textContent = full)); if (auto) autoT = setTimeout(() => dialogState && dialogState.advance(), auto); };
     }
     dialogState = {
       advance() {
         if (typing) { dialogState.finish(); return; }
+        clearTimeout(autoT);
         i++;
         if (i < items.length) show();
         else { box.hidden = true; dialogState = null; busy = false; done(); }
@@ -837,59 +923,64 @@ function dialog(lines, who) {
     show();
   });
 }
+const say = (text) => dialog([text], null, 900); // quick battle message
 $("dialog").addEventListener("click", () => dialogState && dialogState.advance());
 
-// ---------- 10. Using things (the A button) ----------
+// ---------- 11. Using things (A) ----------
 async function interact() {
   if (dialogState) { dialogState.advance(); return; }
   if (busy || cutscene || scene.mode !== "world" || player.moving || !state.started) return;
-  if (!state.flags.hatched) return runPuzzle(PUZZLES.hatch);
+  if (!state.flags.hatched) return hatchFlow();
   const [dx, dy] = DIRS[player.dir], fx = player.x + dx, fy = player.y + dy;
   const e = entityAt(fx, fy), ch = tileAt(fx, fy);
   if (e) {
-    if (e.kind === "stone") return useStone(e);
     if (e.id === "moss") return talkMoss();
     if (e.id === "cap") return talkCap();
     if (e.id === "pebble") return talkPebble();
-    if (e.kind === "sign") return dialog(["MOSSBROOK HATCHERY. Memory stones glow when they need help. Stand next to one and press A."], "sign");
-    if (e.kind === "boulder") return dialog(["A huge boulder. It won't budge... yet. The glowing stone nearby might help."]);
+    if (e.id === "stone") return useStone();
+    if (e.kind === "sign") return dialog(["MOSSBROOK. Tall grass: wild creatures! Old Moss heals tired teams for free."], "sign");
   }
-  if (ch === "*" && !state.flags.bramble) return dialog(["Thorny brambles block the path. The glowing stone beside them might help."]);
-  if (ch === "B" && !state.flags.bridge) return dialog(["The bridge forgot how to be a bridge. Maybe the snail on the bank knows something."]);
-  if (ch === "C" && !state.flags.cave) return dialog(["It's so dark in there... {name} is too scared to go in. The stone nearby might help."]);
+  if (ch === "B" && !state.flags.pebble) return dialog(["The bridge is broken. The snail on the bank might know how to fix it."]);
   if (ch === "d") return dialog(["Old Moss's house. It smells like tea and wet leaves."]);
-  if (ch === "~") return dialog(["The river sparkles. {name} stares at its reflection."]);
+  if (ch === "~") return dialog(["The river sparkles. Something splashes under the water."]);
+  if (ch === "C") return dialog(["A dark cave. Glitchy buzzing comes from inside..."]);
 }
-function talkMoss() {
-  const q = state.quest;
-  return dialog(q >= 6 ? ["{name}, you saved Mossbrook! Explore all you like.", "Level 2 is coming soon. There, {name} learns math. Those berries will come in handy!"]
-    : q === 1 ? ["The first memory stone is east, by the brambles. Follow the path!"]
-    : ["Look for the stone with the yellow ! above it.", "Remember: a variable is a box with a label. `label = value`"], "moss");
+function healTeam() { state.team.forEach((c) => (c.hp = maxHp(c))); save(); }
+async function talkMoss() {
+  if (state.quest === 1) return setupBrain();
+  healTeam(); SFX.ok();
+  const lines = ["Let me patch up your team... There! Everyone is fully healed."];
+  if (state.quest === 2) lines.push("Wild creatures hide in the tall grass, west of here. Weaken one with FIGHT, then use BAG and a Code Jar.");
+  else if (state.quest === 3) lines.push("Cap is waiting on the path east. Cap's Bubbit is fast, so think about your speed and element!");
+  else if (state.quest >= 6) lines.push("You saved Mossbrook! Try catching every kind of creature. Their brains are all different.");
+  if (state.bag.jar < 3) { state.bag.jar += 3; save(); drawHud(); lines.push("Here, take 3 more Code Jars."); }
+  return dialog(lines, "moss");
 }
-function talkCap() {
-  const n = state.berries.length, all = BERRIES.length;
-  return dialog(n === 0 ? ["Hi! I'm Cap. The Glitch Moth made everyone forget everything.", "But I remember berries! There are " + all + " hidden around Mossbrook. Walk over one to pick it up."]
-    : n < all ? [n + " berries! " + (all - n) + " to go. Some are across the river."]
-    : ["ALL " + all + " berries! You're amazing. Old Moss says they'll matter when you learn math."], "cap");
-}
-function talkPebble() {
-  if (!state.flags.pebble) return dialog(["Zzz... zzz... (Pebble is fast asleep.)", "Pebble mumbles: \"...who's there... say your name... zzz...\""], "pebble");
-  return dialog(["Thanks for waking me, {name}! Careful in that cave. Something glitchy lives in there."], "pebble");
-}
-async function useStone(e) {
-  if (state.quest < e.quest) return dialog(["The stone is dark and quiet. It isn't ready yet.", "Current quest: " + QUESTS[state.quest] + "."]);
-  if (state.quest > e.quest) {
-    await dialog(["The stone hums happily. Want to experiment? This is free play: nothing can go wrong."], "stone");
-    return runPuzzle(PUZZLES.free);
+async function talkCap() {
+  if (state.flags.cap) return dialog(["Your creatures' code is so clean! Did you know you can rename a creature? Just change its name box with B."], "cap");
+  if (state.quest < 3) return dialog(["Hi! I'm Cap. I guard the path east.", "Catch yourself a partner in the tall grass first. Then we'll battle!"], "cap");
+  await dialog(["You caught a partner! Then let's battle!", "My Bubbit is a water creature, and it's super fast. Hope you're ready!"], "cap");
+  healTeam();
+  await dialog(["I'll heal your team first. A fair fight!"], "cap");
+  const foe = makeCreature("bubbit", 2);
+  Object.assign(foe.vars, { name: sv("Splashy"), power: sv(3), guard: sv(2), speed: sv(6) });
+  foe.code = 'name = "Splashy"\nelement = "water"\npower = 3\nguard = 2\nspeed = 6\n';
+  const r = await battle({ foes: [foe], trainer: "cap" });
+  if (r === "win") {
+    state.flags.cap = true; state.quest = 4; save(); drawHud();
+    await dialog(["Wow! You read the battle like code!", "The path east is yours. Pebble the snail sleeps by the river. Snails only wake up when they hear a name..."], "cap");
+  } else {
+    await dialog(["Good try! Tip: water beats fire, leaf beats water. Your creature's element is just a line of code...", "Old Moss can heal your team. Come back any time!"], "cap");
   }
-  const p = PUZZLES[e.puzzle];
-  await dialog(p.intro, "stone");
-  return runPuzzle(p);
+}
+async function talkPebble() {
+  if (!state.flags.pebble) return dialog(["Zzz... zzz... (Pebble is fast asleep.)", "Pebble mumbles: \"...say your name... zzz...\" The glowing stone beside Pebble might help."], "pebble");
+  healTeam(); SFX.ok();
+  return dialog(["Hi {name}! Let me heal your team... There! Watch out in that cave. Something glitchy lives in there."], "pebble");
 }
 
-// ---------- 11. Python, running in the page ----------
-// This Python function runs your code one line at a time and takes a snapshot
-// of every variable after each line, so the world can act it out.
+// ---------- 12. Python, running in the page ----------
+// Runs your code one line at a time and snapshots every variable after each line.
 const HARNESS = String.raw`
 import sys, json, math
 
@@ -961,7 +1052,6 @@ def _creature_run(src, start_json):
 `;
 let runPython = null;
 function loadScript(src) { return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => no(new Error(src)); document.head.append(s); }); }
-// Python loads in the background while you play.
 const pythonReady = (async () => {
   for (const base of ["https://cdn.jsdelivr.net/pyodide/v0.26.4/full/", "pyodide/"]) {
     try {
@@ -974,8 +1064,14 @@ const pythonReady = (async () => {
   }
   return false;
 })();
+function runCode(src, startVals) {
+  const res = JSON.parse(runPython(src, JSON.stringify(startVals || {})));
+  const evs = res.events;
+  res.vars = evs.length ? evs[evs.length - 1].after || res.start : res.start;
+  return res;
+}
 
-// ---------- 12. Friendly error messages ----------
+// ---------- 13. Friendly error messages ----------
 const BUGS = { NameError: "Namegnat", SyntaxError: "Syntick", IndentationError: "Indentipede", TabError: "Indentipede", TypeError: "Typemite" };
 const bugFor = (t) => BUGS[t] || "Mystery Moth";
 function explainError(err, src) {
@@ -992,7 +1088,7 @@ function explainError(err, src) {
     if (/invalid decimal literal/i.test(m)) return "Labels can't start with a number. Try hp2 instead of 2hp.";
     if (/was never closed/.test(m)) return "A bracket on " + where + " was opened with ( but never closed with ).";
     const left = (lineText.split("=")[0] || "").trim();
-    if (lineText.includes("=") && /\w\s+\w/.test(left)) return "Labels can't have spaces. Join the words with an underscore: my_mood instead of my mood.";
+    if (lineText.includes("=") && /\w\s+\w/.test(left)) return "Labels can't have spaces. Join the words with an underscore: my_snack instead of my snack.";
     return "Python couldn't read " + where + ". Check the quotes, the brackets and the = sign.";
   }
   if (err.type === "TypeError" && /concatenate/.test(m)) return "You joined text and a number with +. Inside print( ), use a comma instead: print(\"hp\", hp)";
@@ -1000,215 +1096,37 @@ function explainError(err, src) {
   return "Something on " + where + " didn't work. Read the message above and check that line.";
 }
 
-// ---------- 13. The memory stone puzzles ----------
-// Each puzzle: what the stone says, the task, hints, a check() of your variables,
-// and an effect() that changes the world when your code works.
-const isNum = (v) => v && (v.type === "int" || v.type === "float");
-const PUZZLES = {
-  hatch: {
-    id: "hatch", title: "THE EGG", face: "moss",
-    task: "Your egg needs a name. Make a box called `name` with a name inside. Then press RUN.",
-    remember: [['snack = "berry"', "label = value. Text goes in quotes."]],
-    hints: ["Start with the label: name", "Then = (it means “put this in the box”).", "Then a name inside quotes. Pattern: label = \"text\""],
-    check(v) {
-      if (!v.name) return { near: "Python ran your code, but there's no box called name. Start the line with name =" };
-      if (v.name.type !== "str") return { near: "Your name box holds a number. A name is text, so put it in quotes." };
-      if (!v.name.value.trim()) return { near: "The quotes are empty! Type a name between them." };
-      return { ok: "Python made a box called name and put " + v.name.show + " in it. The egg heard you..." };
-    },
-    async effect() {
-      scene.wobble = true; SFX.open(); await sleep(900); scene.crack = true; SFX.hit(); await sleep(900);
-      scene.wobble = false; scene.crack = false; scene.flash = 10; scene.flashColor = "#FFFFFF"; SFX.hatch();
-      state.flags.hatched = true; state.quest = 1; save(); drawHud();
-      burst(player.x * T + 8, player.y * T + 8, ["#FFF4DC", "#C9A8F0", "#FFFFFF"], 24);
-      scene.sparkle = 40; scene.bounce = 15;
-      await sleep(900);
-      await dialog([
-        { who: "moss", text: "{name}! Look at you!" },
-        { who: "you", text: "!!" },
-        { who: "moss", text: "From now on, {name} is yours. Your code is its brain." },
-        { who: "moss", text: "Walk with the D-pad. Press A to talk or touch things. Press B to peek inside {name}'s brain." },
-        { who: "moss", text: "Memory stones show a yellow ! when they need you. The first one is east, by the brambles. Off you go!" },
-      ]);
-    },
-  },
-  element: {
-    id: "element", title: "ELEMENT STONE",
-    intro: ["Bzzt... I'm the Element Stone. I forgot what {name} is made of...", "Every creature has an element: `\"fire\"`, `\"water\"` or `\"leaf\"`.", "Make a new box called `element` with one of those inside. It's text, so use quotes!"],
-    task: "Make a box called `element`. Put \"fire\", \"water\" or \"leaf\" inside.",
-    remember: [['snack = "berry"', "label = value"], ["", "You can make as many boxes as you like."]],
-    hints: ["The label is element.", "Then = and the value.", "The value is text: quotes, all lowercase. Like \"fire\"."],
-    check(v) {
-      const e = v.element;
-      if (!e) return { near: "There's no box called element yet. Start a line with element =" };
-      if (e.type !== "str") return { near: "element should hold text, so its value needs quotes." };
-      if (["fire", "water", "leaf"].includes(e.value)) return { ok: "{name} remembers it's a " + e.value + " creature!" };
-      if (["fire", "water", "leaf"].includes(e.value.trim().toLowerCase())) return { near: "Close! Python is picky: \"Fire\" and \"fire\" are different strings. Use all lowercase." };
-      return { near: "{name} doesn't know the element \"" + e.value + "\". Try \"fire\", \"water\" or \"leaf\"." };
-    },
-    async effect() {
-      const elm = elementOf(), cols = ELEMENTS[elm].particle;
-      scene.flash = 8; scene.flashColor = cols[0]; SFX.ok(); scene.bounce = 10; speak("I'm " + elm + "!", 1500);
-      await sleep(900);
-      await walkTo(11, 5, "right");
-      for (let k = 0; k < 6; k++) { burst(12 * T + 8, 5 * T + 8, cols, 12, elm === "fire"); SFX.boom(); scene.shake = 6; await sleep(180); }
-      state.flags.bramble = true; state.quest = 2; save(); buildMap(); drawHud();
-      await sleep(400);
-      const how = { fire: "burned the brambles to a crisp", water: "washed the brambles away", leaf: "asked the brambles to move, and they did" }[elm];
-      await dialog([{ who: "stone", text: "{name} " + how + "! The path east is open." }, { who: "stone", text: "A boulder blocks the way south. Look for the next glowing stone." }]);
-    },
-  },
-  strength: {
-    id: "strength", title: "STRENGTH STONE",
-    intro: ["Bzzt... Strength Stone. That boulder needs at least 30 energy to move.", "Energy is called `hp`, and it's a number. Numbers don't get quotes: `apples = 12`", "Careful: `\"50\"` with quotes is text that only looks like a number. Text has no strength!"],
-    task: "Make a box called `hp` with a number from 30 to 100. Then RUN and watch {name} push.",
-    remember: [["apples = 12", "numbers: no quotes"], ['"12"', "with quotes it's text, not a number"]],
-    hints: ["The label is hp.", "Then = and a number from 30 to 100.", "No quotes around the number!"],
-    check(v) {
-      const h = v.hp;
-      if (!h) return { near: "There's no box called hp yet. Start a line with hp =" };
-      if (h.type === "str") return { fail: "text", near: "hp holds " + h.show + ". Is that a number, or text?" };
-      if (!isNum(h)) return { near: "hp should hold a number, like 50." };
-      if (h.value < 30) return { fail: "weak", near: "hp is " + h.show + ". Is that enough?" };
-      if (h.value > 100) return { near: "Whoa! That's more energy than any creature can hold. Keep it 100 or under." };
-      return { ok: "{name} has " + h.show + " energy. Time to push!" };
-    },
-    async fail(kind) {
-      await walkTo(16, 6, "down");
-      speak("Hnnngh!", 1500);
-      for (let k = 0; k < 6; k++) { scene.boulderAnim = { dx: k % 2 ? 1 : -1, dy: 0 }; SFX.bump(); await sleep(150); }
-      scene.boulderAnim = null;
-      await sleep(400);
-      await dialog(kind === "text"
-        ? [{ who: "stone", text: "{name} pushed with all its might... but hp is `" + (state.vars.hp ? state.vars.hp.show : "") + "`. That's a string! Text has no strength." }, { who: "stone", text: "Take the quotes away so hp holds a real number." }]
-        : [{ who: "stone", text: "Not enough energy! The boulder needs hp of at least 30." }]);
-    },
-    async effect() {
-      await walkTo(16, 6, "down");
-      speak("Hup!", 1000); await sleep(500);
-      scene.boulderAnim = { dx: 0, dy: 0 }; SFX.boom(); scene.shake = 8;
-      for (let k = 0; k < 40; k++) { scene.boulderAnim.dy += 1.6; await sleep(25); }
-      SFX.splash(); burst(16 * T + 8, 10 * T + 4, ["#BDEBFF", "#FFFFFF", "#4FA8E8"], 30, true);
-      state.flags.boulder = true; scene.boulderAnim = null; state.quest = 3; save(); drawHud();
-      await sleep(500);
-      await dialog([{ who: "stone", text: "The boulder rolled all the way into the river. SPLASH!" }, { who: "stone", text: "Down by the river, a snail is snoring. Find the next stone." }]);
-    },
-  },
-  voice: {
-    id: "voice", title: "VOICE STONE",
-    intro: ["Bzzt... Voice Stone. `print()` makes {name} say something out loud.", "With quotes, it says the exact text: `print(\"hi\")` says hi.", "Without quotes, it looks inside a box: `print(name)` says what's in the name box.", "Pebble only wakes up if {name} says its own name. Go on!"],
-    task: "Make {name} say its own name with `print()`. Use the name box!",
-    remember: [['print("hi")', "says hi, exactly"], ["print(snack)", "says what's inside the snack box"]],
-    hints: ["Start with print( )", "Inside the brackets, put the label of the name box.", "No quotes around name, or {name} will just say the word “name”."],
-    check(v, out) {
-      const nm = v.name && v.name.type === "str" ? v.name.value : "";
-      if (!out.trim()) return { near: "{name} didn't say anything. Use print( )." };
-      if (nm && out.includes(nm)) return { ok: "{name} said its name out loud!" };
-      if (/\bname\b/.test(out)) return { near: "{name} said the word “name”. Quotes mean the exact text. Take them away so Python looks inside the box." };
-      return { near: "{name} spoke, but didn't say its name. Put name (no quotes) inside print( )." };
-    },
-    async effect(out) {
-      await walkTo(16, 9, "right");
-      speak(out.trim().split("\n").pop(), 2200); SFX.ok();
-      await sleep(1600);
-      state.flags.pebble = true; save(); SFX.select();
-      await dialog([
-        { who: "pebble", text: "Huh?! Oh! {name}! Sorry, I dozed off guarding the bridge." },
-        { who: "pebble", text: "The Glitch Moth made the bridge forget it was a bridge. Let me remind it." },
-      ]);
-      cutscene = true;
-      for (let k = 0; k < 4; k++) { SFX.step(); burst(16 * T + 8, (10 + k / 2) * T + 8, ["#A0703C", "#7A4E2D"], 6); await sleep(150); }
-      state.flags.bridge = true; state.quest = 4; save(); drawHud(); SFX.ok();
-      cutscene = false;
-      await dialog([{ who: "pebble", text: "There! Good as new. The cave is across the river... but it's very dark." }]);
-    },
-  },
-  mood: {
-    id: "mood", title: "MOOD STONE",
-    intro: ["Bzzt... Mood Stone. The darkness got into {name}'s brain. It wrote `mood = \"scared\"`.", "But boxes can change! Put a new value in a box and the old one is thrown away.", "Python reads from top to bottom, so the last value wins.", "Leave the darkness's line alone. Add a line underneath that makes `mood` \"brave\"."],
-    starter: '# The darkness wrote this:\nmood = "scared"\n',
-    task: "Add a line under the darkness's line that changes `mood` to \"brave\".",
-    remember: [["x = 3", "the box holds 3"], ["x = 9", "now it holds 9. The 3 is gone."]],
-    hints: ["Tap at the end of the code and start a new line.", "Use the same label: mood", "mood = and \"brave\" in quotes."],
-    check(v, out, events) {
-      const seen = [];
-      for (const ev of events) { const m = ev.after && ev.after.mood; if (m && seen[seen.length - 1] !== m.value) seen.push(m.value); }
-      if (!v.mood) return { near: "The mood box is gone! Put the darkness's line back: mood = \"scared\", then add yours underneath." };
-      if (v.mood.value !== "brave") return { near: "mood is " + v.mood.show + " at the end. Add a line at the bottom that makes it \"brave\"." };
-      if (seen.length < 2) return { near: "Clever, but the darkness will just write \"scared\" again! Keep its line, and add a new line underneath." };
-      return { ok: "mood went from \"scared\" to \"brave\". The last value wins!" };
-    },
-    async effect() {
-      speak("I'm brave!", 1800); scene.bounce = 15; SFX.ok();
-      await sleep(1200);
-      state.flags.cave = true; state.quest = 5; save(); buildMap(); drawHud();
-      scene.flash = 10; scene.flashColor = "#FFFFFF";
-      await dialog([{ who: "stone", text: "The darkness backs away. The cave is open!" }, { who: "stone", text: "Something is buzzing in there... krrzzt... Walk in when you're ready." }]);
-    },
-  },
-  free: {
-    id: "free", title: "FREE PLAY", free: true,
-    task: "Try anything! Make new boxes, change {name}'s element, or print( ) something.",
-    remember: [['snack = "berry"', "a text box"], ["apples = 12", "a number box"], ["print(snack)", "say what's inside"]],
-    check() { return { ok: "Ran with no bugs!" }; },
-  },
-};
-
-// Boss attacks: broken code you have to fix.
-const ATTACKS = [
-  { taunt: "Krrzzt! I scrambled your name! Fix THAT!", code: () => "name = " + (cname().replace(/[^A-Za-z]/g, "") || "Pip") + "\n",
-    hints: ["Look at the value. Is it text?", "Text needs quotes around it.", "name = \"...\" with the name between the quotes."],
-    check(v) { return v.name && v.name.type === "str" && v.name.value.trim() ? { ok: true } : { near: "name needs to hold some text." }; } },
-  { taunt: "Krrzzt! I bit off a quote! Ha!", code: () => 'hp = "40\n',
-    hints: ["One quote has lost its partner.", "Wait... hp is energy. Should energy be text or a number?", "Numbers don't need quotes at all: hp = 40"],
-    check(v) { return isNum(v.hp) ? { ok: true } : v.hp ? { near: "It runs! But hp is " + v.hp.show + ", which is text. Energy should be a number." } : { near: "Keep the hp box!" }; } },
-  { taunt: "Krrzzt! I ate a bracket! Now nobody can speak!", code: () => "print(name\n",
-    hints: ["Count the brackets.", "Every ( needs a ) to close it."],
-    check(v, out) { return out.trim() ? { ok: true } : { near: "Make print( ) say something." }; } },
-  { taunt: "KRRZZT! FINAL ATTACK! I put a hole in your label!", code: () => 'my mood = "brave"\n',
-    hints: ["Labels can't have spaces in them.", "Join the two words with an underscore: _", "my_mood = \"brave\""],
-    check(v) { return Object.values(v).some((x) => x.value === "brave") ? { ok: true } : { near: "Keep the value \"brave\"!" }; } },
-];
-
 // ---------- 14. The code console ----------
-// Opens over the game. Resolves with { result: "ok" | "fail" | "faint" } or null if closed.
+// spec: title, face, task, remember, hints, code, startVals, check(vars, out, events, src)
+// check returns {ok: "message"} or {near: "what's wrong"}.
+// Resolves with {vars, src, out} when the code works and the player continues, or null if closed.
 function openConsole(spec) {
   return new Promise((resolve) => {
     busy = true; held = null;
     const sheet = $("sheet"), inner = $("sheetInner");
-    inner.innerHTML = ""; inner.classList.remove("hit"); sheet.hidden = false; inner.scrollTop = 0; SFX.open();
+    inner.innerHTML = ""; sheet.hidden = false; inner.scrollTop = 0; SFX.open();
     const head = el("div", "sheet-head");
-    head.append(FACES[spec.face || (spec.battle ? "moth" : "stone")](), el("h2", null, spec.title));
-    let hearts = null;
-    if (spec.battle) { hearts = el("div", "battle-hearts"); head.append(hearts); drawHearts(hearts); }
-    else head.append(button("✕", "", () => close(null)));
+    head.append(spec.faceCanvas || FACES[spec.face || "moss"](), el("h2", null, spec.title));
+    if (!spec.noClose) head.append(button("✕", "", () => close(null)));
     inner.append(head);
     const task = el("p", "task"); task.append(rich(spec.task)); inner.append(task);
-
-    const brainVars = Object.entries(state.vars);
-    if (brainVars.length) {
-      const w = el("div"); w.append(el("p", "eyebrow", "Already in " + cname() + "'s brain"));
-      const b = el("div", "brain"); brainVars.forEach(([k, v]) => b.append(vbox(k, v))); w.append(b); inner.append(w);
-    }
+    if (spec.extra) inner.append(spec.extra);
     if (spec.remember) {
       const r = el("div", "remember"); r.append(el("p", "eyebrow", "Remember"));
       spec.remember.forEach(([c, t]) => { const d = el("div"); if (c) d.append(el("code", null, c)); d.append(el("span", null, t)); r.append(d); });
       inner.append(r);
     }
-
     const editor = el("div", "editor"), gutter = el("pre", "gutter", "1"), area = el("div", "code-area"), hl = el("div", "hl"), ta = el("textarea");
     hl.hidden = true; ta.id = "code";
     ta.spellcheck = false; ta.setAttribute("wrap", "off"); ["autocapitalize", "autocorrect", "autocomplete"].forEach((a) => ta.setAttribute(a, "off"));
     ta.setAttribute("aria-label", "Your Python code"); ta.placeholder = "Type Python here";
-    ta.value = spec.code != null ? spec.code : (state.drafts[spec.id] != null ? state.drafts[spec.id] : (spec.starter || ""));
+    ta.value = spec.code || "";
     area.append(hl, ta); editor.append(gutter, area); inner.append(editor);
     // Phones turn " into curly quotes, which Python can't read. Swap them back.
     function tidy() { const f = ta.value.replace(/[“”„″]/g, '"').replace(/[‘’‚′]/g, "'"); if (f !== ta.value) { const p = ta.selectionStart; ta.value = f; ta.setSelectionRange(p, p); } }
     function grow() { const n = ta.value.split("\n").length; gutter.textContent = Array.from({ length: n }, (_, k) => k + 1).join("\n"); ta.style.height = Math.max(100, n * 30 + 34) + "px"; }
-    ta.addEventListener("input", () => { tidy(); grow(); hl.hidden = true; if (!spec.battle) { state.drafts[spec.id] = ta.value; save(); } });
+    ta.addEventListener("input", () => { tidy(); grow(); hl.hidden = true; if (spec.draftKey) { state.drafts[spec.draftKey] = ta.value; save(); } });
     ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); } });
-
-    // Symbol keys: tap to type a symbol without hunting on the phone keyboard.
     const keys = el("div", "keys");
     ['"', "=", "(", ")", ",", "_"].forEach((sym) => {
       const k = el("button", "key", sym); k.type = "button"; k.setAttribute("aria-label", "Type " + sym);
@@ -1217,7 +1135,6 @@ function openConsole(spec) {
       keys.append(k);
     });
     inner.append(keys);
-
     const actions = el("div", "row"), hintsBox = el("div", "stack");
     let hintN = 0, hintBtn = null;
     if (spec.hints) {
@@ -1230,9 +1147,7 @@ function openConsole(spec) {
       });
       actions.append(hintBtn);
     }
-    const runLabel = spec.battle ? "STRIKE ▶" : "RUN ▶";
-    const runBtn = button(runLabel, spec.battle ? "red" : "go", () => run());
-    runBtn.id = "runBtn";
+    const runBtn = button("RUN ▶", "go", () => run()); runBtn.id = "runBtn";
     actions.append(runBtn);
     inner.append(actions, hintsBox);
     const logWrap = el("div", "stack"); logWrap.hidden = true;
@@ -1241,13 +1156,11 @@ function openConsole(spec) {
     const result = el("div", "stack"); result.id = "result";
     inner.append(logWrap, result);
     grow();
-
     function close(val) { sheet.hidden = true; busy = false; resolve(val); }
     function message(kind, title, lines) {
       const b = el("div", "say-box " + kind); if (title) b.append(el("h3", null, title));
       lines.forEach((t) => b.append(typeof t === "string" ? el("p", null, fill(t)) : t)); result.append(b); return b;
     }
-
     let running = false;
     async function run() {
       if (running) return;
@@ -1259,21 +1172,17 @@ function openConsole(spec) {
       if (!runPython) {
         runBtn.textContent = "WAKING PYTHON…";
         const ok = await pythonReady;
-        runBtn.textContent = runLabel;
+        runBtn.textContent = "RUN ▶";
         if (!ok) { running = false; runBtn.disabled = false; message("bad", "", ["Python couldn't load. Check your internet connection, then reload the page."]); return; }
       }
       log.innerHTML = ""; brainAfter.innerHTML = ""; logWrap.hidden = false;
-      const startVals = {}; for (const [k, v] of Object.entries(state.vars)) startVals[k] = v.value;
       let res;
-      try { res = JSON.parse(runPython(src, JSON.stringify(startVals))); }
-      catch (e) { res = { start: {}, events: [], error: { type: "Error", msg: String(e), line: null } }; }
-
-      // Replay it one line at a time.
+      try { res = runCode(src, spec.startVals); } catch (e) { res = { start: {}, events: [], vars: {}, error: { type: "Error", msg: String(e), line: null } }; }
       let prev = res.start || {}, out = "";
       for (const [n, ev] of res.events.entries()) {
         if (res.error && n === res.events.length - 1 && ev.line === res.error.line) break;
         hl.hidden = false; hl.className = "hl"; hl.style.top = (10 + (ev.line - 1) * 30) + "px";
-        await sleep(res.events.length > 30 ? 80 : 450);
+        await sleep(res.events.length > 30 ? 60 : 300);
         const v = ev.after || {}, bits = [];
         for (const k of Object.keys(v)) {
           if (!(k in prev)) bits.push("made a box called " + k + " with " + v[k].show + " inside");
@@ -1287,7 +1196,6 @@ function openConsole(spec) {
       }
       const vars = prev;
       Object.entries(vars).forEach(([k, v]) => brainAfter.append(vbox(k, v))); brainLabel.hidden = !Object.keys(vars).length;
-
       if (res.error) {
         const err = res.error;
         if (err.line) { hl.hidden = false; hl.className = "hl err"; hl.style.top = (10 + (err.line - 1) * 30) + "px"; }
@@ -1295,33 +1203,19 @@ function openConsole(spec) {
         if (!state.pendingBug) state.pendingBug = err.type;
         save(); SFX.error();
         message("bad", "A WILD " + bugFor(err.type).toUpperCase() + " APPEARED!", [el("p", "raw", "Python says: " + err.type + ": " + err.msg), explainError(err, src), "Fix it and RUN again to catch the bug."]);
-        if (spec.battle && spec.onError) {
-          inner.classList.remove("hit"); void inner.offsetWidth; inner.classList.add("hit");
-          const fainted = spec.onError(); drawHearts(hearts);
-          message("bad", "THE MOTH STRIKES BACK!", [state.hearts > 0 ? "-1 heart! Fix the code before it hits again." : "{name} is out of hearts!"]);
-          if (fainted) { await sleep(1600); running = false; close({ result: "faint" }); return; }
-        }
       } else {
         hl.hidden = true;
         const extra = [];
         if (state.pendingBug) {
-          const t = state.pendingBug; state.bugs[t] = (state.bugs[t] || 0) + 1; state.pendingBug = null;
+          const t = state.pendingBug; state.bugs[t] = (state.bugs[t] || 0) + 1; state.pendingBug = null; save();
           extra.push("You caught the " + bugFor(t) + " (" + t + ") by fixing your code!");
         }
         const v = spec.check(vars, out, res.events, src);
         if (v.ok) {
-          state.vars = vars; save(); drawHud(); SFX.ok();
-          message("good", spec.battle ? "FIXED!" : "IT WORKED!", [typeof v.ok === "string" ? v.ok : "The code runs!"].concat(extra));
-          if (spec.free) { if (out.trim()) speak(out.trim().split("\n").pop(), 2500); }
-          else result.append(button(spec.battle ? "ATTACK! ▶" : "SEE WHAT HAPPENS ▶", spec.battle ? "red wide" : "go wide", () => close({ result: "ok", out })));
-        } else if (v.fail) {
-          state.vars = vars; save(); SFX.bump();
-          message("near", "HMM...", [v.near].concat(extra));
-          result.append(button("TRY IT ANYWAY ▶", "wide", () => close({ result: "fail", kind: v.fail })));
-        } else {
-          SFX.bump();
-          message("near", "ALMOST!", [v.near].concat(extra));
-        }
+          SFX.ok();
+          message("good", "IT WORKED!", [v.ok].concat(extra));
+          result.append(button(spec.okLabel || "CONTINUE ▶", "go wide", () => close({ vars, src, out })));
+        } else { SFX.bump(); message("near", "ALMOST!", [v.near].concat(extra)); }
       }
       running = false; runBtn.disabled = false;
       await sleep(80);
@@ -1334,133 +1228,518 @@ function vbox(label, v) {
   b.append(el("b", null, label), el("span", null, v.show), el("small", null, { str: "string (text)", int: "number", float: "number", bool: "True/False" }[v.type]));
   return b;
 }
-async function runPuzzle(p) {
-  for (;;) {
-    const r = await openConsole(p);
-    if (!r) return;
-    cutscene = true;
-    try {
-      if (r.result === "ok") { if (p.effect) await p.effect(r.out); return; }
-      if (r.result === "fail") await p.fail(r.kind);
-    } finally { cutscene = false; }
-  }
+// Edit a creature's brain. Returns true if the new code was accepted.
+async function editBrain(c, opts = {}) {
+  const st = stats(c), b = budget(c.level);
+  const info = el("p", "budget", "Level " + c.level + " · stat points: power + guard + speed can add up to " + b);
+  const r = await openConsole({
+    title: st.name.toUpperCase() + "'S BRAIN", faceCanvas: monCanvas(c), extra: info,
+    task: opts.task || "This is " + st.name + "'s brain. Change any value, then RUN to teach it.",
+    code: c.code, hints: opts.hints, remember: opts.remember || [['element = "leaf"', "text in quotes"], ["power = 4", "numbers: no quotes"]],
+    okLabel: opts.okLabel || "SAVE BRAIN ▶",
+    check(v) { const p = opts.check ? opts.check(v) : checkBrain(c, v); return p ? { near: p } : { ok: opts.okMsg || st.name + " learned its new brain!" }; },
+  });
+  if (!r) return false;
+  c.code = r.src.replace(/\n*$/, "\n"); c.vars = r.vars; c.broken = null; save(); drawHud();
+  return true;
 }
 
-// ---------- 15. Boss battle ----------
-const battle = { mothHp: 4, hitT: 0, dash: 0, swoop: 0, dead: false, evolveT: 0 };
+// ---------- 15. Story: hatching and the first brain ----------
+async function hatchFlow() {
+  const r = await openConsole({
+    title: "THE EGG", face: "moss",
+    task: "Your egg needs a name. Make a box called `name` with a name inside. Then press RUN.",
+    remember: [['snack = "berry"', "label = value. Text goes in quotes."]],
+    hints: ["Start with the label: name", "Then = (it means “put this in the box”).", "Then a name inside quotes. Pattern: label = \"text\""],
+    code: state.drafts.hatch || "", draftKey: "hatch", okLabel: "HATCH! ▶",
+    check(v) {
+      if (!v.name) return { near: "Python ran your code, but there's no box called name. Start the line with name =" };
+      if (v.name.type !== "str") return { near: "Your name box holds a number. A name is text, so put it in quotes." };
+      if (!v.name.value.trim()) return { near: "The quotes are empty! Type a name between them." };
+      return { ok: "Python made a box called name and put " + v.name.show + " in it. The egg is shaking..." };
+    },
+  });
+  if (!r) return;
+  cutscene = true;
+  const c = { uid: uidN++, species: "starter", level: 1, xp: 0, vars: { name: r.vars.name }, code: 'name = ' + r.vars.name.show + "\n", broken: null };
+  c.hp = maxHp(c);
+  scene.wobble = true; SFX.open(); await sleep(900); scene.crack = true; SFX.hit(); await sleep(900);
+  scene.wobble = false; scene.crack = false; scene.flash = 10; scene.flashColor = "#FFFFFF"; SFX.hatch();
+  state.team = [c]; state.flags.hatched = true; state.quest = 1; save(); drawHud();
+  burst(player.x * T + 8, player.y * T + 8, ["#FFF4DC", "#C9A8F0", "#FFFFFF"], 24);
+  scene.sparkle = 40; scene.bounce = 15;
+  await sleep(900);
+  cutscene = false;
+  await dialog([
+    { who: "moss", text: "{name}! Look at you!" },
+    { who: "you", text: "!!" },
+    { who: "moss", text: "Here's a secret: every creature's brain is a little Python program. Right now {name}'s brain has one line: `name = \"" + cname() + "\"`" },
+  ]);
+  await setupBrain();
+}
+async function setupBrain() {
+  const c = starter();
+  if (!c.vars.element) {
+    await dialog([
+      "Every creature has an element: `\"fire\"`, `\"water\"` or `\"leaf\"`.",
+      "Fire beats leaf. Leaf beats water. Water beats fire. Pick one you like. You can change it later with code!",
+      "Add a new line to {name}'s brain: a box called `element`.",
+    ], "moss");
+    const ok = await editBrain(c, {
+      task: "Add a line: a box called `element` with \"fire\", \"water\" or \"leaf\" inside.",
+      hints: ["Start a new line under the name line.", "The label is element, then =", "The value is text, so use quotes: \"fire\""],
+      remember: [['snack = "berry"', "label = value"], ["", "Fire beats leaf · leaf beats water · water beats fire"]],
+      check(v) {
+        if (!v.name) return "Keep the name line!";
+        if (!v.element) return "There's no box called element yet. Add a new line that starts with element =";
+        if (v.element.type !== "str") return "element should be text, so its value needs quotes.";
+        if (!BEATS[v.element.value]) return BEATS[v.element.value.trim().toLowerCase()] ? "Python is picky about capitals: use all lowercase, like \"fire\"." : "Choose \"fire\", \"water\" or \"leaf\".";
+        return null;
+      },
+      okMsg: "{name} glows with its new element!", okLabel: "DONE ▶",
+    });
+    if (!ok) return dialog(["Take your time. Talk to me when you're ready."], "moss");
+    scene.flash = 8; scene.flashColor = ELEMENTS[stats(c).element].particle[0]; scene.bounce = 12; SFX.ok();
+    await sleep(700);
+  }
+  if (!c.vars.power) {
+    await dialog([
+      "Now {name}'s fighting stats. These are numbers, so no quotes!",
+      "`power` is how hard it hits. `guard` blocks damage. `speed` decides who moves first.",
+      "You have 10 points to share between them. Tip: try `power = 4`, `guard = 3`, `speed = 3`. Or make your own build!",
+    ], "moss");
+    const ok = await editBrain(c, {
+      task: "Add three lines: `power`, `guard` and `speed`. They must add up to 10 or less.",
+      hints: ["Add a new line: power = and a number.", "Then guard = and speed = on their own lines.", "Numbers have no quotes. Keep the total at 10 or less."],
+      remember: [["power = 4", "numbers: no quotes"], ["", "power + guard + speed ≤ 10"]],
+      okMsg: "{name} is ready to battle!", okLabel: "DONE ▶",
+    });
+    if (!ok) return dialog(["Take your time. Talk to me when you're ready."], "moss");
+    scene.bounce = 12; SFX.ok();
+  }
+  state.quest = 2; state.bag.jar += 5; state.bag.berry += 2; save(); drawHud();
+  await dialog([
+    "Perfect! You can read or change any creature's brain later. Just press B.",
+    "Here: 5 Code Jars and 2 berries. Wild creatures hide in the tall grass, just south-west of here.",
+    "Weaken one with FIGHT. Then open your BAG and catch it with a Code Jar. Good luck!",
+  ], "moss");
+}
+
+// ---------- 16. Battles ----------
+const B = { foe: null, foes: [], me: 0, lunge: 0, foeLunge: 0, foeHit: 0, myHit: 0, jar: null, foeGone: false, bg: "field", evolveT: 0 };
+const active = () => state.team[B.me];
+function hpClass(f) { return f > 0.5 ? "" : f > 0.2 ? "mid" : "low"; }
+function updateBoxes() {
+  const f = B.foe, m = active();
+  if (f) {
+    const fs = stats(f);
+    $("foeName").innerHTML = ""; $("foeName").append(fs.name, el("span", "tag " + fs.element, fs.element));
+    $("foeLv").textContent = "Lv" + f.level;
+    const fr = Math.max(0, f.hp / maxHp(f)); $("foeBar").style.width = fr * 100 + "%"; $("foeBar").className = hpClass(fr);
+  }
+  if (m) {
+    const ms = stats(m);
+    $("myName").innerHTML = ""; $("myName").append(ms.name, el("span", "tag " + ms.element, ms.element));
+    $("myLv").textContent = "Lv" + m.level;
+    const mr = Math.max(0, m.hp / maxHp(m)); $("myBar").style.width = mr * 100 + "%"; $("myBar").className = hpClass(mr);
+    $("myHp").textContent = Math.max(0, m.hp) + " / " + maxHp(m) + " HP" + (m.broken ? " · BUG!" : "");
+  }
+}
 function drawBattle() {
   let sx = 0, sy = 0;
-  if (scene.shake > 0) { scene.shake--; sx = Math.round((Math.random() - 0.5) * 6); sy = Math.round((Math.random() - 0.5) * 6); }
-  ctx.fillStyle = "#1A1220"; ctx.fillRect(0, 0, VW, VH);
-  for (let i = 0; i < 6; i++) { const h = hash(i, Math.floor(frame / 8)); ctx.fillStyle = i % 2 ? "#2A1B33" : "#241729"; ctx.fillRect(0, h % VH, VW, 1 + ((h >> 8) % 3)); }
-  ctx.fillStyle = "#2E2236"; ctx.fillRect(0, 108 + sy, VW, 36);
-  ctx.fillStyle = "#3B2A45"; for (let x = 0; x < VW; x += 6) ctx.fillRect(x + sx, 108 + sy, 3, 1);
-  if (!battle.dead) {
-    const mx = 48 + sx + Math.round(Math.sin(frame / 20) * 6), my = 14 + sy + Math.round(Math.sin(frame / 9) * 3) + battle.swoop;
-    const hit = battle.hitT > 0 && Math.floor(battle.hitT / 3) % 2;
-    drawSprite(ctx, MOTH_ROWS, mx, my, hit ? PAL.mothHit : PAL.moth, false, 2);
-    if (!hit && frame % 40 < 4) { ctx.fillStyle = "#39F3D8"; ctx.fillRect(mx + 10, my + 12 + (frame % 4) * 6, 40, 1); }
-    if (battle.hitT > 0) battle.hitT--;
-    for (let i = 0; i < 4; i++) { ctx.fillStyle = "#2B1D2E"; ctx.fillRect(56 + i * 12, 4, 10, 6); ctx.fillStyle = i < battle.mothHp ? "#FF4D6D" : "#4B3A5A"; ctx.fillRect(57 + i * 12, 5, 8, 4); }
+  if (scene.shake > 0) { scene.shake--; sx = Math.round((Math.random() - 0.5) * 5); sy = Math.round((Math.random() - 0.5) * 5); }
+  if (B.bg === "cave") {
+    ctx.fillStyle = "#1A1220"; ctx.fillRect(0, 0, VW, VH);
+    for (let i = 0; i < 6; i++) { const h = hash(i, Math.floor(frame / 8)); ctx.fillStyle = i % 2 ? "#2A1B33" : "#241729"; ctx.fillRect(0, h % VH, VW, 1 + ((h >> 8) % 3)); }
+  } else {
+    ctx.fillStyle = "#BFE6F5"; ctx.fillRect(0, 0, VW, VH);
+    ctx.fillStyle = "#D9F1F8"; ctx.fillRect(0, 30, VW, 30);
+    ctx.fillStyle = "#8CCB6E"; ctx.fillRect(0, 60, VW, VH);
+    ctx.fillStyle = "#7DB35A"; for (let i = 0; i < VW; i += 7) ctx.fillRect(i, 60 + (i % 3), 3, 2);
   }
-  const cx = 20 + sx + battle.dash, cy = 76 + sy;
-  ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.fillRect(cx + 6, cy + 31, 20, 2);
-  const evolvedNow = battle.evolveT > 0 ? Math.floor(battle.evolveT / 6) % 2 === 0 : state.flags.evolved;
-  if (battle.evolveT > 0) battle.evolveT--;
-  drawCreature(ctx, cx, cy, 2, false, evolvedNow);
+  const pf = B.bg === "cave" ? "#3B2A45" : "#6FA84B";
+  ctx.fillStyle = pf; ctx.fillRect(92 + sx, 58 + sy, 56, 6); ctx.fillRect(96 + sx, 57 + sy, 48, 8);
+  ctx.fillRect(4 + sx, 94 + sy, 60, 6); ctx.fillRect(8 + sx, 93 + sy, 52, 8);
+  // foe (top right)
+  if (B.foe && !B.foeGone) {
+    const big = B.foe.species === "moth";
+    const fx = (big ? 88 : 96) + sx - B.foeLunge, fy = (big ? 12 : 12) + sy + B.foeLunge / 2 + Math.round(Math.sin(frame / 18) * (big ? 3 : 1));
+    const white = B.foeHit > 0 && Math.floor(B.foeHit / 3) % 2;
+    drawMon(ctx, B.foe, fx, fy, big ? 2 : 3, true, { white });
+    if (big && !white && frame % 40 < 4) { ctx.fillStyle = "#39F3D8"; ctx.fillRect(fx + 6, fy + 10 + (frame % 4) * 6, 52, 1); }
+    if (B.foeHit > 0) B.foeHit--;
+  }
+  if (B.jar) {
+    const j = B.jar, wob = j.wobble ? (Math.floor(frame / 4) % 2 ? 1 : -1) : 0;
+    drawSprite(ctx, SPRITES.jar, j.x + wob, j.y, PAL.jar, false, 2);
+  }
+  // your creature (bottom left)
+  const m = active();
+  if (m && m.hp > 0) {
+    const white = B.myHit > 0 && Math.floor(B.myHit / 3) % 2;
+    const ev = B.evolveT > 0 ? Math.floor(B.evolveT / 6) % 2 === 0 : undefined;
+    if (B.evolveT > 0) B.evolveT--;
+    drawMon(ctx, m, 10 + sx + B.lunge, 46 + sy - B.lunge / 3 + (Math.floor(frame / 25) % 2), 3, false, { white, evolved: ev });
+    if (m.broken && frame % 30 < 15) { ctx.fillStyle = "#E0475B"; [[1,0],[2,0],[3,0],[0,1],[4,1],[3,2],[2,3],[2,5]].forEach(([a, b]) => ctx.fillRect(56 + a + sx, 44 + b + sy, 1, 1)); }
+    if (B.myHit > 0) B.myHit--;
+  }
   particles.forEach((p) => { ctx.fillStyle = p.c; ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2); });
   if (scene.flash > 0) { ctx.globalAlpha = Math.min(1, scene.flash / 8); ctx.fillStyle = scene.flashColor; ctx.fillRect(0, 0, VW, VH); ctx.globalAlpha = 1; scene.flash--; }
 }
-async function fadeTo(fn) { $("fade").classList.add("on"); await sleep(400); fn(); await sleep(150); $("fade").classList.remove("on"); await sleep(350); }
-async function startBoss() {
-  cutscene = true;
-  playMusic(null); SFX.boom();
-  await fadeTo(() => { scene.mode = "battle"; battle.mothHp = 4; battle.dead = false; state.hearts = 3; drawHud(); });
-  playMusic("battle");
-  await dialog([
-    { who: "moth", text: "KRRZZT! Who dares enter my cave?!" },
-    { who: "moth", text: "I ate Mossbrook's memory. Delicious! Now I'll scramble YOUR code!" },
-    { who: "moss", text: "{name}! The Glitch Moth attacks with broken code. Fix each line to strike back!" },
-    { who: "moss", text: "Careful: every bug in your code lets the moth hit you. You have 3 hearts." },
-  ]);
-  while (battle.mothHp > 0) {
-    const atk = ATTACKS[4 - battle.mothHp];
-    await dialog([{ who: "moth", text: atk.taunt }]);
-    for (let k = 0; k < 8; k++) { battle.swoop = [4, 10, 18, 24, 18, 10, 4, 0][k]; await sleep(40); }
-    scene.shake = 6; SFX.hurt();
-    const r = await openConsole({
-      battle: true, id: "boss", title: "FIX THE ATTACK", task: "The moth threw broken code at {name}! Fix it, then STRIKE.",
-      code: atk.code(), hints: atk.hints, check: atk.check,
-      remember: [['snack = "berry"', "text in quotes"], ["apples = 12", "numbers: no quotes"], ["print(snack)", "brackets come in pairs"], ["my_snack", "labels: no spaces"]],
-      onError() { state.hearts--; save(); drawHud(); scene.shake = 10; scene.flash = 6; scene.flashColor = "#E0475B"; SFX.hurt(); return state.hearts <= 0; },
-    });
-    if (r && r.result === "faint") {
-      await dialog([{ who: "moth", text: "KRRZZT! Hahaha!" }, { who: "moss", text: "{name}! Get up! Bugs happen to every coder. Read the error, then try again." }]);
-      state.hearts = 3; save(); drawHud(); SFX.ok();
-      continue;
+// Show buttons in the battle menu and wait for a choice.
+function choose(options, cols) {
+  return new Promise((resolve) => {
+    const g = $("bgrid"); g.innerHTML = ""; g.className = "bgrid" + (cols === 2 ? " two" : "");
+    for (const o of options) {
+      const b = el("button", "bbtn " + (o.cls || ""));
+      b.append(o.label); if (o.sub) b.append(el("small", null, o.sub));
+      b.disabled = !!o.disabled;
+      b.addEventListener("click", () => { SFX.select(); $("bmenu").hidden = true; resolve(o.value); });
+      g.append(b);
     }
-    for (let k = 0; k < 10; k++) { battle.dash = [6, 14, 24, 34, 44, 50, 44, 30, 14, 0][k]; await sleep(30); if (k === 5) { SFX.hit(); battle.hitT = 18; scene.shake = 10; burst(80, 34, ["#FFFFFF", "#C9A8F0", "#39F3D8"], 14); } }
-    battle.mothHp--;
-    if (battle.mothHp > 0) await dialog([{ who: "moth", text: ["NO! Not my last glitch!", "Bzzt?! My code... is getting fixed?!", "KRRK! A lucky hit!"][battle.mothHp - 1] }]);
+    $("bmenu").hidden = false;
+  });
+}
+async function lungeAnim(mine) {
+  for (const v of [6, 14, 20, 14, 6, 0]) { if (mine) B.lunge = v; else B.foeLunge = v; await sleep(30); }
+}
+// One creature attacks another. Returns damage dealt.
+async function attack(att, def, move, mine) {
+  const as = stats(att), ds = stats(def);
+  if (mine && att.broken) { SFX.error(); await say(as.name + "'s brain has a bug (" + att.broken.type + ")! It can't move. Use CODE to fix it."); return 0; }
+  await say(as.name + " used " + (move === "bonk" ? "Bonk" : MOVES[as.element] || "Bonk") + "!");
+  if (as.power === null) { SFX.error(); await say("...but power is " + att.vars.power.show + ". That's text! Text has no strength. Use CODE to fix it."); return 0; }
+  if (move === "special" && !MOVES[as.element]) { SFX.bump(); await say("...but " + as.name + " doesn't know its element!"); return 0; }
+  await lungeAnim(mine);
+  let mult = 1;
+  if (move === "special" && BEATS[as.element]) mult = effect(as.element, ds.element);
+  let dmg = Math.round((4 + as.power * 2 + (move === "special" ? 2 : 0)) * mult - (ds.guard || 0) + rnd(-1, 1));
+  dmg = Math.max(1, dmg);
+  def.hp = Math.max(0, def.hp - dmg);
+  if (mine) B.foeHit = 18; else B.myHit = 18;
+  scene.shake = mult > 1 ? 12 : 6;
+  const cols = ELEMENTS[as.element] && ELEMENTS[as.element].particle;
+  burst(mine ? 120 : 34, mine ? 34 : 70, cols || ["#FFFFFF", "#F5C04A"], mult > 1 ? 18 : 10);
+  mult > 1 ? SFX.super() : SFX.hit();
+  updateBoxes();
+  if (mult > 1) await say("It's super effective!");
+  else if (mult < 1) await say("It's not very effective...");
+  return dmg;
+}
+function foeMove(f, target) {
+  const fs = stats(f), ts = stats(target);
+  if (MOVES[fs.element] && (!BEATS[fs.element] || effect(fs.element, ts.element) >= 1) && Math.random() < 0.75) return "special";
+  return "bonk";
+}
+async function gainXp(f) {
+  const m = active(); if (!m) return;
+  const xp = 6 * f.level + 4; m.xp += xp;
+  await say(stats(m).name + " gained " + xp + " XP!");
+  while (m.xp >= m.level * 12) {
+    m.xp -= m.level * 12; m.level++; m.hp = Math.min(maxHp(m), m.hp + 5); SFX.levelup(); updateBoxes();
+    await say(stats(m).name + " grew to level " + m.level + "! It now has " + budget(m.level) + " stat points. Spend them with CODE or B.");
   }
-  playMusic(null);
-  await dialog([{ who: "moth", text: "Krrzzt... my glitches... are... all... fixed..." }]);
-  SFX.boom(); scene.shake = 20;
-  for (let k = 0; k < 6; k++) { burst(80, 34, ["#7A4FC9", "#C9A8F0", "#39F3D8", "#FF4D6D"], 16); await sleep(120); }
-  battle.dead = true; scene.flash = 12; scene.flashColor = "#FFFFFF";
-  await sleep(900);
-  SFX.win();
-  await dialog([{ who: "moss", text: "You did it! Mossbrook's memories are flying home!" }, { who: "moss", text: "Wait... {name} is glowing!" }]);
-  battle.evolveT = 90; SFX.hatch();
+  save();
+}
+async function chooseSwitch(forced) {
+  const opts = state.team.map((c, i) => ({ label: stats(c).name, sub: "Lv" + c.level + " · " + c.hp + "/" + maxHp(c) + " HP", value: i, disabled: c.hp <= 0 || i === B.me }));
+  if (!forced) opts.push({ label: "BACK", value: -1 });
+  return choose(opts, 2);
+}
+async function catchFlow() {
+  const f = B.foe, sp = SPECIES[f.species];
+  const r = await openConsole({
+    title: "CODE JAR", faceCanvas: spriteCanvas(SPRITES.jar, PAL.jar),
+    task: "To catch it, write its name into the jar. Make a box called `jar` that holds \"" + sp.name + "\".",
+    remember: [['snack = "berry"', "text goes in quotes"], ["", "Capital letters count!"]],
+    hints: ["The label is jar.", "Then = and the creature's name.", "Text needs quotes: jar = \"" + sp.name + "\""],
+    code: "", okLabel: "THROW THE JAR! ▶",
+    check(v) {
+      if (!v.jar) return { near: "There's no box called jar. Start with jar =" };
+      if (v.jar.type !== "str") return { near: "jar should hold text, in quotes." };
+      if (v.jar.value === sp.name) return { ok: "The jar knows its name: " + sp.name + "!" };
+      if (v.jar.value.toLowerCase() === sp.name.toLowerCase()) return { near: "Close! But Python is picky about capitals. It's \"" + sp.name + "\"." };
+      return { near: "The jar says \"" + v.jar.value + "\", but this creature is a " + sp.name + "." };
+    },
+  });
+  if (!r) return "back";
+  state.bag.jar--; save(); drawHud();
+  SFX.jar();
+  for (let k = 0; k <= 10; k++) { B.jar = { x: 20 + k * 9, y: 70 - Math.sin((k / 10) * Math.PI) * 50 - k * 2 }; await sleep(30); }
+  B.foeGone = true; scene.flash = 6; scene.flashColor = "#9FE0E8"; B.jar = { x: 112, y: 40 };
+  for (let k = 0; k < 4; k++) { B.jar.y = 40 + k * 4; await sleep(60); }
+  const chance = 0.3 + 0.7 * (1 - f.hp / maxHp(f));
+  const shakes = Math.random() < chance ? 3 : rnd(0, 2);
+  for (let k = 0; k < shakes; k++) { B.jar.wobble = true; SFX.wobble(); await sleep(450); B.jar.wobble = false; await sleep(250); }
+  if (shakes === 3) {
+    SFX.caught(); burst(124, 60, ["#F5C04A", "#FFFFFF", "#9FE0E8"], 20);
+    await say("Gotcha! " + sp.name + " was caught!");
+    f.hp = Math.max(f.hp, 1); state.team.push(f); state.caught[f.species] = true; save();
+    await say(sp.name + " joined your team. Press B to read its brain!");
+    B.jar = null;
+    return "caught";
+  }
+  B.jar = null; B.foeGone = false; scene.flash = 6; SFX.bump();
+  await say(["Oh no! It broke free!", "Argh! Almost had it!", "It popped right out!"][rnd(0, 2)]);
+  return "missed";
+}
+const SABOTAGE = [
+  { line: "Krrzzt! I scrambled your power!", apply: (s) => s.replace(/^([ \t]*power[ \t]*=[ \t]*)(\d+)[ \t]*$/m, '$1"$2"') },
+  { line: "Krrzzt! Let me fix your spelling... hehe!", apply: (s) => s.replace(/^(\s*)guard(\s*=)/m, "$1gaurd$2") },
+  { line: "Krrzzt! I stole the quotes from your element!", apply: (s) => s.replace(/^(\s*element\s*=\s*)"([a-z]+)"/m, "$1$2") },
+];
+async function mothTurn(m) {
+  B.turn = (B.turn || 0) + 1;
+  const sab = SABOTAGE[(B.sabN || 0) % 3];
+  if ((B.turn % 2 === 1) && (B.sabN || 0) < 3) {
+    const next = sab.apply(m.code);
+    if (next !== m.code) {
+      B.sabN = (B.sabN || 0) + 1;
+      await dialog([{ who: "moth", text: sab.line }], null, 1100);
+      SFX.hurt(); scene.flash = 6; scene.flashColor = "#7A4FC9"; scene.shake = 8;
+      m.code = next;
+      try { const res = runCode(next); m.broken = res.error; if (!res.error) m.vars = res.vars; } catch (e) {}
+      save(); updateBoxes();
+      const ms = stats(m);
+      if (m.broken) await say(ms.name + "'s brain has a bug now! It can't move until you fix it with CODE.");
+      else if (ms.power === null) await say("Now power holds text: " + m.vars.power.show + ". " + ms.name + "'s attacks won't work!");
+      else if (!m.vars.guard) await say("guard is spelled \"gaurd\" now! " + ms.name + "'s guard box is gone, so it takes more damage.");
+      if (!state.tips.sabotage) { state.tips.sabotage = true; save(); await dialog(["{name}! The moth is editing your code! Tap CODE to see the damage, then fix it."], "moss"); }
+      return;
+    }
+  }
+  await attack(B.foe, m, foeMove(B.foe, m), false);
+}
+// The main battle loop. Returns "win", "lose", "run" or "caught".
+async function battle({ foes, trainer, boss }) {
+  cutscene = true; held = null;
+  B.foes = foes; B.foe = foes[0]; B.me = Math.max(0, state.team.findIndex((c) => c.hp > 0)); B.foeGone = false; B.jar = null; B.turn = 0; B.sabN = 0;
+  B.bg = boss ? "cave" : "field";
+  foes.forEach((f) => (state.seen[f.species] = true)); save();
+  SFX.encounter();
+  for (let k = 0; k < 6; k++) { $("fade").classList.toggle("on", k % 2 === 0); await sleep(90); }
+  scene.mode = "battle"; $("fade").classList.remove("on");
+  playMusic(boss ? "boss" : "battle");
+  $("foeBox").hidden = false; $("myBox").hidden = false; updateBoxes();
+  if (boss) await dialog([{ who: "moth", text: "KRRZZT! Who dares enter my cave?!" }, { who: "moth", text: "I ate Mossbrook's memory. Delicious! Now I'll eat YOUR code!" }]);
+  else if (trainer) await say("Cap sends out " + stats(B.foe).name + "!");
+  else await say("A wild " + SPECIES[B.foe.species].name + " jumped out of the grass!");
+  await say("Go, " + stats(active()).name + "!");
+  if (!trainer && !boss && !state.tips.first) { state.tips.first = true; save(); await dialog(["Tap FIGHT to attack. When it's weak, tap BAG and use a Code Jar to catch it!"], "moss"); }
+  if (trainer && !state.tips.cap) { state.tips.cap = true; save(); await dialog(["Remember: CODE lets you rewrite your creature's brain in the middle of a fight. Even its element!"], "moss"); }
+  let result = null;
+  while (!result) {
+    const m = active(), ms = stats(m), fs = stats(B.foe);
+    // Player chooses
+    let act = null;
+    while (!act) {
+      const pick = await choose([
+        { label: "FIGHT", value: "fight", cls: "hot" },
+        { label: "CODE", value: "code", cls: "code", sub: m.broken ? "fix the bug!" : "edit brain" },
+        { label: "BAG", value: "bag" },
+        { label: "TEAM", value: "team", disabled: state.team.filter((c) => c.hp > 0).length < 2 },
+        { label: "RUN", value: "run" },
+        { label: "?", value: "help" },
+      ]);
+      if (pick === "fight") {
+        const mv = await choose([
+          { label: "Bonk", sub: "normal hit", value: "bonk" },
+          { label: MOVES[ms.element] || "???", sub: BEATS[ms.element] ? ms.element + " · " + (effect(ms.element, fs.element) > 1 ? "super effective!" : effect(ms.element, fs.element) < 1 ? "weak vs " + fs.element : "normal") : ms.element === "normal" ? "strong hit" : "no element!", value: "special", disabled: !MOVES[ms.element] },
+          { label: "BACK", value: null },
+        ], 2);
+        if (mv) act = { type: "move", move: mv };
+      } else if (pick === "code") {
+        $("foeBox").hidden = $("myBox").hidden = true;
+        const ok = await editBrain(m, { okLabel: "BACK TO BATTLE ▶", task: "Edit " + ms.name + "'s brain. Saving changes uses your turn." });
+        $("foeBox").hidden = $("myBox").hidden = false; updateBoxes();
+        if (ok) { SFX.ok(); B.lunge = 0; await say(stats(m).name + " rewrote its brain!"); act = { type: "code" }; }
+      } else if (pick === "bag") {
+        const it = await choose([
+          { label: "Code Jar", sub: "× " + state.bag.jar + " · catch", value: "jar", disabled: !state.bag.jar },
+          { label: "Berry", sub: "× " + state.bag.berry + " · heal 15", value: "berry", disabled: !state.bag.berry || m.hp >= maxHp(m) },
+          { label: "BACK", value: null },
+        ], 2);
+        if (it === "berry") { state.bag.berry--; m.hp = Math.min(maxHp(m), m.hp + 15); save(); drawHud(); SFX.berry(); updateBoxes(); await say(ms.name + " ate a berry. Yum! +15 HP"); act = { type: "item" }; }
+        if (it === "jar") {
+          if (trainer) { await say("You can't catch Cap's creature!"); continue; }
+          if (boss) { await say("The Glitch Moth is way too glitchy to catch!"); continue; }
+          $("foeBox").hidden = $("myBox").hidden = true;
+          const r = await catchFlow();
+          $("foeBox").hidden = $("myBox").hidden = false; updateBoxes();
+          if (r === "caught") { result = "caught"; break; }
+          if (r === "missed") act = { type: "item" };
+        }
+      } else if (pick === "team") {
+        const i = await chooseSwitch(false);
+        if (i >= 0) { await say(ms.name + ", come back!"); B.me = i; updateBoxes(); await say("Go, " + stats(active()).name + "!"); act = { type: "switch" }; }
+      } else if (pick === "run") {
+        if (trainer || boss) { await say("You can't run from this battle!"); continue; }
+        if ((ms.speed || 0) >= (fs.speed || 0) || Math.random() < 0.5) { SFX.step(); await say("You got away safely!"); result = "run"; break; }
+        await say("Couldn't get away!"); act = { type: "item" };
+      } else if (pick === "help") {
+        await dialog(["FIGHT: attack. Your element move is strong against some elements.", "CODE: edit your creature's brain mid-battle (uses your turn).", "Faster creatures (higher speed) move first. Fire beats leaf, leaf beats water, water beats fire."], "moss");
+      }
+    }
+    if (result) break;
+    // Resolve the turn
+    const me = active();
+    const meFirst = act.type !== "move" ? true : (stats(me).speed || 0) > (fs.speed || 0) || ((stats(me).speed || 0) === (fs.speed || 0) && Math.random() < 0.5);
+    const order = act.type === "move" ? (meFirst ? ["me", "foe"] : ["foe", "me"]) : ["foe"];
+    for (const who of order) {
+      if (B.foe.hp <= 0 || active().hp <= 0) break;
+      if (who === "me") await attack(active(), B.foe, act.move, true);
+      else if (boss) await mothTurn(active());
+      else await attack(B.foe, active(), foeMove(B.foe, active()), false);
+    }
+    // Faints
+    if (B.foe.hp <= 0) {
+      SFX.faint(); B.foeGone = true;
+      await say((trainer ? "" : "The wild ") + stats(B.foe).name + " fainted!");
+      await gainXp(B.foe);
+      const nextFoe = B.foes.find((f) => f.hp > 0);
+      if (nextFoe) { B.foe = nextFoe; B.foeGone = false; updateBoxes(); await say("Cap sends out " + stats(nextFoe).name + "!"); }
+      else { result = "win"; break; }
+    }
+    if (active().hp <= 0) {
+      SFX.faint(); await say(stats(active()).name + " fainted!");
+      if (state.team.some((c) => c.hp > 0)) { B.me = await chooseSwitch(true); updateBoxes(); await say("Go, " + stats(active()).name + "!"); }
+      else { result = "lose"; break; }
+    }
+  }
+  if (result === "win" && trainer) { SFX.win(); await sleep(400); }
+  if (result === "lose") { await say("Your whole team fainted..."); }
+  await fadeTo(() => { scene.mode = "world"; $("foeBox").hidden = $("myBox").hidden = true; $("bmenu").hidden = true; B.foe = null; });
+  state.team.forEach((c) => { if (c.hp <= 0 && result !== "lose") c.hp = 1; });
+  if (result === "lose") {
+    healTeam(); placePlayer(4, 4, "up");
+    await dialog(["Oh dear, you all fainted! I patched everyone up.", "Tip: change your stats or element with B, or catch a creature with a better element."], "moss");
+  }
+  playMusic("village");
+  save(); drawHud(); safeSteps = 4; cutscene = false;
+  if (result === "caught" && state.quest === 2) {
+    state.quest = 3; save(); drawHud();
+    await dialog(["You caught your first creature! Press B to see your team and read its brain.", "Now go battle Cap on the path east. Cap's been waiting!"], "moss");
+  }
+  if (state.quest === 6 && DEX.every((s) => state.caught[s])) { state.quest = 7; save(); drawHud(); toast("You caught every kind of creature!"); }
+  return result;
+}
+async function fadeTo(fn) { $("fade").classList.add("on"); await sleep(350); fn(); await sleep(120); $("fade").classList.remove("on"); await sleep(300); }
+function wildBattle(sp, lv) { return battle({ foes: [makeCreature(sp, lv)] }); }
+
+// ---------- 17. The voice stone and the boss ----------
+async function useStone() {
+  if (state.quest < 4) return dialog(["The stone is dark and quiet. It isn't ready yet."]);
+  if (state.flags.pebble) return dialog(["The stone hums happily. Pebble is awake!"], "stone");
+  await dialog([
+    "Bzzt... Voice Stone. `print()` makes a creature say something out loud.",
+    "With quotes, it says the exact text: `print(\"hi\")` says hi.",
+    "Without quotes, it looks inside a box: `print(name)` says what's in the name box.",
+    "Pebble only wakes up if {name} says its own name. Go on!",
+  ], "stone");
+  const startVals = {}; for (const [k, v] of Object.entries(starter().vars)) startVals[k] = v.value;
+  const r = await openConsole({
+    title: "VOICE STONE", face: "stone", startVals,
+    task: "Make {name} say its own name with `print()`. Use the name box!",
+    remember: [['print("hi")', "says hi, exactly"], ["print(snack)", "says what's inside the snack box"]],
+    hints: ["Start with print( )", "Inside the brackets, put the label of the name box.", "No quotes around name, or {name} will just say the word “name”."],
+    code: "", okLabel: "SAY IT! ▶",
+    check(v, out) {
+      if (!out.trim()) return { near: "{name} didn't say anything. Use print( )." };
+      if (out.includes(cname())) return { ok: "{name} said its name out loud!" };
+      if (/\bname\b/.test(out)) return { near: "{name} said the word “name”. Quotes mean the exact text. Take them away so Python looks inside the box." };
+      return { near: "{name} spoke, but didn't say its name. Put name (no quotes) inside print( )." };
+    },
+  });
+  if (!r) return;
+  cutscene = true;
+  speak(r.out.trim().split("\n").pop(), 2200); SFX.ok();
   await sleep(1500);
-  state.flags.evolved = true; state.flags.boss = true; state.quest = 6; state.hearts = 3; save();
-  for (let k = 0; k < 4; k++) { burst(52, 92, ["#FFF6B0", "#F5C04A", "#FFFFFF"], 16, true); await sleep(150); }
-  await dialog([{ who: "moss", text: "{name} evolved! Using variables for the first time made it stronger. Look at those wings!" }]);
-  await fadeTo(() => { scene.mode = "world"; player.x = 16; player.y = 14; player.px = 16 * T; player.py = 14 * T; player.dir = "down"; state.x = 16; state.y = 14; save(); buildMap(); drawHud(); });
+  state.flags.pebble = true; save(); SFX.select();
+  await dialog([{ who: "pebble", text: "Huh?! Oh! {name}! Sorry, I dozed off guarding the bridge." }, { who: "pebble", text: "The Glitch Moth broke the bridge. Let me fix it..." }]);
+  for (let k = 0; k < 4; k++) { SFX.step(); burst(16 * T + 8, (10 + k / 2) * T + 8, ["#A0703C", "#7A4E2D"], 6); await sleep(150); }
+  state.quest = 5; save(); drawHud(); SFX.ok();
+  cutscene = false;
+  await dialog([{ who: "pebble", text: "There! The cave is across the river. The Glitch Moth lives there. Talk to me if you need healing first." }]);
+}
+async function startBoss() {
+  await dialog(["(The cave buzzes. Your team feels nervous.)"], null);
+  const moth = makeCreature("moth", 3);
+  Object.assign(moth.vars, { power: sv(3), guard: sv(2), speed: sv(3) }); moth.hp = maxHp(moth);
+  const r = await battle({ foes: [moth], boss: true });
+  if (r !== "win") { placePlayer(16, 14, "up"); return; }
+  cutscene = true;
+  const s = starter(), idx = state.team.indexOf(s);
+  scene.mode = "battle"; B.foe = null; B.me = idx; B.bg = "cave";
+  await dialog([{ who: "moth", text: "Krrzzt... my glitches... are all... fixed..." }, { who: "moss", text: "You did it! Mossbrook's memories are flying home!" }, { who: "moss", text: "Wait... {name} is glowing!" }]);
+  B.evolveT = 90; SFX.hatch(); await sleep(1500);
+  state.flags.evolved = true; state.flags.boss = true; state.quest = DEX.every((x) => state.caught[x]) ? 7 : 6; save();
+  for (let k = 0; k < 4; k++) { burst(34, 70, ["#FFF6B0", "#F5C04A", "#FFFFFF"], 16, true); await sleep(150); }
+  SFX.win();
+  await dialog([{ who: "moss", text: "{name} evolved! Using variables to win made it stronger. Look at those wings!" }]);
+  await fadeTo(() => { scene.mode = "world"; placePlayer(16, 14, "down"); buildMap(); drawHud(); });
   playMusic("village");
   cutscene = false;
   showClear();
 }
 
-// ---------- 16. Top bar, menus and level clear ----------
-const heartImg = spriteCanvas(SPRITES.heart, PAL.heart).toDataURL();
-const berryImg = spriteCanvas(SPRITES.berry, PAL.berry).toDataURL();
-function drawHearts(box) {
-  box.innerHTML = "";
-  for (let i = 0; i < 3; i++) { const im = el("img"); im.src = heartImg; im.alt = ""; if (i >= state.hearts) im.className = "lost"; box.append(im); }
+// ---------- 18. Team view (B) ----------
+function showTeam() {
+  if (busy || cutscene || !state.flags.hatched || scene.mode !== "world") return;
+  SFX.select();
+  const c = $("teamCard"); c.innerHTML = "";
+  c.append(el("h2", null, "Your team"), el("p", null, "Every creature's brain is a Python program. Tap BRAIN to read it or change it."));
+  state.team.forEach((m, i) => {
+    const st = stats(m), box = el("div", "mon"), info = el("div", "info");
+    const nm = el("b"); nm.append(st.name, el("span", "tag " + st.element, st.element));
+    info.append(nm, el("span", null, "Lv" + m.level + " · " + m.hp + "/" + maxHp(m) + " HP" + (m.broken ? " · has a bug!" : "")),
+      el("span", null, "power " + (st.power ?? "?") + " · guard " + st.guard + " · speed " + (st.speed ?? "?")));
+    const row = el("div", "row");
+    row.append(button("BRAIN", "small", async () => { $("teamView").hidden = true; await editBrain(m); showTeam(); }));
+    if (i > 0) row.append(button("LEAD", "small", () => { state.team.splice(i, 1); state.team.unshift(m); save(); showTeam(); }));
+    info.append(row);
+    box.append(monCanvas(m), info);
+    c.append(box);
+  });
+  c.append(el("p", "eyebrow", "Creature log · caught " + DEX.filter((s) => state.caught[s]).length + " / " + DEX.length));
+  const dex = el("div", "dex");
+  DEX.forEach((s) => {
+    const d = el("div", state.seen[s] ? "" : "unseen");
+    d.append(monCanvas({ species: s }), el("span", null, state.seen[s] ? SPECIES[s].name + (state.caught[s] ? " ✓" : "") : "???"));
+    dex.append(d);
+  });
+  c.append(dex, button("CLOSE", "go wide", () => { $("teamView").hidden = true; }));
+  $("teamView").hidden = false;
 }
+
+// ---------- 19. Top bar, menus, level clear ----------
+const berryImg = spriteCanvas(SPRITES.berry, PAL.berry).toDataURL();
+const jarImg = spriteCanvas(SPRITES.jar, PAL.jar).toDataURL();
 function drawHud() {
-  drawHearts($("hearts"));
-  const bc = $("berryCount"); bc.innerHTML = ""; const im = el("img"); im.src = berryImg; im.alt = ""; bc.append(im, document.createTextNode(state.berries.length + "/" + BERRIES.length));
+  const put = (id, img, n) => { const b = $(id); b.innerHTML = ""; const im = el("img"); im.src = img; im.alt = ""; b.append(im, document.createTextNode("× " + n)); };
+  put("jarCount", jarImg, state.bag.jar); put("berryCount", berryImg, state.bag.berry);
   const q = $("quest"); q.innerHTML = ""; q.append(el("b", null, "QUEST"), document.createTextNode(QUESTS[state.quest]));
   const jar = Object.entries(state.bugs);
-  $("jar").textContent = jar.length ? jar.map(([t, n]) => bugFor(t) + " (" + t + ") × " + n).join(", ") : "Empty. Bugs appear when code breaks.";
-}
-function showBrain() {
-  if (busy || cutscene || !state.flags.hatched) return;
-  const vars = Object.entries(state.vars);
-  SFX.select();
-  dialog(vars.length ? ["Inside {name}'s brain: " + vars.map(([k, v]) => "`" + k + " = " + v.show + "`").join(" "), "Each one is a variable: a box with a label. Your code put them there."] : ["The brain is empty."], "you");
+  $("jarList").textContent = jar.length ? jar.map(([t, n]) => bugFor(t) + " (" + t + ") × " + n).join(", ") : "Empty. Bugs appear when code breaks.";
 }
 function showClear() {
   const c = $("clearCard"), nm = cname();
   c.innerHTML = "";
   c.append(el("p", "eyebrow", "Level 1 clear"), el("h2", null, "Mossbrook remembers!"),
-    el("p", null, "You and " + nm + " beat the Glitch Moth with nothing but Python variables."));
+    el("p", null, "You and " + nm + " beat the Glitch Moth by debugging your own creature's brain."));
   const card = el("button", "skill"); card.setAttribute("aria-label", "Skill card: Variables. Tap to flip.");
   const inner = el("div", "skill-inner"), front = el("div", "side front"), back = el("div", "side back");
   front.append(el("small", null, "SKILL CARD 1 / 8"), el("span", "big", "VARIABLES"), el("code", null, 'name = "' + nm + '"'), el("small", null, "Tap to flip"));
   back.innerHTML = "<b>VARIABLES</b><ul><li>A variable is a box with a label.</li><li><code>=</code> puts a value in the box.</li><li>Text (a string) needs quotes.</li><li>Numbers don't.</li><li><code>print(x)</code> says what's in x.</li><li>A new value replaces the old one.</li></ul>";
   inner.append(front, back); card.append(inner);
   card.addEventListener("click", () => { card.classList.toggle("flip"); SFX.select(); });
-  const bugs = Object.values(state.bugs).reduce((a, b) => a + b, 0);
-  const stats = el("div", "stats"); stats.append(el("span", null, "Berries " + state.berries.length + "/" + BERRIES.length), el("span", null, "Bugs caught " + bugs));
+  const bugs = Object.values(state.bugs).reduce((a, b) => a + b, 0), caught = DEX.filter((s) => state.caught[s]).length;
+  const stats2 = el("div", "stats"); stats2.append(el("span", null, "Team " + state.team.length), el("span", null, "Kinds caught " + caught + "/4"), el("span", null, "Bugs fixed " + bugs));
   const share = el("textarea", "share-text"); share.id = "share";
-  share.value = "Learning Python by building a game that teaches Python! I hatched " + nm + ", taught it variables, and beat the Glitch Moth in Creature Code" + (bugs ? " (and caught " + bugs + " bug" + (bugs > 1 ? "s" : "") + ")" : "") + ". #100DaysOfCode #Python";
+  share.value = "Learning Python by building a game that teaches Python! In Creature Code I hatched " + nm + ", caught " + (state.team.length - 1) + " creature" + (state.team.length === 2 ? "" : "s") + ", and beat the Glitch Moth by debugging my creature's brain. #100DaysOfCode #Python";
   const copy = button("COPY", "", () => navigator.clipboard.writeText(share.value).then(() => (copy.textContent = "COPIED!"), () => { share.select(); copy.textContent = "SELECTED"; }));
-  c.append(card, stats, el("p", "eyebrow", "Share your progress"), share, copy,
-    el("p", null, "Next: Level 2 · Math. Those berries will count. Coming soon!"),
-    button("KEEP EXPLORING", "go wide", () => { $("clear").hidden = true; }));
+  c.append(card, stats2, el("p", "eyebrow", "Share your progress"), share, copy,
+    el("p", null, "Keep exploring and catch all 4 kinds of creature! Level 2 (math) is coming soon."),
+    button("KEEP PLAYING", "go wide", () => { $("clear").hidden = true; }));
   $("clear").hidden = false;
 }
 $("menuBtn").addEventListener("click", () => { $("menu").hidden = false; });
@@ -1472,7 +1751,7 @@ $("resetBtn").addEventListener("click", (e) => {
   location.reload();
 });
 
-// ---------- 17. Controls ----------
+// ---------- 20. Controls ----------
 document.querySelectorAll(".dpad button").forEach((b) => {
   const start = (e) => { e.preventDefault(); held = b.dataset.dir; b.classList.add("held"); audio(); };
   const stop = () => { if (held === b.dataset.dir) held = null; b.classList.remove("held"); };
@@ -1483,39 +1762,37 @@ function press(btn, fn) {
   ["pointerup", "pointerleave", "pointercancel"].forEach((t) => btn.addEventListener(t, () => btn.classList.remove("held")));
 }
 press($("aBtn"), interact);
-press($("bBtn"), () => (dialogState ? dialogState.advance() : showBrain()));
+press($("bBtn"), () => (dialogState ? dialogState.advance() : showTeam()));
 const KEYS = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", w: "up", s: "down", a: "left", d: "right" };
 document.addEventListener("keydown", (e) => {
   if (!$("sheet").hidden || e.target.tagName === "TEXTAREA" || !$("title").hidden) return;
   if (KEYS[e.key]) { held = KEYS[e.key]; e.preventDefault(); }
   if (e.key === " " || e.key === "Enter" || e.key === "z") { e.preventDefault(); interact(); }
-  if (e.key === "x" || e.key === "b") showBrain();
+  if (e.key === "x" || e.key === "b") showTeam();
 });
 document.addEventListener("keyup", (e) => { if (KEYS[e.key] === held) held = null; });
 
-// ---------- 18. Start ----------
+// ---------- 21. Start ----------
 async function intro() {
   await dialog([
     "Oh good, you're here! I'm Old Moss, keeper of the Mossbrook hatchery.",
-    "Last night the Glitch Moth flew over the village and chewed up its memory.",
-    "Now nothing remembers anything. The stones forgot. The bridge forgot. Even this egg forgot who it is!",
-    "Here in Mossbrook, things remember with code. Real Python code.",
-    "In Python, you remember something with a variable. It's a box with a label: `snack = \"berry\"`",
+    "Wild creatures live all over Mossbrook. People here raise them, catch them, and battle with them.",
+    "But here's the special part: every creature's brain is code. Real Python code. Write it well and your creature gets stronger.",
+    "Last night the Glitch Moth flew over the village and scrambled everything. We'll need a good coder to stop it.",
+    "First things first. This egg is yours! In Python, you remember things with a variable: a box with a label. Like `snack = \"berry\"`",
     "The label goes on the left. `=` means “put this in the box”. The value goes on the right. Text goes in quotes.",
     "Your egg needs a name to hatch. Write one into its brain!",
   ], "moss");
-  await runPuzzle(PUZZLES.hatch);
+  await hatchFlow();
   if (!state.flags.hatched) await dialog(["Take your time. Press A whenever you're ready to name your egg."], "moss");
 }
 function begin() {
   $("title").hidden = true; audio(); playMusic("village");
   if (!state.started) { state.started = true; save(); intro(); }
-  else if (!state.flags.hatched) runPuzzle(PUZZLES.hatch);
+  else if (!state.flags.hatched) hatchFlow();
 }
 const tctx = $("titleArt").getContext("2d");
-drawSprite(tctx, SPRITES.egg, 0, 1, PAL.egg);
-drawSprite(tctx, SPRITES.body, 18, 1, creaturePal("fire")); drawSprite(tctx, SPRITES.tuft_fire, 18, 1, creaturePal("fire"));
-drawSprite(tctx, SPRITES.moss, 36, 2, PAL.moss);
+[["leaflet", 0], ["bubbit", 18], ["egg", 36], ["cindle", 54], ["pebblit", 72]].forEach(([s, x]) => drawSprite(tctx, SPRITES[s], x, 1, s === "egg" ? PAL.egg : PAL[s]));
 if (state.started) { $("startBtn").textContent = "CONTINUE"; $("newBtn").hidden = false; }
 $("startBtn").addEventListener("click", begin);
 let newArmed = false;
@@ -1526,8 +1803,8 @@ $("newBtn").addEventListener("click", (e) => {
 });
 buildMap(); drawHud();
 requestAnimationFrame(loop);
-// Used by automated tests to jump around the map.
-window.__game = { state: () => state, teleport(x, y, d) { player.x = x; player.y = y; player.px = x * T; player.py = y * T; player.dir = d; state.x = x; state.y = y; } };
+// Used by automated tests.
+window.__game = { state: () => state, B, teleport: placePlayer, wild: wildBattle, startBoss };
 </script>
 </body>
 </html>

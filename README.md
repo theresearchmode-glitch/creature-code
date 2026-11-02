@@ -21,9 +21,16 @@ Open `index.html` in a browser. Python runs right in the page (via [Pyodide](htt
 | 7 | Functions | Invent a signature move | |
 | 8 | Classes | Design a new species | |
 
-## Level 1: Hatch Your Creature
+## Level 1: Mossbrook
 
-A pixel-art adventure built for phones. The Glitch Moth ate the village of Mossbrook's memory. Hatch your creature, walk it around with a D-pad, and write real Python at glowing memory stones to change the world: burn brambles with `element = "fire"`, push a boulder with `hp = 50`, wake a sleeping snail with `print(name)`. Then beat the Glitch Moth by fixing its broken code. Errors become bugs you catch, and winning makes your creature evolve.
+A pixel-art creature-collecting adventure built for phones. Every creature's brain is a real Python program.
+
+- **Explore** Mossbrook with a D-pad. Wild creatures hide in the tall grass.
+- **Battle** turn by turn: FIGHT, CODE, BAG, TEAM, RUN. Your creature's `power`, `guard`, `speed` and `element` come from its code, and you only have so many stat points to share between them.
+- **Rewrite brains mid-fight** with CODE, for example switching `element = "fire"` to `"leaf"` to beat a water creature.
+- **Catch** weakened creatures by writing their name into a Code Jar: `jar = "Bubbit"`.
+- **Original creatures:** Leaflet, Bubbit, Cindle, Pebblit, and your own hatchling.
+- **Boss:** the Glitch Moth sabotages your creature's code mid-battle (`power = "5"`, misspelled `guard`, missing quotes), so you win by debugging.
 
 New to code? Read [HOW-IT-WORKS.md](HOW-IT-WORKS.md) for a plain-language tour of the game's code.
 

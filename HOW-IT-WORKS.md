@@ -1,52 +1,74 @@
-# How Creature Code works (Level 1: The Forgetful Village)
+# How Creature Code works (Level 1: Mossbrook)
 
 The whole game is one file: `index.html`. This guide walks through it in plain words.
 
-## The story
+## The big idea
 
-The Glitch Moth ate Mossbrook's memory. You hatch a creature, walk it around the village, and fix things by writing Python at glowing memory stones:
+Every creature's brain is a real Python program, for example:
 
-| Stone | Python idea | What your code does in the world |
-|---|---|---|
-| The egg | `name = "Pip"` (a variable) | The egg hatches |
-| Element Stone | `element = "fire"` (strings) | Burns, washes or vines away the brambles |
-| Strength Stone | `hp = 50` (numbers vs text) | Pushes the boulder. `"50"` with quotes fails! |
-| Voice Stone | `print(name)` | Your creature says its name and wakes Pebble |
-| Mood Stone | changing a variable | `mood` goes from "scared" to "brave", and the cave opens |
-| Glitch Moth | fixing broken code | Each fixed line is a hit. Each error costs a heart |
+```python
+name = "Pip"
+element = "fire"
+power = 4
+guard = 3
+speed = 3
+```
+
+The game runs that code (with real Python, via Pyodide) and uses the variables as the creature's stats:
+
+- `power`: how hard it hits.
+- `guard`: how much damage it blocks.
+- `speed`: who moves first.
+- `element`: fire beats leaf, leaf beats water, water beats fire.
+
+`power + guard + speed` can only add up to so much (10 at level 1, +2 per level), so every build is a choice.
+
+## Where the Python lessons are
+
+| Moment | Python idea |
+|---|---|
+| Hatching the egg | Your first variable: `name = "..."` |
+| Setting up the brain | Strings (`element = "fire"`) and numbers (`power = 4`) |
+| Catching | Strings must match exactly: `jar = "Bubbit"` (capitals count!) |
+| CODE in battle | Changing a variable's value mid-fight |
+| Voice Stone | `print(name)` vs `print("name")` |
+| Glitch Moth | Debugging: text instead of a number, a misspelled label, missing quotes |
 
 ## The three languages in one file
 
 | Part | Language | Its job |
 |---|---|---|
-| `<style>` | CSS | How it looks: the console shell, buttons, the code sheet |
+| `<style>` | CSS | How it looks: the console shell, buttons, battle menus |
 | The tags (`<canvas>`, `<button>`) | HTML | The frame: screen, D-pad, A/B buttons |
-| `<script>` | JavaScript | The game: map, walking, talking, sound, the boss |
-| `HARNESS` inside the script | **Python** | Runs *your* code one line at a time |
+| `<script>` | JavaScript | The game: map, battles, catching, sound |
+| `HARNESS` in the script | **Python** | Runs *your* code one line at a time |
 
 ## The JavaScript, section by section
 
-1. **Pixel art.** Each sprite is a grid of letters, and each letter is a colour. `drawSprite()` paints one square per letter.
-2. **The map.** `MAP` is a list of strings. Each letter is a 16 × 16 tile: `T` tree, `~` water, `=` path, `*` brambles. `ENTITIES` places the villagers, stones and the boulder.
-3. **Saving.** `localStorage` keeps your progress in the browser.
-4. **Helpers.** Small tools, like `fill()`, which swaps `{name}` for your creature's name.
-5. **Sound.** Every sound effect and both music loops are made from code with the Web Audio API. There are no sound files.
-6. **Drawing tiles.** Trees, water, houses and cliffs are drawn pixel by pixel with `fillRect`.
-7. **The player.** `tryMove()` checks whether the next tile is solid (`solidAt()`), then slides the creature over.
-8. **Game loop.** `loop()` runs about 60 times a second. It moves things, then draws the world (or the battle).
-9. **Talking.** `dialog()` shows text letter by letter with a little beep, like old handheld games.
-10. **The A button.** `interact()` looks at the tile in front of the creature and decides what happens.
-11. **Python.** `_creature_run` runs your code, pausing before every line to take a snapshot of all the variables. It starts with the variables already in your creature's brain, so they carry over between stones.
-12. **Friendly errors.** Python's error messages translated into plain words.
-13. **Puzzles.** `PUZZLES` holds each stone: what it says, the task, the hints, a `check()` of your variables, and an `effect()` that changes the world.
-14. **The code console.** The sheet that slides up. It replays your code line by line and explains what Python did.
-15. **Boss battle.** `ATTACKS` lists the moth's broken lines. `startBoss()` runs the fight.
-16. **Menus.** Top bar, brain view, level clear screen and skill card.
-17. **Controls.** D-pad, A, B, and keyboard support.
-18. **Start.** The intro with Old Moss.
+1. **Pixel art.** Each sprite is a grid of letters, and each letter is a colour.
+2. **Creatures.** `SPECIES` lists every kind of creature. `makeCreature()` builds one, including its brain code. `stats()` reads the brain, and `checkBrain()` lists the rules a brain must follow.
+3. **Map.** Each letter in `MAP` is a tile, and `g` is tall grass. `WILD` says which creatures live where.
+4. **Saving.** Progress is kept in your browser.
+5. **Helpers.** Small tools used everywhere.
+6. **Sound.** Sound effects and three music loops, all made from code.
+7. **Tiles.** Trees, grass, water and houses, drawn pixel by pixel.
+8. **Player.** Walking, picking up berries, and random encounters in tall grass.
+9. **Game loop.** Runs about 60 times a second and draws the world or the battle.
+10. **Talking.** Text that types itself out, letter by letter.
+11. **The A button.** Decides what happens when you talk to or touch something.
+12. **Python.** Runs your code and snapshots every variable after each line.
+13. **Friendly errors.** Python's error messages in plain words.
+14. **Code console.** The editor that slides up. `editBrain()` edits a creature's brain.
+15. **Story start.** Hatching and the first brain with Old Moss.
+16. **Battles.** `battle()` runs the turns. `attack()` does the damage maths. `catchFlow()` handles the jar. `SABOTAGE` lists the moth's tricks.
+17. **Voice Stone and boss.**
+18. **Team view (B).** Your creatures, their brains, and the creature log.
+19. **Menus and level clear.**
+20. **Controls.**
+21. **Start.**
 
 ## Try changing it
 
-- Add a berry: add `[x, y]` to `BERRIES`.
-- Change what a villager says: edit `talkCap()` or `talkMoss()`.
-- Move things around: edit the letters in `MAP`.
+- Make a creature stronger: change its `base` numbers in `SPECIES`.
+- Make wild creatures appear more often: change `0.16` in `arrived()`.
+- Add a creature to an area: add it to `WILD`.
