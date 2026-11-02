@@ -23,7 +23,7 @@ Open `index.html` in a browser. Python runs right in the page (via [Pyodide](htt
 
 ## Level 1: Hatch Your Creature
 
-A cozy pixel-art game, built for phones. Old Moss the frog teaches one small idea at a time, quick quizzes check you got it, and in challenges you type real Python yourself (no answers given) to hatch, colour, power up and name your creature. It acts out your code line by line, errors become bugs you catch by fixing them, and finishing the level makes your creature evolve.
+A pixel-art adventure built for phones. The Glitch Moth ate the village of Mossbrook's memory. Hatch your creature, walk it around with a D-pad, and write real Python at glowing memory stones to change the world: burn brambles with `element = "fire"`, push a boulder with `hp = 50`, wake a sleeping snail with `print(name)`. Then beat the Glitch Moth by fixing its broken code. Errors become bugs you catch, and winning makes your creature evolve.
 
 New to code? Read [HOW-IT-WORKS.md](HOW-IT-WORKS.md) for a plain-language tour of the game's code.
 
