@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- page:start -->
+<title>Creature Code</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a habitat (your creature) on the left, a mission + code editor on the right.
+   On phones they stack: creature first, then the code. */
+:root {
+  --bg: #EDF2F7;          /* cool morning mist */
+  --surface: #FFFFFF;
+  --ink: #1C2340;         /* deep navy text */
+  --muted: #5A6383;
+  --line: #D3DAE6;
+  --yolk: #F5B700;        /* the main accent: egg yolk */
+  --yolk-ink: #1C2340;
+  --good: #168A65;
+  --bad: #D63A4F;
+  --good-soft: #E2F5EE;
+  --bad-soft: #FCE8EB;
+  --hint-soft: #FFF5D6;
+  --sky-top: #DCEBFA;
+  --sky-bottom: #F7FBFF;
+  --ground: #CFE3C8;
+  --code-bg: #1A1F36;
+  --code-fg: #E6E9F5;
+  --code-dim: #6E7799;
+  --code-line: rgba(245, 183, 0, 0.20);
+  --code-err: rgba(214, 58, 79, 0.30);
+  --font-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11152A; --surface: #1A1F38; --ink: #EEF1FA; --muted: #9AA3C4; --line: #2C3352;
+    --yolk: #FFC93C; --yolk-ink: #1C2340; --good: #3CCB98; --bad: #FF6B7F;
+    --good-soft: #143A31; --bad-soft: #42202A; --hint-soft: #3A3218;
+    --sky-top: #1D2550; --sky-bottom: #2A3366; --ground: #24402F;
+    --code-bg: #0D1022; --code-fg: #E6E9F5; --code-dim: #5F688A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11152A; --surface: #1A1F38; --ink: #EEF1FA; --muted: #9AA3C4; --line: #2C3352;
+  --yolk: #FFC93C; --yolk-ink: #1C2340; --good: #3CCB98; --bad: #FF6B7F;
+  --good-soft: #143A31; --bad-soft: #42202A; --hint-soft: #3A3218;
+  --sky-top: #1D2550; --sky-bottom: #2A3366; --ground: #24402F;
+  --code-bg: #0D1022; --code-fg: #E6E9F5; --code-dim: #5F688A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 20px;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible, textarea:focus-visible { outline: 3px solid var(--yolk); outline-offset: 2px; }
+
+/* ---------- Header ---------- */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; justify-content: space-between; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; margin: 0; letter-spacing: -0.01em; }
+.brand h1 span { color: var(--yolk); -webkit-text-stroke: 1px var(--ink); }
+.brand p { margin: 0; color: var(--muted); }
+.level-pill {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 8px 6px 16px;
+}
+.level-pill b { font-family: var(--font-display); font-weight: 600; }
+.dots { display: flex; gap: 6px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); background: transparent; }
+.dot.done { background: var(--good); border-color: var(--good); }
+.dot.now { border-color: var(--yolk); background: var(--yolk); }
+
+/* ---------- Main grid ---------- */
+.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
+@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Habitat ---------- */
+.habitat {
+  position: sticky; top: calc(12px + env(safe-area-inset-top, 0px));
+  display: grid; gap: 14px;
+}
+@media (max-width: 880px) { .habitat { position: static; } }
+.stage {
+  position: relative; overflow: hidden;
+  border-radius: 24px; border: 1px solid var(--line);
+  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%);
+  aspect-ratio: 5 / 4; max-width: 100%;
+  min-height: 260px;
+}
+.stage::after { /* ground */
+  content: ""; position: absolute; left: -10%; right: -10%; bottom: -38%; height: 55%;
+  background: var(--ground); border-radius: 50%;
+  transition: background 0.6s;
+}
+.stage[data-element="fire"]::after { background: color-mix(in srgb, var(--ground) 60%, #FF8A4C); }
+.stage[data-element="water"]::after { background: color-mix(in srgb, var(--ground) 55%, #4AA9F0); }
+.stage[data-element="leaf"]::after { background: color-mix(in srgb, var(--ground) 60%, #5CC26E); }
+.creature-svg { position: absolute; z-index: 1; left: 50%; bottom: 6%; width: 58%; max-width: 300px; transform: translateX(-50%); overflow: visible; }
+
+.nametag {
+  position: absolute; z-index: 2; left: 50%; bottom: 4%; transform: translateX(-50%);
+  background: var(--surface); color: var(--ink); border: 2px solid var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
+  padding: 2px 14px; border-radius: 10px; white-space: nowrap; max-width: 80%; overflow: hidden; text-overflow: ellipsis;
+}
+.bubble {
+  position: absolute; z-index: 3; left: 6%; top: 7%; max-width: 62%;
+  background: var(--surface); color: var(--ink); border: 2px solid var(--ink);
+  border-radius: 16px; padding: 8px 14px; font-weight: 700;
+  overflow-wrap: anywhere;
+  animation: pop 0.25s ease-out;
+}
+.bubble::after {
+  content: ""; position: absolute; right: 18px; bottom: -11px; width: 18px; height: 18px;
+  background: var(--surface); border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  transform: rotate(45deg); border-radius: 0 0 4px 0;
+}
+.status-chip {
+  position: absolute; z-index: 3; right: 12px; top: 12px;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--muted);
+}
+.status-chip.ready { color: var(--good); }
+.status-chip.fail { color: var(--bad); }
+.bug {
+  position: absolute; z-index: 2; right: 10%; bottom: 20%; width: 18%; max-width: 80px;
+  animation: scuttle 0.5s ease-in-out infinite alternate;
+}
+.bug-label {
+  position: absolute; z-index: 3; right: 6%; bottom: 10%; font-size: 0.78rem; font-weight: 700;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1px 8px;
+}
+
+/* creature parts */
+.c-egg, .c-body, .tuft, .evo, .qmark, .mouth-confused { transition: opacity 0.4s; }
+.creature-svg .c-body { opacity: 0; }
+.creature-svg.hatched .c-egg { display: none; }
+.creature-svg.hatched .c-body { opacity: 1; }
+.tuft { opacity: 0; }
+.creature-svg[data-element="fire"] .tuft-fire,
+.creature-svg[data-element="water"] .tuft-water,
+.creature-svg[data-element="leaf"] .tuft-leaf,
+.creature-svg[data-element="none"] .tuft-none { opacity: 1; }
+.creature-svg { --body: #B9A6F2; --body-dark: #8F79D8; }
+.creature-svg[data-element="fire"] { --body: #FF8A4C; --body-dark: #D9612A; }
+.creature-svg[data-element="water"] { --body: #4AA9F0; --body-dark: #2A7FC4; }
+.creature-svg[data-element="leaf"] { --body: #5CC26E; --body-dark: #3A9A4E; }
+.body-fill { fill: var(--body); transition: fill 0.6s; }
+.body-dark { fill: var(--body-dark); transition: fill 0.6s; }
+.evo { opacity: 0; }
+.creature-svg.evolved .evo { opacity: 1; }
+.qmark, .mouth-confused { opacity: 0; }
+.creature-svg.confused .qmark, .creature-svg.confused .mouth-confused { opacity: 1; }
+.creature-svg.confused .mouth-happy { opacity: 0; }
+.creature-svg.confused .c-body { transform: rotate(-8deg); }
+.c-body, .c-egg { transform-origin: 100px 175px; transition: transform 0.3s; }
+.eyes { transform-origin: 100px 112px; animation: blink 4.5s infinite; }
+.creature-svg.wobble .c-egg { animation: wobble 0.5s ease-in-out 3; }
+.creature-svg.idle .c-egg { animation: wobble 1.6s ease-in-out infinite; animation-delay: 1s; }
+.creature-svg.bounce .c-body { animation: bounce 0.5s ease-out 2; }
+.creature-svg.hatching .c-body { animation: hatch 0.6s cubic-bezier(.3,1.6,.5,1); }
+.creature-svg.evolving .c-body { animation: evolve 1.2s ease-in-out; }
+.crack { opacity: 0; }
+.creature-svg.cracking .crack { opacity: 1; }
+
+@keyframes wobble { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+@keyframes bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-18px); } }
+@keyframes hatch { from { transform: scale(0.2); } to { transform: scale(1); } }
+@keyframes evolve { 0% { transform: scale(1); filter: brightness(1); } 40% { transform: scale(1.15); filter: brightness(1.8); } 100% { transform: scale(1); filter: brightness(1); } }
+@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+@keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes scuttle { from { transform: translateX(-6px) rotate(-4deg); } to { transform: translateX(6px) rotate(4deg); } }
+
+/* Memory shelf: every variable shown as a labelled box */
+.shelf-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px 16px; }
+.section-label { margin: 0 0 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.shelf { display: flex; flex-wrap: wrap; gap: 12px; min-height: 64px; align-items: flex-start; }
+.shelf .empty { color: var(--muted); font-size: 0.95rem; margin: 0; }
+.box { position: relative; min-width: 96px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px 6px 10px 10px; padding: 16px 12px 8px; background: var(--bg); }
+.box .label {
+  position: absolute; top: -12px; left: 10px; background: var(--yolk); color: var(--yolk-ink);
+  font-family: var(--font-code); font-weight: 600; font-size: 0.82rem; padding: 1px 8px; border-radius: 6px; border: 2px solid var(--ink);
+}
+.box .val { font-family: var(--font-code); font-size: 0.95rem; overflow-wrap: anywhere; }
+.box .type { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.box.fresh { animation: pop 0.35s ease-out; }
+.box.changed { animation: pop 0.35s ease-out; border-color: var(--yolk); }
+.hp-meter { height: 8px; border-radius: 99px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.hp-meter i { display: block; height: 100%; background: var(--bad); border-radius: 99px; transition: width 0.5s; }
+
+.jar { display: flex; flex-wrap: wrap; gap: 8px; }
+.jar span { font-size: 0.85rem; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--bg); }
+
+/* ---------- Mission + editor ---------- */
+.work { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; min-width: 0; }
+.eyebrow { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.mission h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; margin: 2px 0 6px; text-wrap: balance; }
+.mission .story { margin: 0 0 12px; color: var(--muted); }
+.idea { margin: 0 0 12px; font-size: 1.05rem; }
+.parts { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.parts li { display: grid; grid-template-columns: minmax(84px, auto) minmax(0, 1fr); gap: 12px; align-items: baseline; }
+code, .tok { font-family: var(--font-code); font-size: 0.92em; }
+.tok { background: var(--code-bg); color: var(--code-fg); padding: 2px 8px; border-radius: 6px; white-space: pre; justify-self: start; }
+.task { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--hint-soft); font-weight: 700; }
+.task::before { content: "Your turn: "; color: var(--muted); font-weight: 400; }
+
+.editor-card { background: var(--code-bg); color: var(--code-fg); border-radius: 18px; overflow: hidden; }
+.editor-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; color: var(--code-dim); }
+.editor-head b { color: var(--code-fg); font-family: var(--font-code); font-weight: 600; }
+.editor { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); }
+.gutter { padding: 14px 10px 14px 14px; text-align: right; color: var(--code-dim); font-family: var(--font-code); font-size: 15px; line-height: 24px; user-select: none; white-space: pre; overflow: hidden; }
+.code-area { position: relative; min-width: 0; }
+.hl { position: absolute; left: 0; right: 0; height: 24px; background: var(--code-line); pointer-events: none; display: none; transition: top 0.15s; }
+.hl.err { background: var(--code-err); }
+textarea#code {
+  position: relative; display: block; width: 100%; min-height: 216px; resize: none; overflow-y: hidden;
+  background: transparent; color: var(--code-fg); caret-color: var(--yolk);
+  border: 0; margin: 0; padding: 14px 14px 14px 4px;
+  font-family: var(--font-code); font-size: 15px; line-height: 24px; white-space: pre; overflow-x: auto; tab-size: 4;
+}
+textarea#code:focus-visible { outline: none; }
+.editor-card:focus-within { box-shadow: 0 0 0 3px var(--yolk); }
+.run-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.btn {
+  border: 2px solid var(--ink); border-radius: 12px; padding: 8px 18px; font-weight: 700;
+  background: var(--surface); color: var(--ink);
+}
+.btn.primary { background: var(--yolk); color: var(--yolk-ink); border-color: var(--yolk-ink); font-family: var(--font-display); font-size: 1.1rem; padding: 8px 24px; box-shadow: 0 3px 0 var(--yolk-ink); }
+.btn.primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--yolk-ink); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.run-bar .kbd { color: var(--code-dim); font-size: 0.82rem; }
+.console { margin: 0; padding: 12px 14px; min-height: 48px; border-top: 1px solid rgba(255,255,255,0.08); font-family: var(--font-code); font-size: 0.9rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--code-fg); }
+.console .dim { color: var(--code-dim); }
+
+.feedback { border-radius: 16px; padding: 14px 18px; border: 2px solid transparent; display: grid; gap: 8px; }
+.feedback[hidden] { display: none; }
+.feedback.error { background: var(--bad-soft); border-color: var(--bad); }
+.feedback.hint { background: var(--hint-soft); border-color: var(--yolk); }
+.feedback.success { background: var(--good-soft); border-color: var(--good); }
+.feedback h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; }
+.feedback p { margin: 0; }
+.feedback .raw { font-family: var(--font-code); font-size: 0.85rem; color: var(--muted); overflow-wrap: anywhere; }
+.feedback .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+
+/* ---------- Level complete + skill card ---------- */
+.complete h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.8rem; margin: 2px 0 6px; }
+.complete-grid { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 12px; }
+@media (max-width: 520px) { .complete-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+.skill-card { width: 220px; height: 300px; perspective: 900px; border: 0; padding: 0; background: none; }
+.skill-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.skill-card.flipped .skill-inner { transform: rotateY(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px; border: 3px solid var(--ink);
+  padding: 16px; display: flex; flex-direction: column; text-align: left; gap: 8px;
+}
+.face.front { background: var(--yolk); color: var(--yolk-ink); justify-content: space-between; }
+.face.front .num { font-family: var(--font-code); font-size: 0.8rem; font-weight: 600; }
+.face.front .big { font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1; }
+.face.front .glyph { font-family: var(--font-code); font-size: 1rem; background: var(--yolk-ink); color: var(--yolk); padding: 8px 10px; border-radius: 8px; }
+.face.back { background: var(--surface); color: var(--ink); transform: rotateY(180deg); font-size: 0.88rem; overflow: auto; }
+.face.back b { font-family: var(--font-display); font-size: 1.05rem; }
+.face.back ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.complete ul.recap { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; }
+.share { display: grid; gap: 8px; margin-top: 12px; }
+.share textarea { width: 100%; min-height: 76px; font: inherit; font-size: 0.95rem; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--bg); color: var(--ink); resize: vertical; }
+.next-level { margin-top: 14px; padding: 12px 14px; border: 2px dashed var(--line); border-radius: 12px; color: var(--muted); }
+
+.foot { display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: space-between; align-items: center; color: var(--muted); font-size: 0.9rem; }
+.linkish { background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; }
+
+/* On phones: creature, then mission and code, then the shelves. */
+@media (max-width: 880px) {
+  .grid { display: flex; flex-direction: column; }
+  .habitat, .work { display: contents; }
+  .stage { order: 1; width: 100%; }
+  #mission { order: 2; }
+  .editor-card { order: 3; }
+  #feedback { order: 4; }
+  #shelfBox { order: 5; }
+  #jarBox { order: 6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="page">
+  <header class="top">
+    <div class="brand">
+      <h1>Creature <span>Code</span></h1>
+      <p>Learn real Python by raising a creature.</p>
+    </div>
+    <div class="level-pill" aria-label="Level progress">
+      <b>Level 1 · Variables</b>
+      <div class="dots" id="dots"></div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- LEFT: the habitat where your creature lives -->
+    <section class="habitat" aria-label="Your creature">
+      <div class="stage" id="stage" data-element="none">
+        <span class="status-chip" id="engineStatus">Loading Python…</span>
+        <div class="bubble" id="bubble" hidden></div>
+
+        <svg class="creature-svg idle" id="creature" data-element="none" viewBox="0 0 200 200" role="img" aria-label="Your creature">
+          <ellipse cx="100" cy="184" rx="52" ry="8" fill="rgba(0,0,0,0.12)"></ellipse>
+          <!-- The egg -->
+          <g class="c-egg">
+            <path d="M100 32 C140 32 160 96 160 126 C160 162 133 180 100 180 C67 180 40 162 40 126 C40 96 60 32 100 32Z" fill="#FFF6E0" stroke="#1C2340" stroke-width="4"></path>
+            <circle cx="78" cy="96" r="9" fill="#B9A6F2"></circle>
+            <circle cx="122" cy="122" r="12" fill="#B9A6F2"></circle>
+            <circle cx="88" cy="150" r="7" fill="#B9A6F2"></circle>
+            <circle cx="118" cy="72" r="6" fill="#B9A6F2"></circle>
+            <polyline class="crack" points="48,118 66,108 76,124 92,106 104,124 118,108 132,124 152,112" fill="none" stroke="#1C2340" stroke-width="4" stroke-linejoin="round"></polyline>
+          </g>
+          <!-- The hatched creature -->
+          <g class="c-body">
+            <g class="evo">
+              <path class="body-dark" d="M46 118 C18 96 10 128 28 144 C34 140 40 136 46 132Z"></path>
+              <path class="body-dark" d="M154 118 C182 96 190 128 172 144 C166 140 160 136 154 132Z"></path>
+            </g>
+            <ellipse class="body-dark" cx="78" cy="174" rx="15" ry="8"></ellipse>
+            <ellipse class="body-dark" cx="122" cy="174" rx="15" ry="8"></ellipse>
+            <!-- head decorations, one per element -->
+            <path class="tuft tuft-fire" d="M100 66 C86 52 90 36 100 20 C104 34 116 38 112 52 C118 48 121 42 121 38 C130 54 120 68 100 68Z" fill="#FFC23D" stroke="#1C2340" stroke-width="3"></path>
+            <path class="tuft tuft-water" d="M98 66 C94 44 112 30 130 36 C118 42 112 50 116 64Z" fill="#9FD6FF" stroke="#1C2340" stroke-width="3"></path>
+            <g class="tuft tuft-leaf">
+              <path d="M100 66 L100 44" stroke="#1C2340" stroke-width="3"></path>
+              <path d="M100 48 C84 46 78 32 82 26 C96 28 102 38 100 48Z" fill="#A8E06C" stroke="#1C2340" stroke-width="3"></path>
+              <path d="M100 46 C112 40 124 42 128 48 C120 58 106 54 100 46Z" fill="#A8E06C" stroke="#1C2340" stroke-width="3"></path>
+            </g>
+            <circle class="tuft tuft-none body-dark" cx="100" cy="62" r="7"></circle>
+            <!-- body -->
+            <path class="body-fill" d="M100 62 C146 62 162 100 160 132 C158 166 132 178 100 178 C68 178 42 166 40 132 C38 100 54 62 100 62Z" stroke="#1C2340" stroke-width="4"></path>
+            <ellipse cx="100" cy="146" rx="34" ry="24" fill="rgba(255,255,255,0.35)"></ellipse>
+            <ellipse class="body-fill" cx="44" cy="140" rx="9" ry="13" stroke="#1C2340" stroke-width="3"></ellipse>
+            <ellipse class="body-fill" cx="156" cy="140" rx="9" ry="13" stroke="#1C2340" stroke-width="3"></ellipse>
+            <path class="evo" d="M100 136 L104 145 L114 146 L106 152 L109 162 L100 156 L91 162 L94 152 L86 146 L96 145Z" fill="#FFE066" stroke="#1C2340" stroke-width="2"></path>
+            <g class="eyes">
+              <ellipse cx="82" cy="110" rx="13" ry="15" fill="#fff" stroke="#1C2340" stroke-width="3"></ellipse>
+              <ellipse cx="118" cy="110" rx="13" ry="15" fill="#fff" stroke="#1C2340" stroke-width="3"></ellipse>
+              <circle cx="84" cy="113" r="7" fill="#1C2340"></circle>
+              <circle cx="120" cy="113" r="7" fill="#1C2340"></circle>
+              <circle cx="86" cy="110" r="2.5" fill="#fff"></circle>
+              <circle cx="122" cy="110" r="2.5" fill="#fff"></circle>
+            </g>
+            <ellipse cx="66" cy="130" rx="8" ry="5" fill="#FF7A9A" opacity="0.5"></ellipse>
+            <ellipse cx="134" cy="130" rx="8" ry="5" fill="#FF7A9A" opacity="0.5"></ellipse>
+            <path class="mouth-happy" d="M91 130 Q100 140 109 130" fill="none" stroke="#1C2340" stroke-width="3.5" stroke-linecap="round"></path>
+            <path class="mouth-confused" d="M89 134 Q94 129 100 134 Q106 139 111 134" fill="none" stroke="#1C2340" stroke-width="3.5" stroke-linecap="round"></path>
+          </g>
+          <text class="qmark" x="150" y="64" font-family="Fredoka, sans-serif" font-weight="700" font-size="40" fill="#D63A4F" stroke="#1C2340" stroke-width="1.5">?</text>
+        </svg>
+
+        <div class="nametag" id="nametag" hidden></div>
+        <svg class="bug" id="bug" viewBox="0 0 60 50" hidden aria-hidden="true">
+          <g stroke="#1C2340" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="20" x2="6" y2="12"></line><line x1="16" y1="28" x2="4" y2="30"></line><line x1="18" y1="36" x2="8" y2="46"></line>
+            <line x1="42" y1="20" x2="54" y2="12"></line><line x1="44" y1="28" x2="56" y2="30"></line><line x1="42" y1="36" x2="52" y2="46"></line>
+            <line x1="26" y1="8" x2="20" y2="0"></line><line x1="34" y1="8" x2="40" y2="0"></line>
+          </g>
+          <ellipse id="bugBody" cx="30" cy="30" rx="15" ry="17" fill="#D63A4F" stroke="#1C2340" stroke-width="2.5"></ellipse>
+          <circle cx="30" cy="12" r="7" fill="#1C2340"></circle>
+          <line x1="30" y1="16" x2="30" y2="46" stroke="#1C2340" stroke-width="2"></line>
+          <circle cx="24" cy="26" r="3" fill="#1C2340"></circle><circle cx="36" cy="34" r="3" fill="#1C2340"></circle>
+        </svg>
+        <span class="bug-label" id="bugLabel" hidden></span>
+      </div>
+
+      <div class="shelf-wrap" id="shelfBox">
+        <p class="section-label">Memory shelf · your variables</p>
+        <div class="shelf" id="shelf"><p class="empty">No boxes yet. Run your code and they'll appear here.</p></div>
+      </div>
+
+      <div class="shelf-wrap" id="jarBox">
+        <p class="section-label">Bug jar · errors you fixed</p>
+        <div class="jar" id="jar"><span>Empty. Bugs show up when code breaks. Fix the code to catch them.</span></div>
+      </div>
+    </section>
+
+    <!-- RIGHT: the mission and your code -->
+    <section class="work" aria-label="Mission and code">
+      <article class="card mission" id="mission"></article>
+
+      <div class="editor-card">
+        <div class="editor-head"><b>creature.py</b><span>Python 3 · runs in your browser</span></div>
+        <div class="editor">
+          <div class="gutter" id="gutter">1</div>
+          <div class="code-area">
+            <div class="hl" id="hl"></div>
+            <textarea id="code" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Your Python code"></textarea>
+          </div>
+        </div>
+        <div class="run-bar">
+          <button class="btn primary" id="runBtn" disabled>Run ▶</button>
+          <span class="kbd" id="runNote">Python is loading. This takes a few seconds the first time.</span>
+        </div>
+        <pre class="console" id="console"><span class="dim">Output from print() shows up here.</span></pre>
+      </div>
+
+      <div class="feedback" id="feedback" hidden aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>Built in public by a Python learner. Level 2 (Math) is next.</span>
+    <button class="linkish" id="resetBtn">Start Level 1 over</button>
+  </footer>
+</div>
+
+<script>
+/* =====================================================================
+   CREATURE CODE · Level 1: Variables
+   The JavaScript below runs the game. The Python you type is run by
+   Pyodide, which is the real Python language compiled to work in a browser.
+   ===================================================================== */
+
+// ---------- 1. The five missions of Level 1 ----------
+// Each mission has text to teach one idea, code to add to the editor,
+// and a check() that looks at your variables after the code runs.
+const STEPS = [
+  {
+    title: "Hatch your egg",
+    story: "Your egg is wiggling. It won't hatch until it has a name.",
+    idea: "A variable is a labelled box that stores a value. You make one with =.",
+    parts: [
+      ["name", "The label on the box. You pick it."],
+      ["=", "Means “put this in the box”. It is not the maths equals."],
+      ['"Ember"', "The value. Text inside quotes is called a string."],
+    ],
+    task: "Change Ember to any name you like. Keep the quotes. Then press Run.",
+    add: '# Lines starting with # are notes.\nname = "Ember"\n',
+    check(v) {
+      if (!v.name) return { ok: false, hint: "Python finished, but there is no box called name. Make sure the line starts with name =" };
+      if (v.name.type !== "str") return { ok: false, hint: "Your name box holds a " + typeWord(v.name.type) + ". A name is text, so wrap it in quotes, like \"Ember\"." };
+      if (!v.name.value.trim()) return { ok: false, hint: "The quotes are empty, so the name is blank. Type a name between them." };
+      return { ok: true, msg: "Your egg hatched! Python made a box labelled name and put \"" + v.name.value + "\" inside it." };
+    },
+  },
+  {
+    title: "Choose an element",
+    story: "Your creature needs an element. It changes how it looks and, later, how it battles.",
+    idea: "You can make as many boxes as you like. Each one gets its own label.",
+    parts: [
+      ["element", "A second box, with a different label."],
+      ['"water"', "Another string. Pick fire, water or leaf."],
+    ],
+    task: 'Set element to "fire", "water" or "leaf", then Run.',
+    add: '\n# Pick one: "fire", "water" or "leaf"\nelement = "fire"\n',
+    check(v) {
+      const e = v.element;
+      if (!e) return { ok: false, hint: "There's no box called element yet. Add a line: element = \"fire\"" };
+      if (e.type !== "str") return { ok: false, hint: "element should be text, so it needs quotes: element = \"water\"" };
+      const ok = ["fire", "water", "leaf"];
+      if (ok.includes(e.value)) return { ok: true, msg: "Your creature is now a " + e.value + " type. Two boxes on the shelf, each with its own label." };
+      if (ok.includes(e.value.trim().toLowerCase())) return { ok: false, hint: "Close! Python is picky: \"Fire\" and \"fire\" are different strings. Use all lowercase, with no spaces." };
+      return { ok: false, hint: "Your creature doesn't know the element \"" + e.value + "\". Try \"fire\", \"water\" or \"leaf\"." };
+    },
+  },
+  {
+    title: "Give it energy",
+    story: "Every creature has energy points, called hp. Without energy it can't train or battle.",
+    idea: "Numbers don't need quotes. 20 is a number you can do maths with. \"20\" with quotes is just text that looks like a number.",
+    parts: [
+      ["hp", "Short for health points."],
+      ["20", "A whole number. Python calls it an int (short for integer)."],
+      ['"20"', "Careful: this is a string, not a number."],
+    ],
+    task: "Give hp a number from 1 to 100, with no quotes. Then Run.",
+    add: "\n# Energy: a number from 1 to 100. No quotes for numbers!\nhp = 20\n",
+    check(v) {
+      const h = v.hp;
+      if (!h) return { ok: false, hint: "There's no box called hp yet. Add a line: hp = 20" };
+      if (h.type === "str") return { ok: false, hint: "hp holds the string " + h.repr + ". That's text that only looks like a number. Remove the quotes so it becomes a real number." };
+      if (h.type !== "int" && h.type !== "float") return { ok: false, hint: "hp should be a number, like 20." };
+      if (h.value < 1) return { ok: false, hint: "Your creature has no energy! Use a number of 1 or more." };
+      if (h.value > 100) return { ok: false, hint: "Whoa, that's too much energy. Keep hp between 1 and 100." };
+      return { ok: true, msg: "Energy set to " + h.repr + ". See the shelf: strings and numbers are different types of value." };
+    },
+  },
+  {
+    title: "Make it talk",
+    story: "Your creature wants to introduce itself.",
+    idea: "print() shows something on the screen. Put a variable inside the brackets, without quotes, and Python shows what's in that box.",
+    parts: [
+      ["print( )", "Shows whatever is inside the brackets."],
+      ['"Hi! I am"', "A string, printed exactly as written."],
+      [",", "Separates the things to print. Python adds a space between them."],
+      ["name", "No quotes, so Python looks inside the box called name."],
+    ],
+    task: "Add a print line that includes your creature's name. Then Run.",
+    add: '\nprint("Hi! I am", name)\n',
+    check(v, out) {
+      if (!out.trim()) return { ok: false, hint: "Nothing was printed. Add a line like: print(\"Hi! I am\", name)" };
+      if (!v.name || v.name.type !== "str") return { ok: false, hint: "Your code needs the name box. Keep the name = \"...\" line at the top." };
+      if (out.includes(v.name.value)) return { ok: true, msg: "It talked! Python swapped the variable name for what's inside it: \"" + v.name.value + "\"." };
+      if (/\bname\b/.test(out)) return { ok: false, hint: "Your creature said the word name. Quotes mean “print exactly this”. Remove the quotes around name to print what's inside the box." };
+      return { ok: false, hint: "Your creature talked, but didn't say its name. Put name (no quotes) inside print()." };
+    },
+  },
+  {
+    title: "Change its mind",
+    story: "Your creature has decided it wants a new name.",
+    idea: "A box holds one value at a time. Store something new and the old value is replaced. Python runs your code from top to bottom, so order matters.",
+    parts: [
+      ['name = "Blaze"', "Same label, new value. The old name is gone."],
+      ["print(...)", "Runs after the change, so it prints the new name."],
+    ],
+    task: "Give name a new value near the bottom, print it, and watch the name tag change mid-run.",
+    add: '\n# Your creature wants a new name:\nname = "Blaze"\nprint("Now call me", name)\n',
+    check(v, out, events) {
+      const seen = new Set();
+      for (const ev of events) if (ev.after && ev.after.name && ev.after.name.type === "str") seen.add(ev.after.name.value);
+      if (seen.size < 2) return { ok: false, hint: "name only had one value this run. Add another line further down, like name = \"Blaze\", with a different name." };
+      if (!out.includes(v.name.value)) return { ok: false, hint: "The name changed. Now print it after the change: print(\"Now call me\", name)" };
+      return { ok: true, msg: "The box went from \"" + [...seen][0] + "\" to \"" + v.name.value + "\". That's why they're called variables: their values can vary." };
+    },
+  },
+];
+
+// Bugs: each kind of Python error is a little creature you catch by fixing it.
+const BUGS = {
+  NameError: { name: "Namegnat", color: "#D63A4F" },
+  SyntaxError: { name: "Syntick", color: "#8E5CF0" },
+  IndentationError: { name: "Indentipede", color: "#168A65" },
+  TypeError: { name: "Typemite", color: "#F08A00" },
+  other: { name: "Mystery Moth", color: "#6B7290" },
+};
+const bugFor = (type) => BUGS[type] || (type === "TabError" ? BUGS.IndentationError : BUGS.other);
+
+// ---------- 2. Saving progress in this browser ----------
+const STORE_KEY = "creature-code:level1:v1";
+let state = { step: 0, code: STEPS[0].add, bugs: {}, finished: false, hatched: false, pendingBug: null, lastName: "" };
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if (saved && typeof saved.step === "number") state = Object.assign(state, saved);
+} catch (e) { /* storage blocked: play without saving */ }
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+// ---------- 3. Grab the parts of the page we'll change ----------
+const $ = (id) => document.getElementById(id);
+const editor = $("code"), gutter = $("gutter"), hl = $("hl"), runBtn = $("runBtn"), runNote = $("runNote");
+const consoleEl = $("console"), feedback = $("feedback"), shelf = $("shelf"), jar = $("jar");
+const creature = $("creature"), stage = $("stage"), nametag = $("nametag"), bubble = $("bubble");
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const typeWord = (t) => ({ str: "string (text)", int: "number (int)", float: "decimal number (float)", bool: "True/False (bool)" }[t] || t);
+
+// ---------- 4. The Python side ----------
+// This Python code runs your code one line at a time and takes a
+// snapshot of every variable after each line, so the creature can act it out.
+const HARNESS = String.raw`
+import sys, json, math
+
+def _creature_run(src):
+    FILE = "<your code>"
+    events = []
+    user_globals = {"__name__": "__main__"}
+    steps = {"n": 0}
+
+    def snapshot():
+        out = {}
+        for k, v in list(user_globals.items()):
+            if k.startswith("_"):
+                continue
+            if isinstance(v, bool): t = "bool"
+            elif isinstance(v, int): t = "int"
+            elif isinstance(v, float): t = "float"
+            elif isinstance(v, str): t = "str"
+            else: continue
+            val = v
+            if t == "float" and not math.isfinite(v): val = repr(v)
+            if t == "int" and abs(v) > 2**53: val = repr(v)
+            out[k] = {"type": t, "repr": repr(v), "value": val}
+        return out
+
+    class Out:
+        def write(self, s):
+            if events: events[-1]["out"] += s
+            return len(s)
+        def flush(self): pass
+
+    def tracer(frame, event, arg):
+        if frame.f_code.co_filename != FILE:
+            return None
+        if event == "line":
+            steps["n"] += 1
+            if steps["n"] > 3000:
+                raise RuntimeError("Your code ran for too many steps. Is there a loop that never ends?")
+            if events: events[-1]["after"] = snapshot()
+            events.append({"line": frame.f_lineno, "out": ""})
+        return tracer
+
+    try:
+        code = compile(src, FILE, "exec")
+    except SyntaxError as e:
+        return json.dumps({"events": [], "error": {"type": type(e).__name__, "msg": e.msg, "line": e.lineno or 1}})
+
+    old_out = sys.stdout
+    err = None
+    sys.stdout = Out()
+    sys.settrace(tracer)
+    try:
+        exec(code, user_globals)
+    except BaseException as e:
+        line = None
+        tb = e.__traceback__
+        while tb is not None:
+            if tb.tb_frame.f_code.co_filename == FILE: line = tb.tb_lineno
+            tb = tb.tb_next
+        err = {"type": type(e).__name__, "msg": str(e), "line": line}
+    finally:
+        sys.settrace(None)
+        sys.stdout = old_out
+    if events: events[-1]["after"] = snapshot()
+    return json.dumps({"events": events, "error": err})
+`;
+
+let runPython = null;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = resolve; s.onerror = () => reject(new Error("could not load " + src));
+    document.head.appendChild(s);
+  });
+}
+
+// Try the public Pyodide server first; if that's blocked, use a copy next to this page.
+async function startPython() {
+  const sources = ["https://cdn.jsdelivr.net/pyodide/v0.26.4/full/", "pyodide/"];
+  let lastErr;
+  for (const base of sources) {
+    try {
+      if (typeof loadPyodide !== "function") await loadScript(base + "pyodide.js");
+      const py = await loadPyodide({ indexURL: base });
+      py.runPython(HARNESS);
+      runPython = py.globals.get("_creature_run");
+      $("engineStatus").textContent = "Python ready";
+      $("engineStatus").className = "status-chip ready";
+      runBtn.disabled = false;
+      runNote.textContent = "Tip: Ctrl + Enter also runs your code.";
+      return;
+    } catch (e) {
+      lastErr = e;
+      try { delete window.loadPyodide; } catch (_) { window.loadPyodide = undefined; }
+    }
+  }
+  $("engineStatus").textContent = "Python failed to load";
+  $("engineStatus").className = "status-chip fail";
+  runNote.textContent = "Python couldn't load here. Check your internet connection and reload the page.";
+  console.error(lastErr);
+}
+
+// ---------- 5. The code editor ----------
+function lineCount() { return editor.value.split("\n").length; }
+function refreshGutter() {
+  const n = lineCount();
+  let s = "";
+  for (let i = 1; i <= n; i++) s += i + (i < n ? "\n" : "");
+  gutter.textContent = s;
+  // The editor grows to fit your code, so line numbers always line up.
+  editor.style.height = Math.max(216, n * 24 + 28 + 16) + "px";
+}
+function placeHighlight(line, kind) {
+  if (!line) { hl.style.display = "none"; return; }
+  const LINE = 24, PAD = 14;
+  hl.style.top = (PAD + (line - 1) * LINE) + "px";
+  hl.className = "hl" + (kind === "err" ? " err" : "");
+  hl.style.display = "block";
+}
+// Phones like to turn " into curly quotes, which Python doesn't understand. Swap them back.
+function straightenQuotes() {
+  const fixed = editor.value.replace(/[“”„″]/g, '"').replace(/[‘’‚′]/g, "'");
+  if (fixed !== editor.value) {
+    const pos = editor.selectionStart;
+    editor.value = fixed;
+    editor.setSelectionRange(pos, pos);
+  }
+}
+editor.addEventListener("input", () => { straightenQuotes(); refreshGutter(); hl.style.display = "none"; state.code = editor.value; save(); });
+editor.addEventListener("keydown", (e) => {
+  if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); document.execCommand("insertText", false, "    "); }
+  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
+});
+
+// ---------- 6. Drawing the creature and the shelf ----------
+function setElement(el) {
+  const valid = ["fire", "water", "leaf"].includes(el) ? el : "none";
+  creature.dataset.element = valid;
+  stage.dataset.element = valid;
+}
+function setNametag(text) {
+  nametag.hidden = !text;
+  nametag.textContent = text || "";
+}
+function say(text) {
+  bubble.textContent = text;
+  bubble.hidden = !text;
+  if (text) { bubble.style.animation = "none"; void bubble.offsetWidth; bubble.style.animation = ""; }
+}
+function flash(cls, ms) {
+  creature.classList.remove(cls); void creature.getBoundingClientRect(); creature.classList.add(cls);
+  setTimeout(() => creature.classList.remove(cls), ms);
+}
+async function hatch() {
+  creature.classList.remove("idle");
+  creature.classList.add("cracking");
+  flash("wobble", 1500);
+  await sleep(1200);
+  creature.classList.remove("cracking");
+  creature.classList.add("hatched");
+  flash("hatching", 700);
+  state.hatched = true; save();
+  await sleep(500);
+}
+
+let shelfShown = {};
+function drawShelf(vars) {
+  const names = Object.keys(vars);
+  if (!names.length) {
+    shelf.innerHTML = '<p class="empty">No boxes yet. Run your code and they\'ll appear here.</p>';
+    shelfShown = {};
+    return;
+  }
+  shelf.innerHTML = "";
+  for (const k of names) {
+    const v = vars[k];
+    const box = document.createElement("div");
+    box.className = "box";
+    if (!(k in shelfShown)) box.classList.add("fresh");
+    else if (shelfShown[k] !== v.repr) box.classList.add("changed");
+    const label = document.createElement("span"); label.className = "label"; label.textContent = k;
+    const val = document.createElement("span"); val.className = "val"; val.textContent = v.repr;
+    const type = document.createElement("span"); type.className = "type"; type.textContent = typeWord(v.type);
+    box.append(label, val, type);
+    if (k === "hp" && (v.type === "int" || v.type === "float")) {
+      const meter = document.createElement("div"); meter.className = "hp-meter";
+      const bar = document.createElement("i"); bar.style.width = Math.max(0, Math.min(100, v.value)) + "%";
+      meter.append(bar); box.append(meter);
+    }
+    shelf.append(box);
+  }
+  shelfShown = Object.fromEntries(names.map((k) => [k, vars[k].repr]));
+}
+
+// Make the creature match the variables in your code.
+async function applyVars(vars) {
+  drawShelf(vars);
+  const name = vars.name && vars.name.type === "str" && vars.name.value.trim() ? vars.name.value : "";
+  if (name) state.lastName = name;
+  if (name && !state.hatched) await hatch();
+  if (state.hatched) {
+    if (name && name !== nametag.textContent && nametag.textContent) flash("bounce", 1000);
+    setNametag(name || "???");
+  }
+  setElement(vars.element && vars.element.type === "str" ? vars.element.value : "none");
+}
+
+function drawJar() {
+  const kinds = Object.keys(state.bugs);
+  if (!kinds.length) { jar.innerHTML = "<span>Empty. Bugs show up when code breaks. Fix the code to catch them.</span>"; return; }
+  jar.innerHTML = "";
+  for (const k of kinds) {
+    const s = document.createElement("span");
+    s.textContent = bugFor(k).name + " (" + k + ") × " + state.bugs[k];
+    jar.append(s);
+  }
+}
+function showBug(type) {
+  const b = bugFor(type);
+  $("bugBody").setAttribute("fill", b.color);
+  $("bug").hidden = false;
+  $("bugLabel").hidden = false;
+  $("bugLabel").textContent = "A wild " + b.name + "!";
+}
+function hideBug() { $("bug").hidden = true; $("bugLabel").hidden = true; }
+
+// ---------- 7. Friendly explanations for Python errors ----------
+function explainError(err, src) {
+  const lines = src.split("\n");
+  const lineText = err.line ? (lines[err.line - 1] || "") : "";
+  const m = err.msg || "";
+  const where = err.line ? "line " + err.line : "your code";
+  if (err.type === "NameError") {
+    const word = (m.match(/'([^']+)'/) || [])[1] || "that";
+    return "Python looked for a box labelled " + word + " on " + where + " and couldn't find one. If you meant the text " + word + ", put it in quotes: \"" + word + "\". If you meant a variable, check the spelling. Capital letters count!";
+  }
+  if (err.type === "IndentationError" || err.type === "TabError") {
+    return "There are extra spaces at the start of " + where + ". In Python, spaces at the start of a line have a meaning. For now, start every line at the left edge.";
+  }
+  if (err.type === "SyntaxError") {
+    if (/unterminated string|EOL while scanning/i.test(m)) return "A string on " + where + " is missing its closing quote. Text has to start and end with the same quote mark: \"like this\".";
+    if (/cannot assign to (literal|expression|function call)/i.test(m)) return "On " + where + ", the label has to go on the left of = and the value on the right. Like this: name = \"Ember\".";
+    if (/invalid decimal literal/i.test(m)) return "Variable names can't start with a number. Try something like hp2 instead of 2hp.";
+    const left = lineText.split("=")[0] || "";
+    if (lineText.includes("=") && /\w\s+\w/.test(left.trim())) return "Variable names can't have spaces. Join the words with an underscore: my_name instead of my name.";
+    if (/'\(' was never closed/.test(m)) return "A bracket on " + where + " was opened with ( but never closed with ).";
+    return "Python couldn't read " + where + ". Check for missing quotes, brackets or the = sign.";
+  }
+  if (err.type === "TypeError" && /concatenate/.test(m)) return "You joined text and a number with +. Python won't mix those. Inside print(), use a comma instead: print(\"hp is\", hp).";
+  if (err.type === "TypeError" && /not callable/.test(m)) return "You used ( ) after something that isn't a function on " + where + ". Check for a missing comma.";
+  if (err.type === "EOFError" || err.type === "OSError") return "input() isn't part of this level. Store values with = instead.";
+  return "Something went wrong on " + where + ". Read the message above, check that line, and try again.";
+}
+
+// ---------- 8. Feedback panel ----------
+function showFeedback(kind, title, lines, actions) {
+  feedback.hidden = false;
+  feedback.className = "feedback " + kind;
+  feedback.innerHTML = "";
+  const h = document.createElement("h3"); h.textContent = title; feedback.append(h);
+  for (const l of lines) {
+    const p = document.createElement("p");
+    if (typeof l === "object") { p.className = l.cls; p.textContent = l.text; } else p.textContent = l;
+    feedback.append(p);
+  }
+  if (actions && actions.length) {
+    const row = document.createElement("div"); row.className = "actions";
+    for (const a of actions) {
+      const b = document.createElement("button"); b.className = "btn" + (a.primary ? " primary" : ""); b.textContent = a.label;
+      b.addEventListener("click", a.onClick); row.append(b);
+    }
+    feedback.append(row);
+  }
+}
+
+// ---------- 9. Running your code ----------
+let running = false;
+async function run() {
+  if (!runPython || running) return;
+  running = true; runBtn.disabled = true;
+  straightenQuotes();
+  const src = editor.value;
+  state.code = src; save();
+
+  // Fresh start: Python forgets everything between runs.
+  feedback.hidden = true; say(""); hl.style.display = "none";
+  creature.classList.remove("confused");
+  shelfShown = {}; drawShelf({});
+  if (state.hatched) setNametag("???");
+  setElement("none");
+  consoleEl.innerHTML = "";
+
+  let result;
+  try { result = JSON.parse(runPython(src)); }
+  catch (e) { result = { events: [], error: { type: "Error", msg: String(e), line: null } }; }
+
+  // Act it out, one line at a time.
+  const events = result.events;
+  const delay = events.length > 40 ? 60 : events.length > 12 ? 250 : 550;
+  let out = "";
+  for (const ev of events) {
+    placeHighlight(ev.line, "run");
+    await sleep(delay);
+    await applyVars(ev.after || {});
+    if (ev.out) {
+      out += ev.out;
+      consoleEl.textContent = out;
+      if (state.hatched) say(ev.out.trim().split("\n").pop());
+    }
+  }
+  const vars = events.length ? events[events.length - 1].after || {} : {};
+  if (!out) consoleEl.innerHTML = '<span class="dim">(nothing printed)</span>';
+
+  if (result.error) {
+    const err = result.error;
+    placeHighlight(err.line, "err");
+    if (state.hatched) { creature.classList.add("confused"); say(""); }
+    else flash("wobble", 1500);
+    showBug(err.type);
+    if (!state.pendingBug) state.pendingBug = err.type;
+    save();
+    showFeedback("error", "Your creature is confused", [
+      { cls: "raw", text: "Python says: " + err.type + ": " + err.msg + (err.line ? " (line " + err.line + ")" : "") },
+      "In plain words: " + explainError(err, src),
+      "Fix it and press Run to catch the " + bugFor(err.type).name + ".",
+    ]);
+  } else {
+    await sleep(300);
+    hl.style.display = "none";
+    let caughtLine = null;
+    if (state.pendingBug) {
+      const t = state.pendingBug;
+      state.bugs[t] = (state.bugs[t] || 0) + 1;
+      state.pendingBug = null;
+      caughtLine = "You also caught a " + bugFor(t).name + " (" + t + ") by fixing your code. It's in your bug jar.";
+      drawJar(); save();
+    }
+    hideBug();
+    if (state.finished) {
+      showFeedback("success", "Nice run!", ["Level 1 is complete, so this is free play. Try new variables and see them land on the shelf."].concat(caughtLine ? [caughtLine] : []));
+    } else {
+      const step = STEPS[state.step];
+      const verdict = step.check(vars, out, events);
+      if (verdict.ok) {
+        if (state.hatched) flash("bounce", 1000);
+        const last = state.step === STEPS.length - 1;
+        showFeedback("success", last ? "Level 1 cleared!" : "It worked!", [verdict.msg].concat(caughtLine ? [caughtLine] : []), [
+          { label: last ? "Finish the level" : "Next mission →", primary: true, onClick: () => (last ? finishLevel(vars) : nextStep()) },
+        ]);
+      } else {
+        showFeedback("hint", "Almost there", [verdict.hint].concat(caughtLine ? [caughtLine] : []));
+      }
+    }
+  }
+  running = false; runBtn.disabled = false;
+}
+runBtn.addEventListener("click", run);
+
+// ---------- 10. Moving through the level ----------
+function drawDots() {
+  const dots = $("dots"); dots.innerHTML = "";
+  STEPS.forEach((_, i) => {
+    const d = document.createElement("span");
+    d.className = "dot" + (state.finished || i < state.step ? " done" : i === state.step ? " now" : "");
+    dots.append(d);
+  });
+}
+function drawMission() {
+  const m = $("mission");
+  if (state.finished) { drawComplete(); return; }
+  const s = STEPS[state.step];
+  m.className = "card mission";
+  m.innerHTML = "";
+  const eb = document.createElement("p"); eb.className = "eyebrow"; eb.textContent = "Mission " + (state.step + 1) + " of " + STEPS.length;
+  const h = document.createElement("h2"); h.textContent = s.title;
+  const story = document.createElement("p"); story.className = "story"; story.textContent = s.story;
+  const idea = document.createElement("p"); idea.className = "idea"; idea.textContent = s.idea;
+  const ul = document.createElement("ul"); ul.className = "parts";
+  for (const [tok, what] of s.parts) {
+    const li = document.createElement("li");
+    const c = document.createElement("span"); c.className = "tok"; c.textContent = tok;
+    const t = document.createElement("span"); t.textContent = what;
+    li.append(c, t); ul.append(li);
+  }
+  const task = document.createElement("p"); task.className = "task"; task.textContent = s.task;
+  m.append(eb, h, story, idea, ul, task);
+  drawDots();
+}
+function nextStep() {
+  state.step++;
+  const add = STEPS[state.step].add;
+  let code = editor.value;
+  if (!code.endsWith("\n")) code += "\n";
+  editor.value = code + add;
+  state.code = editor.value;
+  save();
+  refreshGutter();
+  feedback.hidden = true;
+  drawMission();
+  editor.focus();
+  // Put the cursor on the new line, so it's easy to edit.
+  const pos = editor.value.length - 1;
+  editor.setSelectionRange(pos, pos);
+  $("mission").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+async function finishLevel(vars) {
+  state.finished = true;
+  state.lastName = vars.name ? vars.name.value : "";
+  save();
+  feedback.hidden = true;
+  flash("evolving", 1300);
+  await sleep(500);
+  creature.classList.add("evolved");
+  say("I evolved!");
+  drawMission();
+  $("mission").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function drawComplete() {
+  const m = $("mission");
+  const nm = state.lastName || "Your creature";
+  m.className = "card complete";
+  m.innerHTML = `
+    <p class="eyebrow">Level 1 complete</p>
+    <h2></h2>
+    <p class="story">Using a new skill for the first time made it evolve. It grew wings and a star.</p>
+    <div class="complete-grid">
+      <button class="skill-card" id="skillCard" aria-label="Skill card: Variables. Tap to flip.">
+        <div class="skill-inner">
+          <div class="face front">
+            <span class="num">SKILL CARD 1 / 8</span>
+            <span class="big">Variables</span>
+            <span class="glyph">name = "Ember"</span>
+            <span class="num">Tap to flip</span>
+          </div>
+          <div class="face back">
+            <b>Variables</b>
+            <ul>
+              <li>A variable is a labelled box for a value.</li>
+              <li><code>=</code> puts a value in the box.</li>
+              <li>Text needs quotes: <code>"Ember"</code></li>
+              <li>Numbers don't: <code>hp = 20</code></li>
+              <li><code>print(name)</code> shows what's inside.</li>
+              <li>A new value replaces the old one.</li>
+            </ul>
+          </div>
+        </div>
+      </button>
+      <div>
+        <p class="section-label">What you learned</p>
+        <ul class="recap">
+          <li>Make a variable with <code>=</code></li>
+          <li>Strings (text in quotes) vs numbers</li>
+          <li>Show values with <code>print()</code></li>
+          <li>Change a variable's value</li>
+        </ul>
+        <div class="share">
+          <label class="section-label" for="shareText">Share your progress</label>
+          <textarea id="shareText"></textarea>
+          <div><button class="btn" id="copyBtn">Copy text</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="next-level"><b>Next: Level 2 · Math.</b> Feed your creature with <code>hp = hp + 10</code>. Coming soon.</div>`;
+  m.querySelector("h2").textContent = nm + " evolved!";
+  const bugCount = Object.values(state.bugs).reduce((a, b) => a + b, 0);
+  $("shareText").value = "Day 1 of learning Python by building a game that teaches Python. I hatched " + nm +
+    " in Creature Code and learned variables" + (bugCount ? ", and caught " + bugCount + " bug" + (bugCount > 1 ? "s" : "") + " along the way" : "") + ". Next up: math! #100DaysOfCode #Python";
+  $("skillCard").addEventListener("click", (e) => e.currentTarget.classList.toggle("flipped"));
+  $("copyBtn").addEventListener("click", (e) => {
+    const btn = e.currentTarget, ta = $("shareText");
+    navigator.clipboard.writeText(ta.value).then(() => { btn.textContent = "Copied"; }, () => { ta.select(); btn.textContent = "Selected. Press copy"; });
+  });
+  drawDots();
+}
+
+// Reset needs two taps, so you don't lose progress by accident.
+let resetArmed = false;
+$("resetBtn").addEventListener("click", (e) => {
+  if (!resetArmed) { resetArmed = true; e.currentTarget.textContent = "Tap again to erase your progress"; setTimeout(() => { resetArmed = false; $("resetBtn").textContent = "Start Level 1 over"; }, 4000); return; }
+  try { localStorage.removeItem(STORE_KEY); } catch (_) {}
+  location.reload();
+});
+
+// ---------- 11. Start the game ----------
+editor.value = state.code;
+refreshGutter();
+drawMission();
+drawJar();
+if (state.hatched) { creature.classList.remove("idle"); creature.classList.add("hatched"); setNametag(state.lastName || "???"); }
+if (state.finished) creature.classList.add("evolved");
+startPython();
+</script>
+<!-- page:end -->
+</body>
+</html>
