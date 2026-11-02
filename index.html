@@ -3,579 +3,629 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- page:start -->
+<meta name="theme-color" content="#3B2A35">
 <title>Creature Code</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap">
 <style>
-/* Layout: a habitat (your creature) on the left, a mission + code editor on the right.
-   On phones they stack: creature first, then the code. */
+/* Layout: a handheld game screen. Creature window on top, a parchment panel below
+   that shows one thing at a time (a chat with Old Moss, a quiz, or a code challenge).
+   One cozy look in every theme, so all colours are set here on purpose. */
 :root {
-  --bg: #EDF2F7;          /* cool morning mist */
-  --surface: #FFFFFF;
-  --ink: #1C2340;         /* deep navy text */
-  --muted: #5A6383;
-  --line: #D3DAE6;
-  --yolk: #F5B700;        /* the main accent: egg yolk */
-  --yolk-ink: #1C2340;
-  --good: #168A65;
-  --bad: #D63A4F;
-  --good-soft: #E2F5EE;
-  --bad-soft: #FCE8EB;
-  --hint-soft: #FFF5D6;
-  --sky-top: #DCEBFA;
-  --sky-bottom: #F7FBFF;
-  --ground: #CFE3C8;
-  --code-bg: #1A1F36;
-  --code-fg: #E6E9F5;
-  --code-dim: #6E7799;
-  --code-line: rgba(245, 183, 0, 0.20);
-  --code-err: rgba(214, 58, 79, 0.30);
-  --font-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
-  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --wood: #3B2A35;        /* page background: dusky plum wood */
+  --wood-dark: #2A1E27;
+  --ink: #2B1D2E;         /* outlines and text */
+  --cream: #FBF0D5;       /* parchment panels */
+  --cream-dark: #EAD9B0;
+  --muted: #7A6670;
+  --yolk: #F5C04A;        /* main buttons */
+  --yolk-dark: #B9851A;
+  --leaf: #7DB35A;
+  --leaf-dark: #4E7D3A;
+  --berry: #E0475B;
+  --berry-dark: #9E2A3B;
+  --good-bg: #DDF0C8;
+  --bad-bg: #FBD9DD;
+  --near-bg: #FFEFC2;
+  --code-bg: #2B1D2E;
+  --code-fg: #F6EBD0;
+  --code-dim: #8C7A86;
+  --font-ui: "Pixelify Sans", "Courier New", monospace;
+  --font-code: "VT323", "Courier New", monospace;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #11152A; --surface: #1A1F38; --ink: #EEF1FA; --muted: #9AA3C4; --line: #2C3352;
-    --yolk: #FFC93C; --yolk-ink: #1C2340; --good: #3CCB98; --bad: #FF6B7F;
-    --good-soft: #143A31; --bad-soft: #42202A; --hint-soft: #3A3218;
-    --sky-top: #1D2550; --sky-bottom: #2A3366; --ground: #24402F;
-    --code-bg: #0D1022; --code-fg: #E6E9F5; --code-dim: #5F688A;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #11152A; --surface: #1A1F38; --ink: #EEF1FA; --muted: #9AA3C4; --line: #2C3352;
-  --yolk: #FFC93C; --yolk-ink: #1C2340; --good: #3CCB98; --bad: #FF6B7F;
-  --good-soft: #143A31; --bad-soft: #42202A; --hint-soft: #3A3218;
-  --sky-top: #1D2550; --sky-bottom: #2A3366; --ground: #24402F;
-  --code-bg: #0D1022; --code-fg: #E6E9F5; --code-dim: #5F688A;
-  color-scheme: dark;
-}
-
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; }
+html, body { margin: 0; height: 100%; }
 body {
-  background: var(--bg);
+  background-color: var(--wood);
+  background-image:
+    linear-gradient(45deg, var(--wood-dark) 25%, transparent 25%, transparent 75%, var(--wood-dark) 75%),
+    linear-gradient(45deg, var(--wood-dark) 25%, transparent 25%, transparent 75%, var(--wood-dark) 75%);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.5;
+  font-family: var(--font-ui);
+  font-size: 18px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "clig" 0;
 }
-.page {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding-block: 20px 48px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid;
-  gap: 20px;
-}
-button { font: inherit; cursor: pointer; }
-button:focus-visible, textarea:focus-visible { outline: 3px solid var(--yolk); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px dashed var(--yolk); outline-offset: 3px; }
 
-/* ---------- Header ---------- */
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; justify-content: space-between; }
-.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.brand h1 { font-family: var(--font-display); font-weight: 700; font-size: 2rem; margin: 0; letter-spacing: -0.01em; }
-.brand h1 span { color: var(--yolk); -webkit-text-stroke: 1px var(--ink); }
-.brand p { margin: 0; color: var(--muted); }
-.level-pill {
-  display: flex; align-items: center; gap: 12px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-  padding: 6px 8px 6px 16px;
-}
-.level-pill b { font-family: var(--font-display); font-weight: 600; }
-.dots { display: flex; gap: 6px; }
-.dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--line); background: transparent; }
-.dot.done { background: var(--good); border-color: var(--good); }
-.dot.now { border-color: var(--yolk); background: var(--yolk); }
-
-/* ---------- Main grid ---------- */
-.grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 20px; align-items: start; }
-@media (max-width: 880px) { .grid { grid-template-columns: minmax(0, 1fr); } }
-
-/* ---------- Habitat ---------- */
-.habitat {
-  position: sticky; top: calc(12px + env(safe-area-inset-top, 0px));
-  display: grid; gap: 14px;
-}
-@media (max-width: 880px) { .habitat { position: static; } }
-.stage {
-  position: relative; overflow: hidden;
-  border-radius: 24px; border: 1px solid var(--line);
-  background: linear-gradient(var(--sky-top), var(--sky-bottom) 70%);
-  aspect-ratio: 5 / 4; max-width: 100%;
-  min-height: 260px;
-}
-.stage::after { /* ground */
-  content: ""; position: absolute; left: -10%; right: -10%; bottom: -38%; height: 55%;
-  background: var(--ground); border-radius: 50%;
-  transition: background 0.6s;
-}
-.stage[data-element="fire"]::after { background: color-mix(in srgb, var(--ground) 60%, #FF8A4C); }
-.stage[data-element="water"]::after { background: color-mix(in srgb, var(--ground) 55%, #4AA9F0); }
-.stage[data-element="leaf"]::after { background: color-mix(in srgb, var(--ground) 60%, #5CC26E); }
-.creature-svg { position: absolute; z-index: 1; left: 50%; bottom: 6%; width: 58%; max-width: 300px; transform: translateX(-50%); overflow: visible; }
-
-.nametag {
-  position: absolute; z-index: 2; left: 50%; bottom: 4%; transform: translateX(-50%);
-  background: var(--surface); color: var(--ink); border: 2px solid var(--ink);
-  font-family: var(--font-display); font-weight: 600; font-size: 1.05rem;
-  padding: 2px 14px; border-radius: 10px; white-space: nowrap; max-width: 80%; overflow: hidden; text-overflow: ellipsis;
-}
-.bubble {
-  position: absolute; z-index: 3; left: 6%; top: 7%; max-width: 62%;
-  background: var(--surface); color: var(--ink); border: 2px solid var(--ink);
-  border-radius: 16px; padding: 8px 14px; font-weight: 700;
-  overflow-wrap: anywhere;
-  animation: pop 0.25s ease-out;
-}
-.bubble::after {
-  content: ""; position: absolute; right: 18px; bottom: -11px; width: 18px; height: 18px;
-  background: var(--surface); border-right: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
-  transform: rotate(45deg); border-radius: 0 0 4px 0;
-}
-.status-chip {
-  position: absolute; z-index: 3; right: 12px; top: 12px;
-  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; color: var(--muted);
-}
-.status-chip.ready { color: var(--good); }
-.status-chip.fail { color: var(--bad); }
-.bug {
-  position: absolute; z-index: 2; right: 10%; bottom: 20%; width: 18%; max-width: 80px;
-  animation: scuttle 0.5s ease-in-out infinite alternate;
-}
-.bug-label {
-  position: absolute; z-index: 3; right: 6%; bottom: 10%; font-size: 0.78rem; font-weight: 700;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1px 8px;
+.app {
+  max-width: 480px; margin: 0 auto; min-height: 100%;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-top: max(10px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
 }
 
-/* creature parts */
-.c-egg, .c-body, .tuft, .evo, .qmark, .mouth-confused { transition: opacity 0.4s; }
-.creature-svg .c-body { opacity: 0; }
-.creature-svg.hatched .c-egg { display: none; }
-.creature-svg.hatched .c-body { opacity: 1; }
-.tuft { opacity: 0; }
-.creature-svg[data-element="fire"] .tuft-fire,
-.creature-svg[data-element="water"] .tuft-water,
-.creature-svg[data-element="leaf"] .tuft-leaf,
-.creature-svg[data-element="none"] .tuft-none { opacity: 1; }
-.creature-svg { --body: #B9A6F2; --body-dark: #8F79D8; }
-.creature-svg[data-element="fire"] { --body: #FF8A4C; --body-dark: #D9612A; }
-.creature-svg[data-element="water"] { --body: #4AA9F0; --body-dark: #2A7FC4; }
-.creature-svg[data-element="leaf"] { --body: #5CC26E; --body-dark: #3A9A4E; }
-.body-fill { fill: var(--body); transition: fill 0.6s; }
-.body-dark { fill: var(--body-dark); transition: fill 0.6s; }
-.evo { opacity: 0; }
-.creature-svg.evolved .evo { opacity: 1; }
-.qmark, .mouth-confused { opacity: 0; }
-.creature-svg.confused .qmark, .creature-svg.confused .mouth-confused { opacity: 1; }
-.creature-svg.confused .mouth-happy { opacity: 0; }
-.creature-svg.confused .c-body { transform: rotate(-8deg); }
-.c-body, .c-egg { transform-origin: 100px 175px; transition: transform 0.3s; }
-.eyes { transform-origin: 100px 112px; animation: blink 4.5s infinite; }
-.creature-svg.wobble .c-egg { animation: wobble 0.5s ease-in-out 3; }
-.creature-svg.idle .c-egg { animation: wobble 1.6s ease-in-out infinite; animation-delay: 1s; }
-.creature-svg.bounce .c-body { animation: bounce 0.5s ease-out 2; }
-.creature-svg.hatching .c-body { animation: hatch 0.6s cubic-bezier(.3,1.6,.5,1); }
-.creature-svg.evolving .c-body { animation: evolve 1.2s ease-in-out; }
-.crack { opacity: 0; }
-.creature-svg.cracking .crack { opacity: 1; }
-
-@keyframes wobble { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
-@keyframes bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-18px); } }
-@keyframes hatch { from { transform: scale(0.2); } to { transform: scale(1); } }
-@keyframes evolve { 0% { transform: scale(1); filter: brightness(1); } 40% { transform: scale(1.15); filter: brightness(1.8); } 100% { transform: scale(1); filter: brightness(1); } }
-@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
-@keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes scuttle { from { transform: translateX(-6px) rotate(-4deg); } to { transform: translateX(6px) rotate(4deg); } }
-
-/* Memory shelf: every variable shown as a labelled box */
-.shelf-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px 16px; }
-.section-label { margin: 0 0 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.shelf { display: flex; flex-wrap: wrap; gap: 12px; min-height: 64px; align-items: flex-start; }
-.shelf .empty { color: var(--muted); font-size: 0.95rem; margin: 0; }
-.box { position: relative; min-width: 96px; max-width: 100%; border: 2px solid var(--ink); border-radius: 6px 6px 10px 10px; padding: 16px 12px 8px; background: var(--bg); }
-.box .label {
-  position: absolute; top: -12px; left: 10px; background: var(--yolk); color: var(--yolk-ink);
-  font-family: var(--font-code); font-weight: 600; font-size: 0.82rem; padding: 1px 8px; border-radius: 6px; border: 2px solid var(--ink);
+/* Pixel boxes: square "notched" corners made with four hard shadows */
+.px {
+  background: var(--cream);
+  box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink);
+  margin: 4px;
 }
-.box .val { font-family: var(--font-code); font-size: 0.95rem; overflow-wrap: anywhere; }
-.box .type { display: block; font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-.box.fresh { animation: pop 0.35s ease-out; }
-.box.changed { animation: pop 0.35s ease-out; border-color: var(--yolk); }
-.hp-meter { height: 8px; border-radius: 99px; background: var(--line); margin-top: 6px; overflow: hidden; }
-.hp-meter i { display: block; height: 100%; background: var(--bad); border-radius: 99px; transition: width 0.5s; }
 
-.jar { display: flex; flex-wrap: wrap; gap: 8px; }
-.jar span { font-size: 0.85rem; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--bg); }
-
-/* ---------- Mission + editor ---------- */
-.work { display: grid; gap: 16px; min-width: 0; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; min-width: 0; }
-.eyebrow { margin: 0; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.mission h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; margin: 2px 0 6px; text-wrap: balance; }
-.mission .story { margin: 0 0 12px; color: var(--muted); }
-.idea { margin: 0 0 12px; font-size: 1.05rem; }
-.parts { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
-.parts li { display: grid; grid-template-columns: minmax(84px, auto) minmax(0, 1fr); gap: 12px; align-items: baseline; }
-code, .tok { font-family: var(--font-code); font-size: 0.92em; }
-.tok { background: var(--code-bg); color: var(--code-fg); padding: 2px 8px; border-radius: 6px; white-space: pre; justify-self: start; }
-.task { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--hint-soft); font-weight: 700; }
-.task::before { content: "Your turn: "; color: var(--muted); font-weight: 400; }
-
-.editor-card { background: var(--code-bg); color: var(--code-fg); border-radius: 18px; overflow: hidden; }
-.editor-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.85rem; color: var(--code-dim); }
-.editor-head b { color: var(--code-fg); font-family: var(--font-code); font-weight: 600; }
-.editor { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); }
-.gutter { padding: 14px 10px 14px 14px; text-align: right; color: var(--code-dim); font-family: var(--font-code); font-size: 15px; line-height: 24px; user-select: none; white-space: pre; overflow: hidden; }
-.code-area { position: relative; min-width: 0; }
-.hl { position: absolute; left: 0; right: 0; height: 24px; background: var(--code-line); pointer-events: none; display: none; transition: top 0.15s; }
-.hl.err { background: var(--code-err); }
-textarea#code {
-  position: relative; display: block; width: 100%; min-height: 216px; resize: none; overflow-y: hidden;
-  background: transparent; color: var(--code-fg); caret-color: var(--yolk);
-  border: 0; margin: 0; padding: 14px 14px 14px 4px;
-  font-family: var(--font-code); font-size: 15px; line-height: 24px; white-space: pre; overflow-x: auto; tab-size: 4;
+/* ---------- HUD ---------- */
+.hud { display: flex; align-items: center; gap: 10px; color: var(--cream); }
+.hud .lv { font-weight: 700; font-size: 15px; letter-spacing: 0.06em; white-space: nowrap; }
+.xp { flex: 1; height: 12px; background: var(--wood-dark); box-shadow: 0 0 0 2px var(--cream); position: relative; }
+.xp i { position: absolute; inset: 0 auto 0 0; background: var(--yolk); width: 0; transition: width 0.4s steps(8); }
+.icon-btn {
+  background: var(--cream); color: var(--ink); border: 0; width: 36px; height: 32px; font-weight: 700; font-size: 18px;
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+  margin: 3px;
 }
-textarea#code:focus-visible { outline: none; }
-.editor-card:focus-within { box-shadow: 0 0 0 3px var(--yolk); }
-.run-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-top: 1px solid rgba(255,255,255,0.08); }
+.py { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; display: flex; align-items: center; gap: 5px; }
+.py::before { content: ""; width: 9px; height: 9px; background: var(--yolk); animation: blink 0.8s steps(2) infinite; }
+.py.ready::before { background: var(--leaf); animation: none; }
+.py.fail::before { background: var(--berry); animation: none; }
+
+/* ---------- Creature window ---------- */
+.stage { position: relative; margin: 4px; box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink); background: #9AD7EE; }
+#scene { display: block; width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.tag {
+  position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%);
+  background: var(--cream); color: var(--ink); font-weight: 700; font-size: 15px; padding: 0 8px; white-space: nowrap;
+  box-shadow: 0 -2px 0 0 var(--ink), 0 2px 0 0 var(--ink), -2px 0 0 0 var(--ink), 2px 0 0 0 var(--ink);
+  max-width: 80%; overflow: hidden; text-overflow: ellipsis;
+}
+.say {
+  position: absolute; left: 8px; top: 8px; max-width: 58%;
+  background: #fff; color: var(--ink); font-weight: 600; font-size: 16px; padding: 4px 10px; overflow-wrap: anywhere;
+  box-shadow: 0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink);
+  animation: pop 0.2s steps(3);
+}
+
+/* ---------- Panel ---------- */
+.panel { flex: 1; padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.eyebrow { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+h1, h2 { margin: 0; font-weight: 700; line-height: 1.1; text-wrap: balance; }
+h2 { font-size: 26px; }
+p { margin: 0; }
+code {
+  font-family: var(--font-code); font-size: 1.25em; line-height: 1;
+  background: var(--code-bg); color: var(--code-fg); padding: 0 5px; white-space: pre-wrap;
+}
+
+/* Title screen */
+.logo { font-size: 44px; font-weight: 700; line-height: 0.95; color: var(--ink); letter-spacing: 0.02em; }
+.logo span { color: var(--berry); display: block; }
+.tagline { font-size: 19px; }
+.stack { display: grid; gap: 14px; }
+
+/* Buttons */
 .btn {
-  border: 2px solid var(--ink); border-radius: 12px; padding: 8px 18px; font-weight: 700;
-  background: var(--surface); color: var(--ink);
+  border: 0; background: var(--cream); color: var(--ink); font-weight: 700; font-size: 19px; padding: 8px 16px;
+  box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink), inset 0 -4px 0 0 var(--cream-dark);
+  margin: 4px; letter-spacing: 0.04em;
 }
-.btn.primary { background: var(--yolk); color: var(--yolk-ink); border-color: var(--yolk-ink); font-family: var(--font-display); font-size: 1.1rem; padding: 8px 24px; box-shadow: 0 3px 0 var(--yolk-ink); }
-.btn.primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--yolk-ink); }
+.btn.go { background: var(--yolk); box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink), inset 0 -4px 0 0 var(--yolk-dark); }
+.btn:active { transform: translateY(2px); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.run-bar .kbd { color: var(--code-dim); font-size: 0.82rem; }
-.console { margin: 0; padding: 12px 14px; min-height: 48px; border-top: 1px solid rgba(255,255,255,0.08); font-family: var(--font-code); font-size: 0.9rem; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--code-fg); }
-.console .dim { color: var(--code-dim); }
+.btn.wide { width: calc(100% - 8px); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row .btn { flex: 1; }
+.back { background: none; border: 0; padding: 4px 0; font-size: 15px; color: var(--muted); font-weight: 600; align-self: flex-start; }
 
-.feedback { border-radius: 16px; padding: 14px 18px; border: 2px solid transparent; display: grid; gap: 8px; }
-.feedback[hidden] { display: none; }
-.feedback.error { background: var(--bad-soft); border-color: var(--bad); }
-.feedback.hint { background: var(--hint-soft); border-color: var(--yolk); }
-.feedback.success { background: var(--good-soft); border-color: var(--good); }
-.feedback h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.2rem; }
-.feedback p { margin: 0; }
-.feedback .raw { font-family: var(--font-code); font-size: 0.85rem; color: var(--muted); overflow-wrap: anywhere; }
-.feedback .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+/* Old Moss dialog */
+.dialog { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; cursor: pointer; min-height: 140px; }
+.portrait { width: 64px; height: 64px; image-rendering: pixelated; background: var(--cream-dark); box-shadow: 0 0 0 3px var(--ink); }
+.speaker { font-weight: 700; font-size: 15px; letter-spacing: 0.08em; color: var(--leaf-dark); margin-bottom: 4px; }
+.line { font-size: 20px; line-height: 1.4; min-height: 3em; }
+.more { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 15px; }
+.more .arrow { color: var(--ink); animation: blink 0.7s steps(2) infinite; font-size: 18px; }
+.pips { display: flex; gap: 4px; }
+.pips i { width: 8px; height: 8px; background: var(--cream-dark); }
+.pips i.on { background: var(--ink); }
 
-/* ---------- Level complete + skill card ---------- */
-.complete h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.8rem; margin: 2px 0 6px; }
-.complete-grid { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 12px; }
-@media (max-width: 520px) { .complete-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
-.skill-card { width: 220px; height: 300px; perspective: 900px; border: 0; padding: 0; background: none; }
-.skill-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-.skill-card.flipped .skill-inner { transform: rotateY(180deg); }
-.face {
-  position: absolute; inset: 0; backface-visibility: hidden; border-radius: 16px; border: 3px solid var(--ink);
-  padding: 16px; display: flex; flex-direction: column; text-align: left; gap: 8px;
+/* Example + quiz */
+.codeblock {
+  background: var(--code-bg); color: var(--code-fg); font-family: var(--font-code); font-size: 24px; line-height: 30px;
+  padding: 8px 0; margin: 4px; overflow-x: auto;
+  box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink);
 }
-.face.front { background: var(--yolk); color: var(--yolk-ink); justify-content: space-between; }
-.face.front .num { font-family: var(--font-code); font-size: 0.8rem; font-weight: 600; }
-.face.front .big { font-family: var(--font-display); font-size: 2rem; font-weight: 700; line-height: 1; }
-.face.front .glyph { font-family: var(--font-code); font-size: 1rem; background: var(--yolk-ink); color: var(--yolk); padding: 8px 10px; border-radius: 8px; }
-.face.back { background: var(--surface); color: var(--ink); transform: rotateY(180deg); font-size: 0.88rem; overflow: auto; }
-.face.back b { font-family: var(--font-display); font-size: 1.05rem; }
-.face.back ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.complete ul.recap { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; }
-.share { display: grid; gap: 8px; margin-top: 12px; }
-.share textarea { width: 100%; min-height: 76px; font: inherit; font-size: 0.95rem; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--bg); color: var(--ink); resize: vertical; }
-.next-level { margin-top: 14px; padding: 12px 14px; border: 2px dashed var(--line); border-radius: 12px; color: var(--muted); }
+.codeblock div { padding: 0 12px; white-space: pre; display: flex; gap: 12px; }
+.codeblock div::before { content: attr(data-n); color: var(--code-dim); min-width: 1ch; }
+.codeblock div.on { background: rgba(245, 192, 74, 0.28); }
+.output { font-family: var(--font-code); font-size: 22px; line-height: 1.1; background: #fff; padding: 6px 10px; margin: 4px; min-height: 36px; box-shadow: 0 0 0 3px var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.output:empty::before { content: "(output appears here)"; color: var(--muted); }
+.notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.notes li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.caption { font-size: 19px; }
 
-.foot { display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: space-between; align-items: center; color: var(--muted); font-size: 0.9rem; }
-.linkish { background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; }
+.options { display: grid; gap: 10px; }
+.opt { text-align: left; font-weight: 600; font-size: 19px; }
+.opt.code-opt { font-family: var(--font-code); font-size: 26px; font-weight: 400; }
+.opt.right { background: var(--good-bg); box-shadow: 0 -4px 0 0 var(--leaf-dark), 0 4px 0 0 var(--leaf-dark), -4px 0 0 0 var(--leaf-dark), 4px 0 0 0 var(--leaf-dark); }
+.opt.wrong { background: var(--bad-bg); opacity: 0.75; animation: shake 0.3s steps(4); }
+.say-box { padding: 10px 12px; font-size: 18px; margin: 4px; }
+.say-box.good { background: var(--good-bg); box-shadow: 0 0 0 3px var(--leaf-dark); }
+.say-box.bad { background: var(--bad-bg); box-shadow: 0 0 0 3px var(--berry-dark); }
+.say-box.near { background: var(--near-bg); box-shadow: 0 0 0 3px var(--yolk-dark); }
+.say-box h3 { margin: 0 0 4px; font-size: 18px; letter-spacing: 0.06em; }
+.say-box p + p { margin-top: 6px; }
+.raw { font-family: var(--font-code); font-size: 19px; color: var(--berry-dark); overflow-wrap: anywhere; }
 
-/* On phones: creature, then mission and code, then the shelves. */
-@media (max-width: 880px) {
-  .grid { display: flex; flex-direction: column; }
-  .habitat, .work { display: contents; }
-  .stage { order: 1; width: 100%; }
-  #mission { order: 2; }
-  .editor-card { order: 3; }
-  #feedback { order: 4; }
-  #shelfBox { order: 5; }
-  #jarBox { order: 6; }
+/* Variable boxes */
+.shelf { display: flex; flex-wrap: wrap; gap: 14px 12px; padding-top: 10px; }
+.vbox { position: relative; background: #fff; padding: 12px 10px 4px; min-width: 76px; max-width: 100%; box-shadow: 0 0 0 3px var(--ink); animation: pop 0.25s steps(3); }
+.vbox b { position: absolute; top: -12px; left: 6px; background: var(--yolk); font-family: var(--font-code); font-weight: 400; font-size: 20px; line-height: 1; padding: 2px 6px; box-shadow: 0 0 0 2px var(--ink); }
+.vbox span { font-family: var(--font-code); font-size: 22px; overflow-wrap: anywhere; }
+.vbox small { display: block; font-size: 12px; color: var(--muted); }
+
+/* Code challenge */
+.task { font-size: 19px; }
+.editor { display: grid; grid-template-columns: auto minmax(0, 1fr); background: var(--code-bg); margin: 4px; box-shadow: 0 -4px 0 0 var(--ink), 0 4px 0 0 var(--ink), -4px 0 0 0 var(--ink), 4px 0 0 0 var(--ink); }
+.gutter { margin: 0; padding: 10px 6px 10px 10px; color: var(--code-dim); font-family: var(--font-code); font-size: 24px; line-height: 30px; text-align: right; user-select: none; }
+.code-area { position: relative; min-width: 0; }
+.hl { position: absolute; left: 0; right: 0; height: 30px; background: rgba(245, 192, 74, 0.28); pointer-events: none; }
+.hl.err { background: rgba(224, 71, 91, 0.45); }
+.editor textarea {
+  position: relative; display: block; width: 100%; min-height: 130px; resize: none; overflow-y: hidden; overflow-x: auto;
+  background: transparent; color: var(--code-fg); caret-color: var(--yolk); border: 0; margin: 0; border-radius: 0;
+  padding: 10px 10px 10px 4px; font-family: var(--font-code); font-size: 24px; line-height: 30px; white-space: pre; tab-size: 4;
 }
+.editor textarea::placeholder { color: var(--code-dim); }
+.editor textarea:focus { outline: none; }
+.editor:focus-within { box-shadow: 0 -4px 0 0 var(--yolk), 0 4px 0 0 var(--yolk), -4px 0 0 0 var(--yolk), 4px 0 0 0 var(--yolk); }
+.keys { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.key { border: 0; background: var(--cream-dark); font-family: var(--font-code); font-size: 28px; line-height: 1; padding: 6px 0; box-shadow: 0 0 0 3px var(--ink), inset 0 -3px 0 0 #CDB98A; margin: 3px; }
+.key:active { transform: translateY(2px); }
+.hints { display: grid; gap: 8px; }
+.log { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 17px; }
+.log li { padding-left: 14px; position: relative; }
+.log li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 6px; height: 6px; background: var(--ink); }
+.log li.err::before { background: var(--berry); }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
+/* Finish */
+.skill { border: 0; padding: 0; background: none; width: 200px; height: 270px; perspective: 800px; align-self: center; margin: 4px; }
+.skill-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s steps(6); transform-style: preserve-3d; }
+.skill.flip .skill-inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; padding: 14px; display: flex; flex-direction: column; gap: 8px; text-align: left; box-shadow: 0 0 0 4px var(--ink); }
+.face.front { background: var(--yolk); justify-content: space-between; }
+.face.front .big { font-size: 30px; font-weight: 700; }
+.face.back { background: #fff; transform: rotateY(180deg); font-size: 15px; }
+.face.back ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
+.share-text { width: calc(100% - 6px); min-height: 90px; font: inherit; font-size: 16px; padding: 8px; border: 0; border-radius: 0; background: #fff; box-shadow: 0 0 0 3px var(--ink); margin: 3px; resize: vertical; }
+.recap { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; z-index: 20; background: rgba(42, 30, 39, 0.75); display: grid; place-items: center; padding: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.modal .px { max-width: 440px; width: 100%; max-height: 85vh; overflow: auto; padding: 18px; display: grid; gap: 12px; }
+.howto { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 10px; }
+.howto li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
+.howto li b { display: grid; place-items: center; width: 26px; height: 26px; background: var(--ink); color: var(--cream); font-size: 15px; }
+
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes pop { from { transform: scale(0.85); } to { transform: scale(1); } }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
-
-<div class="page">
-  <header class="top">
-    <div class="brand">
-      <h1>Creature <span>Code</span></h1>
-      <p>Learn real Python by raising a creature.</p>
-    </div>
-    <div class="level-pill" aria-label="Level progress">
-      <b>Level 1 · Variables</b>
-      <div class="dots" id="dots"></div>
-    </div>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="hud">
+    <button class="icon-btn" id="menuBtn" aria-label="Menu">≡</button>
+    <span class="lv">LV 1</span>
+    <div class="xp" aria-label="Level progress"><i id="xp"></i></div>
+    <span class="py" id="py" title="Python engine">PY</span>
   </header>
 
-  <main class="grid">
-    <!-- LEFT: the habitat where your creature lives -->
-    <section class="habitat" aria-label="Your creature">
-      <div class="stage" id="stage" data-element="none">
-        <span class="status-chip" id="engineStatus">Loading Python…</span>
-        <div class="bubble" id="bubble" hidden></div>
+  <div class="stage">
+    <canvas id="scene" width="80" height="50" aria-label="Your creature"></canvas>
+    <div class="tag" id="tag" hidden></div>
+    <div class="say" id="say" hidden></div>
+  </div>
 
-        <svg class="creature-svg idle" id="creature" data-element="none" viewBox="0 0 200 200" role="img" aria-label="Your creature">
-          <ellipse cx="100" cy="184" rx="52" ry="8" fill="rgba(0,0,0,0.12)"></ellipse>
-          <!-- The egg -->
-          <g class="c-egg">
-            <path d="M100 32 C140 32 160 96 160 126 C160 162 133 180 100 180 C67 180 40 162 40 126 C40 96 60 32 100 32Z" fill="#FFF6E0" stroke="#1C2340" stroke-width="4"></path>
-            <circle cx="78" cy="96" r="9" fill="#B9A6F2"></circle>
-            <circle cx="122" cy="122" r="12" fill="#B9A6F2"></circle>
-            <circle cx="88" cy="150" r="7" fill="#B9A6F2"></circle>
-            <circle cx="118" cy="72" r="6" fill="#B9A6F2"></circle>
-            <polyline class="crack" points="48,118 66,108 76,124 92,106 104,124 118,108 132,124 152,112" fill="none" stroke="#1C2340" stroke-width="4" stroke-linejoin="round"></polyline>
-          </g>
-          <!-- The hatched creature -->
-          <g class="c-body">
-            <g class="evo">
-              <path class="body-dark" d="M46 118 C18 96 10 128 28 144 C34 140 40 136 46 132Z"></path>
-              <path class="body-dark" d="M154 118 C182 96 190 128 172 144 C166 140 160 136 154 132Z"></path>
-            </g>
-            <ellipse class="body-dark" cx="78" cy="174" rx="15" ry="8"></ellipse>
-            <ellipse class="body-dark" cx="122" cy="174" rx="15" ry="8"></ellipse>
-            <!-- head decorations, one per element -->
-            <path class="tuft tuft-fire" d="M100 66 C86 52 90 36 100 20 C104 34 116 38 112 52 C118 48 121 42 121 38 C130 54 120 68 100 68Z" fill="#FFC23D" stroke="#1C2340" stroke-width="3"></path>
-            <path class="tuft tuft-water" d="M98 66 C94 44 112 30 130 36 C118 42 112 50 116 64Z" fill="#9FD6FF" stroke="#1C2340" stroke-width="3"></path>
-            <g class="tuft tuft-leaf">
-              <path d="M100 66 L100 44" stroke="#1C2340" stroke-width="3"></path>
-              <path d="M100 48 C84 46 78 32 82 26 C96 28 102 38 100 48Z" fill="#A8E06C" stroke="#1C2340" stroke-width="3"></path>
-              <path d="M100 46 C112 40 124 42 128 48 C120 58 106 54 100 46Z" fill="#A8E06C" stroke="#1C2340" stroke-width="3"></path>
-            </g>
-            <circle class="tuft tuft-none body-dark" cx="100" cy="62" r="7"></circle>
-            <!-- body -->
-            <path class="body-fill" d="M100 62 C146 62 162 100 160 132 C158 166 132 178 100 178 C68 178 42 166 40 132 C38 100 54 62 100 62Z" stroke="#1C2340" stroke-width="4"></path>
-            <ellipse cx="100" cy="146" rx="34" ry="24" fill="rgba(255,255,255,0.35)"></ellipse>
-            <ellipse class="body-fill" cx="44" cy="140" rx="9" ry="13" stroke="#1C2340" stroke-width="3"></ellipse>
-            <ellipse class="body-fill" cx="156" cy="140" rx="9" ry="13" stroke="#1C2340" stroke-width="3"></ellipse>
-            <path class="evo" d="M100 136 L104 145 L114 146 L106 152 L109 162 L100 156 L91 162 L94 152 L86 146 L96 145Z" fill="#FFE066" stroke="#1C2340" stroke-width="2"></path>
-            <g class="eyes">
-              <ellipse cx="82" cy="110" rx="13" ry="15" fill="#fff" stroke="#1C2340" stroke-width="3"></ellipse>
-              <ellipse cx="118" cy="110" rx="13" ry="15" fill="#fff" stroke="#1C2340" stroke-width="3"></ellipse>
-              <circle cx="84" cy="113" r="7" fill="#1C2340"></circle>
-              <circle cx="120" cy="113" r="7" fill="#1C2340"></circle>
-              <circle cx="86" cy="110" r="2.5" fill="#fff"></circle>
-              <circle cx="122" cy="110" r="2.5" fill="#fff"></circle>
-            </g>
-            <ellipse cx="66" cy="130" rx="8" ry="5" fill="#FF7A9A" opacity="0.5"></ellipse>
-            <ellipse cx="134" cy="130" rx="8" ry="5" fill="#FF7A9A" opacity="0.5"></ellipse>
-            <path class="mouth-happy" d="M91 130 Q100 140 109 130" fill="none" stroke="#1C2340" stroke-width="3.5" stroke-linecap="round"></path>
-            <path class="mouth-confused" d="M89 134 Q94 129 100 134 Q106 139 111 134" fill="none" stroke="#1C2340" stroke-width="3.5" stroke-linecap="round"></path>
-          </g>
-          <text class="qmark" x="150" y="64" font-family="Fredoka, sans-serif" font-weight="700" font-size="40" fill="#D63A4F" stroke="#1C2340" stroke-width="1.5">?</text>
-        </svg>
+  <main class="panel px" id="panel" aria-live="polite"></main>
+</div>
 
-        <div class="nametag" id="nametag" hidden></div>
-        <svg class="bug" id="bug" viewBox="0 0 60 50" hidden aria-hidden="true">
-          <g stroke="#1C2340" stroke-width="2.5" stroke-linecap="round">
-            <line x1="18" y1="20" x2="6" y2="12"></line><line x1="16" y1="28" x2="4" y2="30"></line><line x1="18" y1="36" x2="8" y2="46"></line>
-            <line x1="42" y1="20" x2="54" y2="12"></line><line x1="44" y1="28" x2="56" y2="30"></line><line x1="42" y1="36" x2="52" y2="46"></line>
-            <line x1="26" y1="8" x2="20" y2="0"></line><line x1="34" y1="8" x2="40" y2="0"></line>
-          </g>
-          <ellipse id="bugBody" cx="30" cy="30" rx="15" ry="17" fill="#D63A4F" stroke="#1C2340" stroke-width="2.5"></ellipse>
-          <circle cx="30" cy="12" r="7" fill="#1C2340"></circle>
-          <line x1="30" y1="16" x2="30" y2="46" stroke="#1C2340" stroke-width="2"></line>
-          <circle cx="24" cy="26" r="3" fill="#1C2340"></circle><circle cx="36" cy="34" r="3" fill="#1C2340"></circle>
-        </svg>
-        <span class="bug-label" id="bugLabel" hidden></span>
-      </div>
-
-      <div class="shelf-wrap" id="shelfBox">
-        <p class="section-label">Memory shelf · your variables</p>
-        <div class="shelf" id="shelf"><p class="empty">No boxes yet. Run your code and they'll appear here.</p></div>
-      </div>
-
-      <div class="shelf-wrap" id="jarBox">
-        <p class="section-label">Bug jar · errors you fixed</p>
-        <div class="jar" id="jar"><span>Empty. Bugs show up when code breaks. Fix the code to catch them.</span></div>
-      </div>
-    </section>
-
-    <!-- RIGHT: the mission and your code -->
-    <section class="work" aria-label="Mission and code">
-      <article class="card mission" id="mission"></article>
-
-      <div class="editor-card">
-        <div class="editor-head"><b>creature.py</b><span>Python 3 · runs in your browser</span></div>
-        <div class="editor">
-          <div class="gutter" id="gutter">1</div>
-          <div class="code-area">
-            <div class="hl" id="hl"></div>
-            <textarea id="code" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Your Python code"></textarea>
-          </div>
-        </div>
-        <div class="run-bar">
-          <button class="btn primary" id="runBtn" disabled>Run ▶</button>
-          <span class="kbd" id="runNote">Python is loading. This takes a few seconds the first time.</span>
-        </div>
-        <pre class="console" id="console"><span class="dim">Output from print() shows up here.</span></pre>
-      </div>
-
-      <div class="feedback" id="feedback" hidden aria-live="polite"></div>
-    </section>
-  </main>
-
-  <footer class="foot">
-    <span>Built in public by a Python learner. Level 2 (Math) is next.</span>
-    <button class="linkish" id="resetBtn">Start Level 1 over</button>
-  </footer>
+<div class="modal" id="modal" hidden>
+  <div class="px" role="dialog" aria-label="Menu">
+    <h2>How to play</h2>
+    <ul class="howto">
+      <li><b>1</b><span>Old Moss teaches one small idea at a time. Tap the text box to keep going.</span></li>
+      <li><b>2</b><span>Quick quizzes check you've got it. Wrong answers are fine. You'll see why.</span></li>
+      <li><b>3</b><span>In challenges, type real Python and press RUN. Your creature acts out each line.</span></li>
+      <li><b>4</b><span>A bug appears when your code has an error. Fix the code and run again to catch it.</span></li>
+      <li><b>5</b><span>Stuck? Tap HINT. Each tap gives a bit more help.</span></li>
+      <li><b>6</b><span>The symbol keys under the code save you hunting for <code>"</code> <code>=</code> <code>(</code> <code>)</code> on your phone keyboard.</span></li>
+    </ul>
+    <button class="btn go wide" id="closeModal">GOT IT</button>
+    <button class="back" id="restartBtn">Restart Level 1</button>
+  </div>
 </div>
 
 <script>
 /* =====================================================================
    CREATURE CODE · Level 1: Variables
-   The JavaScript below runs the game. The Python you type is run by
-   Pyodide, which is the real Python language compiled to work in a browser.
+   This JavaScript runs the game. The Python you type is run by Pyodide:
+   the real Python language, packed so it can run inside a web page.
    ===================================================================== */
 
-// ---------- 1. The five missions of Level 1 ----------
-// Each mission has text to teach one idea, code to add to the editor,
-// and a check() that looks at your variables after the code runs.
-const STEPS = [
-  {
-    title: "Hatch your egg",
-    story: "Your egg is wiggling. It won't hatch until it has a name.",
-    idea: "A variable is a labelled box that stores a value. You make one with =.",
-    parts: [
-      ["name", "The label on the box. You pick it."],
-      ["=", "Means “put this in the box”. It is not the maths equals."],
-      ['"Ember"', "The value. Text inside quotes is called a string."],
+// ---------- 1. Pixel art ----------
+// Each sprite is a grid of letters. Every letter is one pixel colour.
+const SPRITES = {
+  egg: ["................", "......oooo......", ".....owwwwo.....", "....owwwwhwo....", "...owwsswwhwo...", "...owwsswwwwo...", "..owwwwwwwwsso..", "..owwwwwwwwsso..", "..owsswwwwwwwo..", "..owsswwwwwwwo..", "..owwwwwwssswo..", "..owwwwwwssswo..", "...owwwwwwwwo...", "....owwwwwwo....", ".....oooooo.....", "................"],
+  body: ["................", "................", "................", "...oo......oo...", "..obdo....odbo..", "..obbboooobbbo..", ".obbbbbbbbbbbbo.", ".obbkebbbbkebbo.", ".obbeebbbbeebbo.", ".obcbbbmmbbbcbo.", ".obbbbbbbbbbbbo.", ".obbbllllllbbbo.", ".obbllllllllbbo.", "..obbllllllbbo..", "..odbbbbbbbbdo..", "...oddo..oddo..."],
+  tuft_fire: [".......o........", "......oyo.o.....", "......oyfoyo....", "......ofyfo.....", "......offo......"],
+  tuft_water: ["........oo......", ".......owwo.....", "......owwo......", "......owo.......", "......owwo......"],
+  tuft_leaf: ["....oo....oo....", "...oggo..oggo...", "....oggoogho....", "......oho.......", ".......h........"],
+  tuft_none: ["................", "................", "................", ".......oo.......", "......obbo......"],
+  wing_l: ["...o", "..od", ".odd", "oddd", ".ooo"],
+  star: ["...y...", "..yyy..", "yyyyyyy", ".yyyyy.", ".yy.yy."],
+  moss: ["................", "..ooo......ooo..", ".owwwo....owwwo.", ".oweeo....oweeo.", ".oggggkkkkggggo.", "oggggggggggggggo", "ogcggggggggggcgo", "ogggmmmmmmmmgggo", "oggggggggggggggo", ".oggyyyyyyyyggo.", ".oggyyyyyyyyggo.", "..oggggggggggo..", "..odgo....ogdo..", "..ooo......ooo..", "................", "................"],
+  bug: ["..o...o..", "...ooo...", "o.orrro.o", ".orrkrro.", "o.orrro.o", ".orkrrro.", "o.ooooo.o"],
+};
+
+const BASE_PAL = { o: "#2B1D2E", e: "#2B1D2E", m: "#2B1D2E", k: "#FFFFFF", c: "#FF8FA3", y: "#FFD447" };
+const ELEMENTS = {
+  none:  { b: "#B79CED", d: "#7E62C4", l: "#E9DDFF", ground: "#7DB35A", groundDark: "#5E9444", sky: ["#9AD7EE", "#C5EBF6"] },
+  fire:  { b: "#F7894A", d: "#C2522A", l: "#FFD9A8", f: "#F2542D", ground: "#C9A25A", groundDark: "#A47E3C", sky: ["#F7B98A", "#FCDDB8"] },
+  water: { b: "#4FA8E8", d: "#2E6FB0", l: "#C9EBFF", w: "#BDEBFF", ground: "#5FB7A8", groundDark: "#3F8F84", sky: ["#7FC3EE", "#BFE4F7"] },
+  leaf:  { b: "#6CC35A", d: "#3E8C3B", l: "#D6F2B8", g: "#A8E06C", h: "#3E8C3B", ground: "#7DB35A", groundDark: "#5E9444", sky: ["#A9DDB8", "#D3F0D8"] },
+};
+const EGG_PAL = { o: "#2B1D2E", w: "#FFF4DC", s: "#C9A8F0", h: "#FFFFFF" };
+const MOSS_PAL = { o: "#2B1D2E", e: "#2B1D2E", m: "#2B1D2E", w: "#FFFFFF", g: "#6FA84B", d: "#3F6B2E", k: "#A7C957", c: "#FF8FA3", y: "#E6E9B8" };
+
+function drawSprite(ctx, rows, x, y, pal, flip) {
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r];
+    for (let c = 0; c < row.length; c++) {
+      const col = pal[row[c]];
+      if (!col) continue;
+      ctx.fillStyle = col;
+      ctx.fillRect(x + (flip ? row.length - 1 - c : c), y + r, 1, 1);
+    }
+  }
+}
+
+// ---------- 2. The lessons ----------
+// The level is a list of screens. Each screen is one of:
+//   talk    = Old Moss explains something (tap to continue)
+//   example = watch some Python run
+//   quiz    = pick the right answer
+//   code    = you type Python and press RUN
+const SCREENS = [];
+function mission(title, screens) { for (const s of screens) { s.mission = title; SCREENS.push(s); } }
+
+mission("", [{ type: "title" }]);
+
+mission("Welcome", [
+  { type: "talk", lines: [
+    "Oh! A new keeper! I'm Old Moss. I look after the hatchery.",
+    "Creatures here don't listen to buttons. They listen to code.",
+    "Code is a list of instructions for a computer. You'll write yours in Python.",
+    "Python is a real language. People use it to build apps, games and science tools.",
+    "Here's the plan: I teach you a small idea, you try it, and your creature follows your code.",
+    "Make a mistake and a bug shows up. Fix your code to catch it. Every coder makes bugs!",
+    "See that egg? It's yours. Let's wake it up.",
+  ] },
+]);
+
+mission("1 · Boxes with labels", [
+  { type: "talk", lines: [
+    "Computers forget everything, unless you tell them to remember.",
+    "In Python, you remember things with a variable.",
+    "Think of a variable as a box with a label on it. The label is its name. The thing inside is its value.",
+  ] },
+  { type: "example",
+    intro: "Here's a variable. Tap RUN to watch Python read it.",
+    code: ['snack = "berry"'],
+    steps: [{ line: 1, set: ["snack", '"berry"', "text"] }],
+    notes: [["snack", "the label on the box"], ["=", "means “put this in the box”"], ['"berry"', "the value that goes inside"]],
+    after: "Python read it as: make a box called snack, and put \"berry\" in it." },
+  { type: "quiz", prompt: "In this line, which part is the label?", code: ['color = "blue"'],
+    options: [
+      { text: "color", code: true, right: true, why: "Yes! The label always goes on the left of the =." },
+      { text: "=", code: true, why: "That's the = sign. It means “put this in the box”. The label is on its left." },
+      { text: '"blue"', code: true, why: "That's the value going into the box. The label is on the left." },
+    ] },
+  { type: "quiz", prompt: "In Python, what does `=` do?",
+    options: [
+      { text: "Puts a value into a box", right: true, why: "Exactly. In Python, = stores a value in a variable." },
+      { text: "Checks if two things are the same", why: "Good guess from maths class! But in Python, = stores a value. Checking uses ==, which you'll meet later." },
+      { text: "Adds two numbers", why: "Adding uses +. The = sign stores a value." },
+    ] },
+  { type: "talk", lines: [
+    "Your turn! Your egg won't hatch until it has a name.",
+    "Write one line of Python that makes a box called `name`, with a name inside.",
+    "Names are text, and text goes inside quotes. Pick any name you like!",
+  ] },
+  { type: "code", id: "hatch",
+    task: "Make a variable called `name` and put a name in it. Then press RUN.",
+    hints: [
+      "Start the line with the label: name",
+      "Next comes = (it means “put this in the box”).",
+      "Then your name, inside quotes. The pattern is: label = \"text\"",
     ],
-    task: "Change Ember to any name you like. Keep the quotes. Then press Run.",
-    add: '# Lines starting with # are notes.\nname = "Ember"\n',
     check(v) {
-      if (!v.name) return { ok: false, hint: "Python finished, but there is no box called name. Make sure the line starts with name =" };
-      if (v.name.type !== "str") return { ok: false, hint: "Your name box holds a " + typeWord(v.name.type) + ". A name is text, so wrap it in quotes, like \"Ember\"." };
-      if (!v.name.value.trim()) return { ok: false, hint: "The quotes are empty, so the name is blank. Type a name between them." };
-      return { ok: true, msg: "Your egg hatched! Python made a box labelled name and put \"" + v.name.value + "\" inside it." };
-    },
-  },
-  {
-    title: "Choose an element",
-    story: "Your creature needs an element. It changes how it looks and, later, how it battles.",
-    idea: "You can make as many boxes as you like. Each one gets its own label.",
-    parts: [
-      ["element", "A second box, with a different label."],
-      ['"water"', "Another string. Pick fire, water or leaf."],
+      if (!v.name) return { near: "Python ran your code, but there's no box called name. The line should start with name =" };
+      if (v.name.type !== "str") return { near: "Your name box holds a number, not text. Put the name inside quotes." };
+      if (!v.name.value.trim()) return { near: "The quotes are empty, so the name is blank. Type a name between them." };
+      return { ok: "Your egg hatched! Python made a box called name and put \"" + v.name.value + "\" inside." };
+    } },
+  { type: "talk", lines: [
+    "{name}! What a great name.",
+    "Look under the creature: that's the value from your name box. Your code did that!",
+  ] },
+]);
+
+mission("2 · Text and numbers", [
+  { type: "talk", lines: [
+    "Text inside quotes has a special name. It's called a string.",
+    "Numbers are different. They don't get quotes. 7 is a number. \"7\" is a string that only looks like a number.",
+    "Why does it matter? You can do maths with numbers, but not with strings.",
+  ] },
+  { type: "quiz", prompt: "Which one is a number?",
+    options: [
+      { text: "7", code: true, right: true, why: "Right! No quotes, so Python sees a number." },
+      { text: '"7"', code: true, why: "Careful! The quotes make it a string. It's text that looks like a number." },
+      { text: '"seven"', code: true, why: "That's a string: text inside quotes." },
+    ] },
+  { type: "quiz", prompt: "Which line stores the text blue correctly?",
+    options: [
+      { text: 'color = "blue"', code: true, right: true, why: "Yes! Label on the left, text in quotes on the right." },
+      { text: "color = blue", code: true, why: "Without quotes, Python thinks blue is the label of another box. It goes looking, finds nothing, and a bug appears!" },
+      { text: '"color" = blue', code: true, why: "Labels never get quotes. Only text values do." },
+    ] },
+  { type: "talk", lines: [
+    "Every creature has an element: fire, water or leaf.",
+    "Make a new box called `element`, on a new line under your name line.",
+  ] },
+  { type: "code", id: "element",
+    task: "Add a variable called `element`. Its value is \"fire\", \"water\" or \"leaf\".",
+    hints: [
+      "Tap at the end of your code and start a new line.",
+      "The label is element, then =",
+      "The value is text, so it needs quotes. Use all lowercase: \"fire\", \"water\" or \"leaf\".",
     ],
-    task: 'Set element to "fire", "water" or "leaf", then Run.',
-    add: '\n# Pick one: "fire", "water" or "leaf"\nelement = "fire"\n',
     check(v) {
       const e = v.element;
-      if (!e) return { ok: false, hint: "There's no box called element yet. Add a line: element = \"fire\"" };
-      if (e.type !== "str") return { ok: false, hint: "element should be text, so it needs quotes: element = \"water\"" };
+      if (!e) return { near: "There's no box called element yet. Add a new line that starts with element =" };
+      if (e.type !== "str") return { near: "element should hold text, so its value needs quotes." };
       const ok = ["fire", "water", "leaf"];
-      if (ok.includes(e.value)) return { ok: true, msg: "Your creature is now a " + e.value + " type. Two boxes on the shelf, each with its own label." };
-      if (ok.includes(e.value.trim().toLowerCase())) return { ok: false, hint: "Close! Python is picky: \"Fire\" and \"fire\" are different strings. Use all lowercase, with no spaces." };
-      return { ok: false, hint: "Your creature doesn't know the element \"" + e.value + "\". Try \"fire\", \"water\" or \"leaf\"." };
-    },
-  },
-  {
-    title: "Give it energy",
-    story: "Every creature has energy points, called hp. Without energy it can't train or battle.",
-    idea: "Numbers don't need quotes. 20 is a number you can do maths with. \"20\" with quotes is just text that looks like a number.",
-    parts: [
-      ["hp", "Short for health points."],
-      ["20", "A whole number. Python calls it an int (short for integer)."],
-      ['"20"', "Careful: this is a string, not a number."],
+      if (ok.includes(e.value)) return { ok: "{name} is now a " + e.value + " type! Two boxes, each with its own label." };
+      if (ok.includes(e.value.trim().toLowerCase())) return { near: "So close! Python is picky: \"Fire\" and \"fire\" are different strings. Use all lowercase, no spaces." };
+      return { near: "{name} doesn't know the element \"" + e.value + "\". Try \"fire\", \"water\" or \"leaf\"." };
+    } },
+  { type: "talk", lines: [
+    "Now {name} needs energy. We call it hp.",
+    "Make a box called `hp` with a number from 1 to 100. Remember: numbers don't get quotes!",
+  ] },
+  { type: "code", id: "hp",
+    task: "Add a variable called `hp` that holds a number from 1 to 100.",
+    hints: [
+      "Start a new line. The label is hp.",
+      "Then = and a number.",
+      "No quotes this time! Numbers are written on their own.",
     ],
-    task: "Give hp a number from 1 to 100, with no quotes. Then Run.",
-    add: "\n# Energy: a number from 1 to 100. No quotes for numbers!\nhp = 20\n",
     check(v) {
       const h = v.hp;
-      if (!h) return { ok: false, hint: "There's no box called hp yet. Add a line: hp = 20" };
-      if (h.type === "str") return { ok: false, hint: "hp holds the string " + h.repr + ". That's text that only looks like a number. Remove the quotes so it becomes a real number." };
-      if (h.type !== "int" && h.type !== "float") return { ok: false, hint: "hp should be a number, like 20." };
-      if (h.value < 1) return { ok: false, hint: "Your creature has no energy! Use a number of 1 or more." };
-      if (h.value > 100) return { ok: false, hint: "Whoa, that's too much energy. Keep hp between 1 and 100." };
-      return { ok: true, msg: "Energy set to " + h.repr + ". See the shelf: strings and numbers are different types of value." };
-    },
-  },
-  {
-    title: "Make it talk",
-    story: "Your creature wants to introduce itself.",
-    idea: "print() shows something on the screen. Put a variable inside the brackets, without quotes, and Python shows what's in that box.",
-    parts: [
-      ["print( )", "Shows whatever is inside the brackets."],
-      ['"Hi! I am"', "A string, printed exactly as written."],
-      [",", "Separates the things to print. Python adds a space between them."],
-      ["name", "No quotes, so Python looks inside the box called name."],
+      if (!h) return { near: "There's no box called hp yet. Add a new line that starts with hp =" };
+      if (h.type === "str") return { near: "hp holds " + h.show + ", which is a string. Take the quotes away so it becomes a real number." };
+      if (h.type !== "int" && h.type !== "float") return { near: "hp should hold a number, like 50." };
+      if (h.value < 1) return { near: "{name} has no energy! Use a number of 1 or more." };
+      if (h.value > 100) return { near: "Whoa, too much energy! Keep it between 1 and 100." };
+      return { ok: "{name} has " + h.show + " hp. Look at the boxes: name and element hold strings, hp holds a number." };
+    } },
+]);
+
+mission("3 · Talk with print()", [
+  { type: "talk", lines: [
+    "{name} wants to say something!",
+    "`print()` tells Python to show something on the screen. Whatever is inside the brackets gets shown.",
+  ] },
+  { type: "example",
+    intro: "Watch the difference between quotes and no quotes. Tap RUN.",
+    code: ['snack = "berry"', 'print("yum")', "print(snack)"],
+    steps: [{ line: 1, set: ["snack", '"berry"', "text"] }, { line: 2, out: "yum" }, { line: 3, out: "berry" }],
+    notes: [['print("yum")', "quotes: prints the text yum, exactly"], ["print(snack)", "no quotes: opens the snack box and prints what's inside"]],
+    after: "Quotes mean “this exact text”. No quotes means “look inside the box with this label”." },
+  { type: "quiz", prompt: "What does this print?", code: ['snack = "berry"', 'print("snack")'],
+    options: [
+      { text: "snack", code: true, right: true, why: "Yes! snack has quotes, so Python prints the word itself." },
+      { text: "berry", code: true, why: "Look closely: snack is inside quotes, so Python prints the word snack, not what's in the box." },
+    ] },
+  { type: "code", id: "print",
+    task: "Make {name} say its own name. Use `print()` with your name box inside.",
+    hints: [
+      "Start a new line with print( )",
+      "Inside the brackets, put the label of your name box.",
+      "No quotes around name, or Python prints the word name.",
     ],
-    task: "Add a print line that includes your creature's name. Then Run.",
-    add: '\nprint("Hi! I am", name)\n',
     check(v, out) {
-      if (!out.trim()) return { ok: false, hint: "Nothing was printed. Add a line like: print(\"Hi! I am\", name)" };
-      if (!v.name || v.name.type !== "str") return { ok: false, hint: "Your code needs the name box. Keep the name = \"...\" line at the top." };
-      if (out.includes(v.name.value)) return { ok: true, msg: "It talked! Python swapped the variable name for what's inside it: \"" + v.name.value + "\"." };
-      if (/\bname\b/.test(out)) return { ok: false, hint: "Your creature said the word name. Quotes mean “print exactly this”. Remove the quotes around name to print what's inside the box." };
-      return { ok: false, hint: "Your creature talked, but didn't say its name. Put name (no quotes) inside print()." };
-    },
-  },
-  {
-    title: "Change its mind",
-    story: "Your creature has decided it wants a new name.",
-    idea: "A box holds one value at a time. Store something new and the old value is replaced. Python runs your code from top to bottom, so order matters.",
-    parts: [
-      ['name = "Blaze"', "Same label, new value. The old name is gone."],
-      ["print(...)", "Runs after the change, so it prints the new name."],
+      if (!out.trim()) return { near: "Nothing was printed. Add a line that uses print( )." };
+      if (!v.name || v.name.type !== "str") return { near: "Your code needs the name box. Keep your name = line at the top." };
+      if (out.includes(v.name.value)) return { ok: "{name} talked! Python opened the name box and printed what was inside." };
+      if (/\bname\b/.test(out)) return { near: "{name} said the word “name”. Remove the quotes around name, so Python looks inside the box." };
+      return { near: "{name} talked, but didn't say its name. Put name (no quotes) inside print( )." };
+    } },
+]);
+
+mission("4 · Change it up", [
+  { type: "talk", lines: [
+    "Here's a secret: a variable can change. That's why it's called a variable!",
+    "Put a new value in a box, and the old one is thrown away.",
+  ] },
+  { type: "example",
+    intro: "Python runs your code from top to bottom. Tap RUN and watch the box.",
+    code: ['mood = "sleepy"', 'mood = "happy"', "print(mood)"],
+    steps: [{ line: 1, set: ["mood", '"sleepy"', "text"] }, { line: 2, set: ["mood", '"happy"', "text"] }, { line: 3, out: "happy" }],
+    notes: [['mood = "happy"', "same label, new value. \"sleepy\" is gone"]],
+    after: "By the time line 3 runs, the box holds \"happy\"." },
+  { type: "quiz", prompt: "What does this print?", code: ["x = 3", "x = 9", "print(x)"],
+    options: [
+      { text: "3", code: true, why: "3 was in the box first, but line 2 replaced it." },
+      { text: "9", code: true, right: true, why: "Yes! Line 2 swapped 3 for 9 before print ran." },
+      { text: "39", code: true, why: "A box holds one value at a time. The new one replaces the old one." },
+    ] },
+  { type: "code", id: "rename",
+    task: "{name} wants a nickname! At the bottom, put a new name in the name box. Then print it.",
+    hints: [
+      "Add a new line at the bottom: name = and a new name in quotes.",
+      "Under that, add another print( ) with name inside.",
+      "Order matters. Python runs from top to bottom, so the new name has to come before the last print.",
     ],
-    task: "Give name a new value near the bottom, print it, and watch the name tag change mid-run.",
-    add: '\n# Your creature wants a new name:\nname = "Blaze"\nprint("Now call me", name)\n',
     check(v, out, events) {
-      const seen = new Set();
-      for (const ev of events) if (ev.after && ev.after.name && ev.after.name.type === "str") seen.add(ev.after.name.value);
-      if (seen.size < 2) return { ok: false, hint: "name only had one value this run. Add another line further down, like name = \"Blaze\", with a different name." };
-      if (!out.includes(v.name.value)) return { ok: false, hint: "The name changed. Now print it after the change: print(\"Now call me\", name)" };
-      return { ok: true, msg: "The box went from \"" + [...seen][0] + "\" to \"" + v.name.value + "\". That's why they're called variables: their values can vary." };
-    },
-  },
-];
+      const seen = [];
+      for (const ev of events) {
+        const n = ev.after && ev.after.name;
+        if (n && n.type === "str" && seen[seen.length - 1] !== n.value) seen.push(n.value);
+      }
+      if (seen.length < 2) return { near: "The name box only had one value. Add a new line at the bottom like name = \"...\" with a different name." };
+      if (!out.trim().endsWith(v.name.value)) return { near: "The name changed. Now print it after the change, at the very bottom." };
+      return { ok: "The box went from \"" + seen[0] + "\" to \"" + v.name.value + "\". Variables can vary!" };
+    } },
+]);
 
-// Bugs: each kind of Python error is a little creature you catch by fixing it.
+mission("Level complete", [{ type: "finish" }]);
+mission("Free play", [{ type: "code", id: "free", free: true,
+  task: "Free play! Write any Python you like and watch {name} act it out. Try new boxes, numbers and prints." }]);
+
+const FINISH = SCREENS.findIndex((s) => s.type === "finish");
+const FREE = SCREENS.findIndex((s) => s.id === "free");
+
+// Bugs: each kind of Python error is a little critter you catch by fixing it.
 const BUGS = {
-  NameError: { name: "Namegnat", color: "#D63A4F" },
+  NameError: { name: "Namegnat", color: "#E0475B" },
   SyntaxError: { name: "Syntick", color: "#8E5CF0" },
-  IndentationError: { name: "Indentipede", color: "#168A65" },
+  IndentationError: { name: "Indentipede", color: "#3F8F84" },
   TypeError: { name: "Typemite", color: "#F08A00" },
-  other: { name: "Mystery Moth", color: "#6B7290" },
 };
-const bugFor = (type) => BUGS[type] || (type === "TabError" ? BUGS.IndentationError : BUGS.other);
+const bugFor = (t) => BUGS[t] || (t === "TabError" ? BUGS.IndentationError : { name: "Mystery Moth", color: "#7A6670" });
 
-// ---------- 2. Saving progress in this browser ----------
-const STORE_KEY = "creature-code:level1:v1";
-let state = { step: 0, code: STEPS[0].add, bugs: {}, finished: false, hatched: false, pendingBug: null, lastName: "" };
-try {
-  const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-  if (saved && typeof saved.step === "number") state = Object.assign(state, saved);
-} catch (e) { /* storage blocked: play without saving */ }
-function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+// ---------- 3. Saving progress in this browser ----------
+const KEY = "creature-code:v2";
+const fresh = () => ({ i: 0, resume: 1, code: "", creature: { name: "", element: "none", hp: null }, hatched: false, evolved: false, bugs: {}, pendingBug: null, done: {} });
+let state = fresh();
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && typeof s.i === "number") state = Object.assign(fresh(), s); } catch (e) {}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
-// ---------- 3. Grab the parts of the page we'll change ----------
+// ---------- 4. Small helpers ----------
 const $ = (id) => document.getElementById(id);
-const editor = $("code"), gutter = $("gutter"), hl = $("hl"), runBtn = $("runBtn"), runNote = $("runNote");
-const consoleEl = $("console"), feedback = $("feedback"), shelf = $("shelf"), jar = $("jar");
-const creature = $("creature"), stage = $("stage"), nametag = $("nametag"), bubble = $("bubble");
+const panel = $("panel");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const typeWord = (t) => ({ str: "string (text)", int: "number (int)", float: "decimal number (float)", bool: "True/False (bool)" }[t] || t);
+const fill = (s) => s.replaceAll("{name}", state.creature.name || "your creature");
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+// Turns text with `backticks` into text with little code chips.
+function rich(text) {
+  const frag = document.createDocumentFragment();
+  fill(text).split("`").forEach((part, i) => { if (part) frag.append(i % 2 ? el("code", null, part) : document.createTextNode(part)); });
+  return frag;
+}
+function button(label, cls, onClick) { const b = el("button", "btn " + (cls || ""), label); b.addEventListener("click", onClick); return b; }
 
-// ---------- 4. The Python side ----------
-// This Python code runs your code one line at a time and takes a
-// snapshot of every variable after each line, so the creature can act it out.
+// ---------- 5. The creature window (drawn pixel by pixel) ----------
+const canvas = $("scene"), ctx = canvas.getContext("2d");
+const scene = { mode: "egg", element: "none", evolved: false, confused: false, bug: null, crack: false, bounce: 0, sparkle: 0, wobble: false };
+let tick = 0;
+const clouds = [{ x: 6, y: 6 }, { x: 50, y: 11 }];
+
+function drawScene() {
+  tick++;
+  const W = canvas.width, H = canvas.height, E = ELEMENTS[scene.element] || ELEMENTS.none;
+  // sky: two colours with a dotted blend between them
+  const mid = Math.floor(H * 0.45);
+  ctx.fillStyle = E.sky[0]; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = E.sky[1]; ctx.fillRect(0, mid, W, H);
+  for (let x = 0; x < W; x += 2) ctx.fillRect(x, mid - 1, 1, 1);
+  // clouds drift slowly
+  ctx.fillStyle = "#FFFFFF";
+  for (const c of clouds) {
+    const cx = Math.floor((c.x + tick / 40) % (W + 16)) - 12;
+    ctx.fillRect(cx + 2, c.y, 7, 1); ctx.fillRect(cx, c.y + 1, 12, 2); ctx.fillRect(cx + 3, c.y - 1, 3, 1);
+  }
+  // ground with a gentle hill and grass tufts
+  const g = H - 11;
+  for (let x = 0; x < W; x++) {
+    const top = g + Math.round(1.5 * Math.sin(x / 9));
+    ctx.fillStyle = E.ground; ctx.fillRect(x, top, 1, H - top);
+    ctx.fillStyle = E.groundDark; if ((x * 7) % 11 === 0) ctx.fillRect(x, top + 3, 1, 1); if ((x * 5) % 13 === 0) ctx.fillRect(x, top + 6, 2, 1);
+  }
+  // creature or egg
+  const cx = 32, base = g - 15;
+  ctx.fillStyle = "rgba(0,0,0,0.18)"; ctx.fillRect(cx + 3, g + 1, 10, 1); ctx.fillRect(cx + 2, g + 2, 12, 1);
+  if (scene.mode === "egg") {
+    const wob = scene.wobble ? (Math.floor(tick / 2) % 2 ? 1 : -1) : (Math.floor(tick / 6) % 8 === 0 ? 1 : 0);
+    drawSprite(ctx, SPRITES.egg, cx + wob, base, EGG_PAL);
+    if (scene.crack) { ctx.fillStyle = "#2B1D2E"; [[3,7],[4,8],[5,7],[6,8],[7,7],[8,8],[9,7],[10,8],[11,7],[12,8]].forEach(([x, y]) => ctx.fillRect(cx + wob + x, base + y, 1, 1)); }
+  } else {
+    const pal = Object.assign({}, BASE_PAL, E);
+    let y = base + (Math.floor(tick / 5) % 2);
+    if (scene.bounce > 0) { y -= [0, 2, 4, 3, 1][scene.bounce % 5]; scene.bounce--; }
+    const x = cx + (scene.confused ? (Math.floor(tick / 3) % 2 ? 1 : 0) : 0);
+    if (scene.evolved) { drawSprite(ctx, SPRITES.wing_l, x - 3, y + 7, pal); drawSprite(ctx, SPRITES.wing_l, x + 15, y + 7, pal, true); }
+    let body = SPRITES.body;
+    if (Math.floor(tick / 2) % 30 === 0) body = body.map((r, i) => (i === 7 ? r.replace(/[ke]/g, "b") : r)); // blink
+    drawSprite(ctx, body, x, y, pal);
+    drawSprite(ctx, SPRITES["tuft_" + (scene.element in ELEMENTS ? scene.element : "none")], x, y, pal);
+    if (scene.evolved) drawSprite(ctx, SPRITES.star, x + 5, y + 10, pal);
+    if (scene.confused) { // a pixel "?" above the head
+      ctx.fillStyle = "#E0475B";
+      [[1,0],[2,0],[3,0],[0,1],[4,1],[3,2],[2,3],[2,5]].forEach(([a, b]) => ctx.fillRect(x + 15 + a, y - 2 + b, 1, 1));
+    }
+  }
+  if (scene.bug) drawSprite(ctx, SPRITES.bug, 58 + (Math.floor(tick / 2) % 2), g - 6, { o: "#2B1D2E", k: "#FFFFFF", r: scene.bug });
+  if (scene.sparkle > 0) {
+    scene.sparkle--;
+    ctx.fillStyle = "#FFF6B0";
+    for (let s = 0; s < 6; s++) {
+      const sx = cx + 8 + Math.round(14 * Math.cos(s + tick / 3)), sy = base + 8 + Math.round(10 * Math.sin(s * 2 + tick / 3));
+      ctx.fillRect(sx, sy - 1, 1, 3); ctx.fillRect(sx - 1, sy, 3, 1);
+    }
+  }
+}
+setInterval(drawScene, 100);
+
+function setTag(text) { $("tag").hidden = !text; $("tag").textContent = text || ""; }
+function say(text) { const s = $("say"); s.hidden = !text; s.textContent = text || ""; }
+function tagText(name, hp) { return (name || "???") + (typeof hp === "number" ? "  ♥ " + hp : ""); }
+function showSavedCreature() {
+  scene.mode = state.hatched ? "creature" : "egg";
+  scene.element = state.creature.element || "none";
+  scene.evolved = state.evolved;
+  scene.confused = false;
+  setTag(state.hatched ? tagText(state.creature.name, state.creature.hp) : "");
+}
+async function hatch() {
+  scene.wobble = true; scene.crack = true;
+  await sleep(1300);
+  scene.wobble = false; scene.crack = false; scene.mode = "creature"; scene.sparkle = 14; scene.bounce = 10;
+  state.hatched = true; save();
+  await sleep(500);
+}
+
+// ---------- 6. Python, running in the page ----------
+// This Python function runs your code one line at a time and takes a
+// snapshot of every variable after each line, so your creature can act it out.
 const HARNESS = String.raw`
 import sys, json, math
 
@@ -598,7 +648,8 @@ def _creature_run(src):
             val = v
             if t == "float" and not math.isfinite(v): val = repr(v)
             if t == "int" and abs(v) > 2**53: val = repr(v)
-            out[k] = {"type": t, "repr": repr(v), "value": val}
+            show = '"' + v + '"' if t == "str" else repr(v)
+            out[k] = {"type": t, "show": show, "value": val}
         return out
 
     class Out:
@@ -644,431 +695,445 @@ def _creature_run(src):
 `;
 
 let runPython = null;
-
 function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = src; s.onload = resolve; s.onerror = () => reject(new Error("could not load " + src));
-    document.head.appendChild(s);
-  });
+  return new Promise((ok, no) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => no(new Error(src)); document.head.append(s); });
 }
-
-// Try the public Pyodide server first; if that's blocked, use a copy next to this page.
-async function startPython() {
-  const sources = ["https://cdn.jsdelivr.net/pyodide/v0.26.4/full/", "pyodide/"];
-  let lastErr;
-  for (const base of sources) {
+// Python loads in the background while you read. Try the public Pyodide
+// server first; if it's blocked, use a copy next to this page.
+const pythonReady = (async () => {
+  for (const base of ["https://cdn.jsdelivr.net/pyodide/v0.26.4/full/", "pyodide/"]) {
     try {
       if (typeof loadPyodide !== "function") await loadScript(base + "pyodide.js");
       const py = await loadPyodide({ indexURL: base });
       py.runPython(HARNESS);
       runPython = py.globals.get("_creature_run");
-      $("engineStatus").textContent = "Python ready";
-      $("engineStatus").className = "status-chip ready";
-      runBtn.disabled = false;
-      runNote.textContent = "Tip: Ctrl + Enter also runs your code.";
-      return;
-    } catch (e) {
-      lastErr = e;
-      try { delete window.loadPyodide; } catch (_) { window.loadPyodide = undefined; }
-    }
+      $("py").className = "py ready";
+      return true;
+    } catch (e) { window.loadPyodide = undefined; }
   }
-  $("engineStatus").textContent = "Python failed to load";
-  $("engineStatus").className = "status-chip fail";
-  runNote.textContent = "Python couldn't load here. Check your internet connection and reload the page.";
-  console.error(lastErr);
-}
-
-// ---------- 5. The code editor ----------
-function lineCount() { return editor.value.split("\n").length; }
-function refreshGutter() {
-  const n = lineCount();
-  let s = "";
-  for (let i = 1; i <= n; i++) s += i + (i < n ? "\n" : "");
-  gutter.textContent = s;
-  // The editor grows to fit your code, so line numbers always line up.
-  editor.style.height = Math.max(216, n * 24 + 28 + 16) + "px";
-}
-function placeHighlight(line, kind) {
-  if (!line) { hl.style.display = "none"; return; }
-  const LINE = 24, PAD = 14;
-  hl.style.top = (PAD + (line - 1) * LINE) + "px";
-  hl.className = "hl" + (kind === "err" ? " err" : "");
-  hl.style.display = "block";
-}
-// Phones like to turn " into curly quotes, which Python doesn't understand. Swap them back.
-function straightenQuotes() {
-  const fixed = editor.value.replace(/[“”„″]/g, '"').replace(/[‘’‚′]/g, "'");
-  if (fixed !== editor.value) {
-    const pos = editor.selectionStart;
-    editor.value = fixed;
-    editor.setSelectionRange(pos, pos);
-  }
-}
-editor.addEventListener("input", () => { straightenQuotes(); refreshGutter(); hl.style.display = "none"; state.code = editor.value; save(); });
-editor.addEventListener("keydown", (e) => {
-  if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); document.execCommand("insertText", false, "    "); }
-  if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); }
-});
-
-// ---------- 6. Drawing the creature and the shelf ----------
-function setElement(el) {
-  const valid = ["fire", "water", "leaf"].includes(el) ? el : "none";
-  creature.dataset.element = valid;
-  stage.dataset.element = valid;
-}
-function setNametag(text) {
-  nametag.hidden = !text;
-  nametag.textContent = text || "";
-}
-function say(text) {
-  bubble.textContent = text;
-  bubble.hidden = !text;
-  if (text) { bubble.style.animation = "none"; void bubble.offsetWidth; bubble.style.animation = ""; }
-}
-function flash(cls, ms) {
-  creature.classList.remove(cls); void creature.getBoundingClientRect(); creature.classList.add(cls);
-  setTimeout(() => creature.classList.remove(cls), ms);
-}
-async function hatch() {
-  creature.classList.remove("idle");
-  creature.classList.add("cracking");
-  flash("wobble", 1500);
-  await sleep(1200);
-  creature.classList.remove("cracking");
-  creature.classList.add("hatched");
-  flash("hatching", 700);
-  state.hatched = true; save();
-  await sleep(500);
-}
-
-let shelfShown = {};
-function drawShelf(vars) {
-  const names = Object.keys(vars);
-  if (!names.length) {
-    shelf.innerHTML = '<p class="empty">No boxes yet. Run your code and they\'ll appear here.</p>';
-    shelfShown = {};
-    return;
-  }
-  shelf.innerHTML = "";
-  for (const k of names) {
-    const v = vars[k];
-    const box = document.createElement("div");
-    box.className = "box";
-    if (!(k in shelfShown)) box.classList.add("fresh");
-    else if (shelfShown[k] !== v.repr) box.classList.add("changed");
-    const label = document.createElement("span"); label.className = "label"; label.textContent = k;
-    const val = document.createElement("span"); val.className = "val"; val.textContent = v.repr;
-    const type = document.createElement("span"); type.className = "type"; type.textContent = typeWord(v.type);
-    box.append(label, val, type);
-    if (k === "hp" && (v.type === "int" || v.type === "float")) {
-      const meter = document.createElement("div"); meter.className = "hp-meter";
-      const bar = document.createElement("i"); bar.style.width = Math.max(0, Math.min(100, v.value)) + "%";
-      meter.append(bar); box.append(meter);
-    }
-    shelf.append(box);
-  }
-  shelfShown = Object.fromEntries(names.map((k) => [k, vars[k].repr]));
-}
-
-// Make the creature match the variables in your code.
-async function applyVars(vars) {
-  drawShelf(vars);
-  const name = vars.name && vars.name.type === "str" && vars.name.value.trim() ? vars.name.value : "";
-  if (name) state.lastName = name;
-  if (name && !state.hatched) await hatch();
-  if (state.hatched) {
-    if (name && name !== nametag.textContent && nametag.textContent) flash("bounce", 1000);
-    setNametag(name || "???");
-  }
-  setElement(vars.element && vars.element.type === "str" ? vars.element.value : "none");
-}
-
-function drawJar() {
-  const kinds = Object.keys(state.bugs);
-  if (!kinds.length) { jar.innerHTML = "<span>Empty. Bugs show up when code breaks. Fix the code to catch them.</span>"; return; }
-  jar.innerHTML = "";
-  for (const k of kinds) {
-    const s = document.createElement("span");
-    s.textContent = bugFor(k).name + " (" + k + ") × " + state.bugs[k];
-    jar.append(s);
-  }
-}
-function showBug(type) {
-  const b = bugFor(type);
-  $("bugBody").setAttribute("fill", b.color);
-  $("bug").hidden = false;
-  $("bugLabel").hidden = false;
-  $("bugLabel").textContent = "A wild " + b.name + "!";
-}
-function hideBug() { $("bug").hidden = true; $("bugLabel").hidden = true; }
+  $("py").className = "py fail";
+  return false;
+})();
 
 // ---------- 7. Friendly explanations for Python errors ----------
 function explainError(err, src) {
-  const lines = src.split("\n");
-  const lineText = err.line ? (lines[err.line - 1] || "") : "";
-  const m = err.msg || "";
-  const where = err.line ? "line " + err.line : "your code";
+  const m = err.msg || "", where = err.line ? "line " + err.line : "your code";
+  const lineText = err.line ? (src.split("\n")[err.line - 1] || "") : "";
   if (err.type === "NameError") {
-    const word = (m.match(/'([^']+)'/) || [])[1] || "that";
-    return "Python looked for a box labelled " + word + " on " + where + " and couldn't find one. If you meant the text " + word + ", put it in quotes: \"" + word + "\". If you meant a variable, check the spelling. Capital letters count!";
+    const w = (m.match(/'([^']+)'/) || [])[1] || "that";
+    return "Python looked for a box labelled " + w + " and couldn't find one. If " + w + " is text, put it in quotes: \"" + w + "\". If it's a label, check the spelling. Capital letters count!";
   }
-  if (err.type === "IndentationError" || err.type === "TabError") {
-    return "There are extra spaces at the start of " + where + ". In Python, spaces at the start of a line have a meaning. For now, start every line at the left edge.";
-  }
+  if (err.type === "IndentationError" || err.type === "TabError") return "There are spaces at the start of " + where + ". Spaces at the start mean something special in Python. For now, start every line at the left edge.";
   if (err.type === "SyntaxError") {
-    if (/unterminated string|EOL while scanning/i.test(m)) return "A string on " + where + " is missing its closing quote. Text has to start and end with the same quote mark: \"like this\".";
-    if (/cannot assign to (literal|expression|function call)/i.test(m)) return "On " + where + ", the label has to go on the left of = and the value on the right. Like this: name = \"Ember\".";
-    if (/invalid decimal literal/i.test(m)) return "Variable names can't start with a number. Try something like hp2 instead of 2hp.";
-    const left = lineText.split("=")[0] || "";
-    if (lineText.includes("=") && /\w\s+\w/.test(left.trim())) return "Variable names can't have spaces. Join the words with an underscore: my_name instead of my name.";
-    if (/'\(' was never closed/.test(m)) return "A bracket on " + where + " was opened with ( but never closed with ).";
-    return "Python couldn't read " + where + ". Check for missing quotes, brackets or the = sign.";
+    if (/unterminated string|EOL/i.test(m)) return "Some text on " + where + " is missing its closing quote. Text starts and ends with a quote: \"like this\".";
+    if (/cannot assign to/i.test(m)) return "On " + where + ", the label must be on the left of = and the value on the right. Like: name = \"Pip\"";
+    if (/invalid decimal literal/i.test(m)) return "Labels can't start with a number. Try hp2 instead of 2hp.";
+    if (/was never closed/.test(m)) return "A bracket on " + where + " was opened with ( but never closed with ).";
+    const left = (lineText.split("=")[0] || "").trim();
+    if (lineText.includes("=") && /\w\s+\w/.test(left)) return "Labels can't have spaces. Join the words with an underscore: my_name instead of my name.";
+    return "Python couldn't read " + where + ". Check the quotes, the brackets and the = sign.";
   }
-  if (err.type === "TypeError" && /concatenate/.test(m)) return "You joined text and a number with +. Python won't mix those. Inside print(), use a comma instead: print(\"hp is\", hp).";
-  if (err.type === "TypeError" && /not callable/.test(m)) return "You used ( ) after something that isn't a function on " + where + ". Check for a missing comma.";
-  if (err.type === "EOFError" || err.type === "OSError") return "input() isn't part of this level. Store values with = instead.";
-  return "Something went wrong on " + where + ". Read the message above, check that line, and try again.";
+  if (err.type === "TypeError" && /concatenate/.test(m)) return "You joined text and a number with +. Python won't mix those. Inside print( ), use a comma instead: print(\"hp\", hp)";
+  if (err.type === "TypeError" && /not callable/.test(m)) return "There are brackets ( ) in a place Python didn't expect on " + where + ".";
+  if (err.type === "EOFError" || err.type === "OSError") return "input( ) isn't used in this level. Store values with = instead.";
+  return "Something on " + where + " didn't work. Read the message above and check that line.";
 }
 
-// ---------- 8. Feedback panel ----------
-function showFeedback(kind, title, lines, actions) {
-  feedback.hidden = false;
-  feedback.className = "feedback " + kind;
-  feedback.innerHTML = "";
-  const h = document.createElement("h3"); h.textContent = title; feedback.append(h);
-  for (const l of lines) {
-    const p = document.createElement("p");
-    if (typeof l === "object") { p.className = l.cls; p.textContent = l.text; } else p.textContent = l;
-    feedback.append(p);
-  }
-  if (actions && actions.length) {
-    const row = document.createElement("div"); row.className = "actions";
-    for (const a of actions) {
-      const b = document.createElement("button"); b.className = "btn" + (a.primary ? " primary" : ""); b.textContent = a.label;
-      b.addEventListener("click", a.onClick); row.append(b);
-    }
-    feedback.append(row);
-  }
+// ---------- 8. Showing screens ----------
+function go(i) {
+  state.i = Math.max(0, Math.min(SCREENS.length - 1, i));
+  if (state.i > 0) state.resume = state.i;
+  save();
+  render();
+  window.scrollTo({ top: 0 });
+}
+function next() { go(state.i + 1); }
+function header(s) { if (s.mission) panel.append(el("p", "eyebrow", s.mission)); }
+function backLink() {
+  if (state.i > 0) { const b = el("button", "back", "◀ Back"); b.addEventListener("click", () => go(state.i - 1)); panel.append(b); }
+}
+function render() {
+  const s = SCREENS[state.i];
+  panel.innerHTML = "";
+  say(""); scene.bug = null;
+  showSavedCreature();
+  $("xp").style.width = Math.round((Math.min(state.i, FINISH) / FINISH) * 100) + "%";
+  ({ title: renderTitle, talk: renderTalk, example: renderExample, quiz: renderQuiz, code: renderCode, finish: renderFinish })[s.type](s);
 }
 
-// ---------- 9. Running your code ----------
-let running = false;
-async function run() {
-  if (!runPython || running) return;
-  running = true; runBtn.disabled = true;
-  straightenQuotes();
-  const src = editor.value;
-  state.code = src; save();
+function renderTitle() {
+  const box = el("div", "stack");
+  const logo = el("h1", "logo"); logo.append("CREATURE", el("span", null, "CODE"));
+  box.append(logo, el("p", "tagline", "Hatch a creature. Teach it with real Python. No experience needed."));
+  const started = state.resume > 1 || state.hatched;
+  box.append(button(started ? "CONTINUE ▶" : "START ▶", "go wide", () => go(started ? state.resume : 1)));
+  box.append(button("HOW TO PLAY", "wide", openModal));
+  panel.append(box);
+}
 
-  // Fresh start: Python forgets everything between runs.
-  feedback.hidden = true; say(""); hl.style.display = "none";
-  creature.classList.remove("confused");
-  shelfShown = {}; drawShelf({});
-  if (state.hatched) setNametag("???");
-  setElement("none");
-  consoleEl.innerHTML = "";
+// Old Moss talks. Text types out letter by letter; tap to speed up or continue.
+function renderTalk(s) {
+  header(s);
+  let n = 0, typing = null;
+  const wrap = el("div", "dialog"); wrap.setAttribute("role", "button"); wrap.tabIndex = 0;
+  const face = el("canvas", "portrait"); face.width = 16; face.height = 16;
+  drawSprite(face.getContext("2d"), SPRITES.moss, 0, 0, MOSS_PAL);
+  const right = el("div");
+  const line = el("p", "line");
+  const more = el("div", "more");
+  const pips = el("div", "pips");
+  const arrow = el("span", "arrow", "▼ tap");
+  more.append(pips, arrow);
+  right.append(el("div", "speaker", "OLD MOSS"), line, more);
+  wrap.append(face, right);
+  panel.append(wrap);
+  backLink();
 
-  let result;
-  try { result = JSON.parse(runPython(src)); }
-  catch (e) { result = { events: [], error: { type: "Error", msg: String(e), line: null } }; }
-
-  // Act it out, one line at a time.
-  const events = result.events;
-  const delay = events.length > 40 ? 60 : events.length > 12 ? 250 : 550;
-  let out = "";
-  for (const ev of events) {
-    placeHighlight(ev.line, "run");
-    await sleep(delay);
-    await applyVars(ev.after || {});
-    if (ev.out) {
-      out += ev.out;
-      consoleEl.textContent = out;
-      if (state.hatched) say(ev.out.trim().split("\n").pop());
-    }
+  function show() {
+    pips.innerHTML = "";
+    s.lines.forEach((_, k) => pips.append(el("i", k <= n ? "on" : "")));
+    arrow.textContent = n < s.lines.length - 1 ? "▼ tap" : "NEXT ▶";
+    // Build the full line, then reveal it one letter at a time.
+    line.innerHTML = ""; line.append(rich(s.lines[n]));
+    const nodes = [];
+    const walk = (node) => node.childNodes.forEach((c) => (c.nodeType === 3 ? nodes.push([c, c.textContent]) : walk(c)));
+    walk(line); nodes.forEach(([c]) => (c.textContent = ""));
+    let ni = 0, ci = 0;
+    clearInterval(typing);
+    typing = setInterval(() => {
+      if (ni >= nodes.length) { clearInterval(typing); typing = null; return; }
+      const [c, full] = nodes[ni]; ci++; c.textContent = full.slice(0, ci);
+      if (ci >= full.length) { ni++; ci = 0; }
+    }, 22);
+    line._finish = () => { clearInterval(typing); typing = null; nodes.forEach(([c, full]) => (c.textContent = full)); };
   }
-  const vars = events.length ? events[events.length - 1].after || {} : {};
-  if (!out) consoleEl.innerHTML = '<span class="dim">(nothing printed)</span>';
+  function advance() {
+    if (typing) { line._finish(); return; }
+    if (n < s.lines.length - 1) { n++; show(); } else next();
+  }
+  wrap.addEventListener("click", advance);
+  wrap.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); advance(); } });
+  show();
+}
 
-  if (result.error) {
-    const err = result.error;
-    placeHighlight(err.line, "err");
-    if (state.hatched) { creature.classList.add("confused"); say(""); }
-    else flash("wobble", 1500);
-    showBug(err.type);
-    if (!state.pendingBug) state.pendingBug = err.type;
-    save();
-    showFeedback("error", "Your creature is confused", [
-      { cls: "raw", text: "Python says: " + err.type + ": " + err.msg + (err.line ? " (line " + err.line + ")" : "") },
-      "In plain words: " + explainError(err, src),
-      "Fix it and press Run to catch the " + bugFor(err.type).name + ".",
-    ]);
-  } else {
-    await sleep(300);
-    hl.style.display = "none";
-    let caughtLine = null;
-    if (state.pendingBug) {
-      const t = state.pendingBug;
-      state.bugs[t] = (state.bugs[t] || 0) + 1;
-      state.pendingBug = null;
-      caughtLine = "You also caught a " + bugFor(t).name + " (" + t + ") by fixing your code. It's in your bug jar.";
-      drawJar(); save();
+function codeBlock(lines) {
+  const b = el("div", "codeblock");
+  lines.forEach((t, k) => { const d = el("div", null, t); d.dataset.n = k + 1; b.append(d); });
+  return b;
+}
+function vbox(label, show, kind) {
+  const b = el("div", "vbox");
+  b.append(el("b", null, label), el("span", null, show), el("small", null, kind));
+  return b;
+}
+
+function renderExample(s) {
+  header(s);
+  panel.append(el("h2", null, "Watch this"), el("p", "caption", s.intro));
+  const block = codeBlock(s.code);
+  const shelf = el("div", "shelf");
+  const out = el("div", "output");
+  const after = el("div", "stack"); after.hidden = true;
+  const notes = el("ul", "notes");
+  s.notes.forEach(([tok, what]) => { const li = el("li"); li.append(el("code", null, tok), el("span", null, what)); notes.append(li); });
+  after.append(el("p", "caption", s.after), notes, button("NEXT ▶", "go wide", next));
+  const runBtn = button("RUN ▶", "go wide", async () => {
+    runBtn.disabled = true; shelf.innerHTML = ""; out.textContent = ""; after.hidden = true;
+    const boxes = {};
+    for (const st of s.steps) {
+      [...block.children].forEach((d, k) => d.classList.toggle("on", k === st.line - 1));
+      await sleep(700);
+      if (st.set) {
+        const [k, v, kind] = st.set;
+        const b = vbox(k, v, kind);
+        if (boxes[k]) boxes[k].replaceWith(b); else shelf.append(b);
+        boxes[k] = b;
+      }
+      if (st.out) out.textContent += (out.textContent ? "\n" : "") + st.out;
     }
-    hideBug();
-    if (state.finished) {
-      showFeedback("success", "Nice run!", ["Level 1 is complete, so this is free play. Try new variables and see them land on the shelf."].concat(caughtLine ? [caughtLine] : []));
-    } else {
-      const step = STEPS[state.step];
-      const verdict = step.check(vars, out, events);
-      if (verdict.ok) {
-        if (state.hatched) flash("bounce", 1000);
-        const last = state.step === STEPS.length - 1;
-        showFeedback("success", last ? "Level 1 cleared!" : "It worked!", [verdict.msg].concat(caughtLine ? [caughtLine] : []), [
-          { label: last ? "Finish the level" : "Next mission →", primary: true, onClick: () => (last ? finishLevel(vars) : nextStep()) },
-        ]);
+    await sleep(500);
+    [...block.children].forEach((d) => d.classList.remove("on"));
+    runBtn.textContent = "RUN AGAIN"; runBtn.disabled = false; runBtn.classList.remove("go");
+    after.hidden = false;
+    after.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+  panel.append(block, runBtn);
+  if (s.steps.some((st) => st.set)) { const w = el("div"); w.append(el("p", "eyebrow", "Boxes"), shelf); panel.append(w); }
+  if (s.steps.some((st) => st.out)) { const w = el("div"); w.append(el("p", "eyebrow", "Screen"), out); panel.append(w); }
+  panel.append(after);
+  backLink();
+}
+
+function renderQuiz(s) {
+  header(s);
+  const q = el("h2"); q.append(rich(s.prompt)); panel.append(q);
+  if (s.code) panel.append(codeBlock(s.code));
+  const opts = el("div", "options");
+  const fb = el("div", "stack");
+  s.options.forEach((o) => {
+    const b = el("button", "btn opt" + (o.code ? " code-opt" : ""), o.text);
+    b.addEventListener("click", () => {
+      fb.innerHTML = "";
+      const box = el("div", "say-box " + (o.right ? "good" : "bad"));
+      box.append(el("h3", null, o.right ? "CORRECT!" : "NOT QUITE"), el("p", null, fill(o.why)));
+      fb.append(box);
+      if (o.right) {
+        b.classList.add("right");
+        opts.querySelectorAll("button").forEach((x) => (x.disabled = x !== b));
+        state.done[state.i] = true; save();
+        fb.append(button("NEXT ▶", "go wide", next));
+        if (state.hatched) scene.bounce = 10;
       } else {
-        showFeedback("hint", "Almost there", [verdict.hint].concat(caughtLine ? [caughtLine] : []));
+        b.classList.add("wrong"); b.disabled = true;
+      }
+      fb.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    opts.append(b);
+  });
+  panel.append(opts, fb);
+  backLink();
+}
+
+// ---------- 9. Code challenges ----------
+function renderCode(s) {
+  header(s);
+  const task = el("p", "task"); task.append(rich(s.task)); panel.append(task);
+
+  const editor = el("div", "editor");
+  const gutter = el("pre", "gutter", "1");
+  const area = el("div", "code-area");
+  const hl = el("div", "hl"); hl.hidden = true;
+  const ta = el("textarea");
+  ta.id = "code"; ta.setAttribute("wrap", "off"); ta.spellcheck = false;
+  ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocorrect", "off"); ta.setAttribute("autocomplete", "off");
+  ta.setAttribute("aria-label", "Your Python code");
+  ta.placeholder = "Type your Python here";
+  ta.value = state.code.trim() ? state.code.replace(/\n*$/, "\n") : "";
+  area.append(hl, ta); editor.append(gutter, area);
+
+  // Phones turn " into curly quotes, which Python can't read. Swap them back.
+  function tidy() {
+    const fixed = ta.value.replace(/[“”„″]/g, '"').replace(/[‘’‚′]/g, "'");
+    if (fixed !== ta.value) { const p = ta.selectionStart; ta.value = fixed; ta.setSelectionRange(p, p); }
+  }
+  // The code box grows to fit your code, so line numbers always line up.
+  function grow() {
+    const n = ta.value.split("\n").length;
+    gutter.textContent = Array.from({ length: n }, (_, k) => k + 1).join("\n");
+    ta.style.height = Math.max(130, n * 30 + 34) + "px";
+  }
+  ta.addEventListener("input", () => { tidy(); grow(); hl.hidden = true; state.code = ta.value; save(); });
+  ta.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); } });
+
+  // Symbol keys: tap to type a symbol without hunting on the phone keyboard.
+  const keys = el("div", "keys");
+  ['"', "=", "(", ")", ",", "_"].forEach((sym) => {
+    const k = el("button", "key", sym); k.type = "button"; k.setAttribute("aria-label", "Type " + sym);
+    k.addEventListener("pointerdown", (e) => e.preventDefault()); // keeps the keyboard open
+    k.addEventListener("click", () => {
+      ta.setRangeText(sym, ta.selectionStart, ta.selectionEnd, "end"); ta.focus();
+      ta.dispatchEvent(new Event("input"));
+    });
+    keys.append(k);
+  });
+
+  const hintsBox = el("div", "hints");
+  let hintN = 0;
+  const actions = el("div", "row");
+  let hintBtn = null;
+  if (s.hints) {
+    hintBtn = button("HINT", "", () => {
+      if (hintN >= s.hints.length) return;
+      const h = el("div", "say-box near");
+      h.append(el("h3", null, "HINT " + (hintN + 1) + " OF " + s.hints.length), el("p", null, fill(s.hints[hintN])));
+      hintsBox.append(h); hintN++;
+      if (hintN >= s.hints.length) { hintBtn.disabled = true; hintBtn.textContent = "NO MORE HINTS"; }
+      h.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    actions.append(hintBtn);
+  }
+  const runBtn = button("RUN ▶", "go", () => run());
+  actions.append(runBtn);
+
+  const logWrap = el("div", "stack"); logWrap.hidden = true;
+  const log = el("ol", "log");
+  const shelf = el("div", "shelf");
+  const boxesLabel = el("p", "eyebrow", "Boxes");
+  logWrap.append(el("p", "eyebrow", "What Python did"), log, boxesLabel, shelf);
+  const result = el("div", "stack");
+
+  panel.append(editor, keys, actions, hintsBox, logWrap, result);
+  if (state.done[state.i] && !s.free) result.append(button("NEXT ▶", "go wide", next));
+  backLink();
+  grow();
+
+  function message(kind, title, lines) {
+    const b = el("div", "say-box " + kind);
+    if (title) b.append(el("h3", null, title));
+    lines.forEach((t) => b.append(typeof t === "string" ? el("p", null, t) : t));
+    result.append(b);
+  }
+
+  async function run() {
+    tidy();
+    const src = ta.value;
+    state.code = src; save();
+    result.innerHTML = "";
+    if (!src.trim()) { message("near", "", ["The code box is empty. Type some Python first!"]); return; }
+    ta.blur();
+    runBtn.disabled = true;
+    if (!runPython) {
+      runBtn.textContent = "WAKING PYTHON…";
+      const ok = await pythonReady;
+      runBtn.textContent = "RUN ▶";
+      if (!ok) { runBtn.disabled = false; message("bad", "", ["Python couldn't load. Check your internet connection, then reload the page."]); return; }
+    }
+    log.innerHTML = ""; shelf.innerHTML = ""; boxesLabel.hidden = true; logWrap.hidden = false;
+    say(""); scene.confused = false; scene.bug = null;
+    // Python starts fresh on every run, so the creature does too.
+    if (state.hatched) setTag("???");
+    scene.element = "none";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    let res;
+    try { res = JSON.parse(runPython(src)); } catch (e) { res = { events: [], error: { type: "Error", msg: String(e), line: null } }; }
+
+    // Act it out, one line at a time.
+    let prev = {}, out = "";
+    const delay = res.events.length > 30 ? 120 : 650;
+    for (const [n, ev] of res.events.entries()) {
+      // The line that broke never finished, so it's reported as the bug below instead.
+      if (res.error && n === res.events.length - 1 && ev.line === res.error.line) break;
+      hl.hidden = false; hl.className = "hl"; hl.style.top = (10 + (ev.line - 1) * 30) + "px";
+      await sleep(delay);
+      const v = ev.after || {};
+      const bits = [];
+      for (const k of Object.keys(v)) {
+        if (!(k in prev)) bits.push("made a box called " + k + " with " + v[k].show + " inside");
+        else if (prev[k].show !== v[k].show) bits.push("swapped what's in " + k + " for " + v[k].show);
+      }
+      if (ev.out) { bits.push("printed " + ev.out.trim()); out += ev.out; }
+      if (!bits.length) bits.push("ran it");
+      log.append(el("li", null, "Line " + ev.line + ": " + bits.join(", then ")));
+      shelf.innerHTML = "";
+      boxesLabel.hidden = !Object.keys(v).length;
+      for (const k of Object.keys(v)) shelf.append(vbox(k, v[k].show, { str: "string", int: "number", float: "number", bool: "True/False" }[v[k].type]));
+      await applyVars(v);
+      if (ev.out && state.hatched) say(ev.out.trim().split("\n").pop());
+      prev = v;
+    }
+    const vars = prev;
+
+    if (res.error) {
+      const err = res.error, bug = bugFor(err.type);
+      if (err.line) { hl.hidden = false; hl.className = "hl err"; hl.style.top = (10 + (err.line - 1) * 30) + "px"; }
+      log.append(el("li", "err", (err.line ? "Line " + err.line + ": " : "") + "got stuck!"));
+      scene.confused = state.hatched; scene.bug = bug.color;
+      if (!state.pendingBug) state.pendingBug = err.type;
+      save();
+      message("bad", "A WILD " + bug.name.toUpperCase() + " APPEARED!", [
+        el("p", "raw", "Python says: " + err.type + ": " + err.msg),
+        explainError(err, src),
+        "Fix it and press RUN to catch the bug.",
+      ]);
+    } else {
+      await sleep(250);
+      hl.hidden = true;
+      const extra = [];
+      if (state.pendingBug) {
+        const t = state.pendingBug, bug = bugFor(t);
+        state.bugs[t] = (state.bugs[t] || 0) + 1; state.pendingBug = null;
+        extra.push("You fixed your code and caught the " + bug.name + " (" + t + ")!");
+      }
+      // Remember the creature from this run.
+      if (vars.name && vars.name.type === "str" && vars.name.value.trim()) state.creature.name = vars.name.value;
+      if (vars.element && vars.element.value in ELEMENTS) state.creature.element = vars.element.value;
+      if (vars.hp && (vars.hp.type === "int" || vars.hp.type === "float")) state.creature.hp = vars.hp.value;
+      save();
+      if (s.free) {
+        message("good", "RAN WITH NO BUGS", extra.concat(out ? [] : ["Nothing was printed. Use print( ) to make " + fill("{name}") + " talk."]));
+      } else {
+        const v = s.check(vars, out, res.events);
+        message(v.ok ? "good" : "near", v.ok ? "IT WORKED!" : "ALMOST!", [fill(v.ok || v.near)].concat(extra));
+        if (v.ok) {
+          state.done[state.i] = true; save();
+          scene.bounce = 10; scene.sparkle = 8;
+          result.append(button("NEXT ▶", "go wide", next));
+        }
       }
     }
+    runBtn.disabled = false;
+    await sleep(100);
+    result.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
-  running = false; runBtn.disabled = false;
 }
-runBtn.addEventListener("click", run);
 
-// ---------- 10. Moving through the level ----------
-function drawDots() {
-  const dots = $("dots"); dots.innerHTML = "";
-  STEPS.forEach((_, i) => {
-    const d = document.createElement("span");
-    d.className = "dot" + (state.finished || i < state.step ? " done" : i === state.step ? " now" : "");
-    dots.append(d);
-  });
-}
-function drawMission() {
-  const m = $("mission");
-  if (state.finished) { drawComplete(); return; }
-  const s = STEPS[state.step];
-  m.className = "card mission";
-  m.innerHTML = "";
-  const eb = document.createElement("p"); eb.className = "eyebrow"; eb.textContent = "Mission " + (state.step + 1) + " of " + STEPS.length;
-  const h = document.createElement("h2"); h.textContent = s.title;
-  const story = document.createElement("p"); story.className = "story"; story.textContent = s.story;
-  const idea = document.createElement("p"); idea.className = "idea"; idea.textContent = s.idea;
-  const ul = document.createElement("ul"); ul.className = "parts";
-  for (const [tok, what] of s.parts) {
-    const li = document.createElement("li");
-    const c = document.createElement("span"); c.className = "tok"; c.textContent = tok;
-    const t = document.createElement("span"); t.textContent = what;
-    li.append(c, t); ul.append(li);
+// Make the creature match the boxes in your code.
+async function applyVars(v) {
+  const name = v.name && v.name.type === "str" && v.name.value.trim() ? v.name.value : "";
+  if (name && !state.hatched) await hatch();
+  if (state.hatched) {
+    const hp = v.hp && (v.hp.type === "int" || v.hp.type === "float") ? v.hp.value : null;
+    const before = $("tag").textContent;
+    setTag(tagText(name, hp));
+    if (name && before && before !== "???" && !before.startsWith(name)) scene.bounce = 10;
   }
-  const task = document.createElement("p"); task.className = "task"; task.textContent = s.task;
-  m.append(eb, h, story, idea, ul, task);
-  drawDots();
+  scene.element = v.element && v.element.type === "str" && v.element.value in ELEMENTS ? v.element.value : "none";
 }
-function nextStep() {
-  state.step++;
-  const add = STEPS[state.step].add;
-  let code = editor.value;
-  if (!code.endsWith("\n")) code += "\n";
-  editor.value = code + add;
-  state.code = editor.value;
-  save();
-  refreshGutter();
-  feedback.hidden = true;
-  drawMission();
-  editor.focus();
-  // Put the cursor on the new line, so it's easy to edit.
-  const pos = editor.value.length - 1;
-  editor.setSelectionRange(pos, pos);
-  $("mission").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-async function finishLevel(vars) {
-  state.finished = true;
-  state.lastName = vars.name ? vars.name.value : "";
-  save();
-  feedback.hidden = true;
-  flash("evolving", 1300);
-  await sleep(500);
-  creature.classList.add("evolved");
+
+// ---------- 10. Level complete ----------
+function renderFinish() {
+  const nm = state.creature.name || "Your creature";
+  if (!state.evolved) { state.evolved = true; save(); scene.sparkle = 30; scene.bounce = 15; }
+  scene.evolved = true;
   say("I evolved!");
-  drawMission();
-  $("mission").scrollIntoView({ behavior: "smooth", block: "start" });
-}
-function drawComplete() {
-  const m = $("mission");
-  const nm = state.lastName || "Your creature";
-  m.className = "card complete";
-  m.innerHTML = `
-    <p class="eyebrow">Level 1 complete</p>
-    <h2></h2>
-    <p class="story">Using a new skill for the first time made it evolve. It grew wings and a star.</p>
-    <div class="complete-grid">
-      <button class="skill-card" id="skillCard" aria-label="Skill card: Variables. Tap to flip.">
-        <div class="skill-inner">
-          <div class="face front">
-            <span class="num">SKILL CARD 1 / 8</span>
-            <span class="big">Variables</span>
-            <span class="glyph">name = "Ember"</span>
-            <span class="num">Tap to flip</span>
-          </div>
-          <div class="face back">
-            <b>Variables</b>
-            <ul>
-              <li>A variable is a labelled box for a value.</li>
-              <li><code>=</code> puts a value in the box.</li>
-              <li>Text needs quotes: <code>"Ember"</code></li>
-              <li>Numbers don't: <code>hp = 20</code></li>
-              <li><code>print(name)</code> shows what's inside.</li>
-              <li>A new value replaces the old one.</li>
-            </ul>
-          </div>
-        </div>
-      </button>
-      <div>
-        <p class="section-label">What you learned</p>
-        <ul class="recap">
-          <li>Make a variable with <code>=</code></li>
-          <li>Strings (text in quotes) vs numbers</li>
-          <li>Show values with <code>print()</code></li>
-          <li>Change a variable's value</li>
-        </ul>
-        <div class="share">
-          <label class="section-label" for="shareText">Share your progress</label>
-          <textarea id="shareText"></textarea>
-          <div><button class="btn" id="copyBtn">Copy text</button></div>
-        </div>
-      </div>
-    </div>
-    <div class="next-level"><b>Next: Level 2 · Math.</b> Feed your creature with <code>hp = hp + 10</code>. Coming soon.</div>`;
-  m.querySelector("h2").textContent = nm + " evolved!";
-  const bugCount = Object.values(state.bugs).reduce((a, b) => a + b, 0);
-  $("shareText").value = "Day 1 of learning Python by building a game that teaches Python. I hatched " + nm +
-    " in Creature Code and learned variables" + (bugCount ? ", and caught " + bugCount + " bug" + (bugCount > 1 ? "s" : "") + " along the way" : "") + ". Next up: math! #100DaysOfCode #Python";
-  $("skillCard").addEventListener("click", (e) => e.currentTarget.classList.toggle("flipped"));
-  $("copyBtn").addEventListener("click", (e) => {
-    const btn = e.currentTarget, ta = $("shareText");
-    navigator.clipboard.writeText(ta.value).then(() => { btn.textContent = "Copied"; }, () => { ta.select(); btn.textContent = "Selected. Press copy"; });
+  panel.append(el("p", "eyebrow", "Level 1 complete"), el("h2", null, nm + " evolved!"),
+    el("p", "caption", "Using a new skill for the first time made " + nm + " evolve. Look: wings and a star!"));
+
+  const card = el("button", "skill"); card.setAttribute("aria-label", "Skill card: Variables. Tap to flip.");
+  card.innerHTML = `<div class="skill-inner">
+      <div class="face front"><small>SKILL CARD 1 / 8</small><span class="big">VARIABLES</span><code>name = "Pip"</code><small>Tap to flip</small></div>
+      <div class="face back"><b>VARIABLES</b><ul>
+        <li>A variable is a box with a label.</li><li><code>=</code> puts a value in the box.</li>
+        <li>Text (a string) needs quotes.</li><li>Numbers don't.</li>
+        <li><code>print(x)</code> shows what's in x.</li><li>New value? The old one is replaced.</li></ul></div></div>`;
+  card.addEventListener("click", () => card.classList.toggle("flip"));
+  panel.append(card);
+
+  const recap = el("ul", "recap");
+  ["Make a variable with =", "Strings (text in quotes) vs numbers", "Show things with print( )", "Change a variable's value"].forEach((t) => recap.append(el("li", null, t)));
+  panel.append(el("p", "eyebrow", "You learned"), recap);
+
+  const caught = Object.entries(state.bugs);
+  if (caught.length) panel.append(el("p", "eyebrow", "Bugs caught"), el("p", null, caught.map(([t, n]) => bugFor(t).name + " × " + n).join(", ")));
+
+  const total = caught.reduce((a, [, n]) => a + n, 0);
+  const share = el("textarea", "share-text"); share.id = "share";
+  share.value = "Learning Python by building a game that teaches Python! Today I hatched " + nm + " in Creature Code and learned variables" +
+    (total ? ", and caught " + total + " bug" + (total > 1 ? "s" : "") : "") + ". Next up: math. #100DaysOfCode #Python";
+  const copy = button("COPY", "", () => {
+    navigator.clipboard.writeText(share.value).then(() => (copy.textContent = "COPIED!"), () => { share.select(); copy.textContent = "SELECTED"; });
   });
-  drawDots();
+  panel.append(el("p", "eyebrow", "Share your progress"), share, copy);
+  panel.append(el("p", "caption", "Next: Level 2 · Math. Feed " + nm + " with hp = hp + 10. Coming soon!"));
+  panel.append(button("FREE PLAY ▶", "go wide", () => go(FREE)));
 }
 
-// Reset needs two taps, so you don't lose progress by accident.
-let resetArmed = false;
-$("resetBtn").addEventListener("click", (e) => {
-  if (!resetArmed) { resetArmed = true; e.currentTarget.textContent = "Tap again to erase your progress"; setTimeout(() => { resetArmed = false; $("resetBtn").textContent = "Start Level 1 over"; }, 4000); return; }
-  try { localStorage.removeItem(STORE_KEY); } catch (_) {}
-  location.reload();
+// ---------- 11. Menu ----------
+function openModal() { $("modal").hidden = false; $("closeModal").focus(); }
+$("menuBtn").addEventListener("click", openModal);
+$("closeModal").addEventListener("click", () => ($("modal").hidden = true));
+$("modal").addEventListener("click", (e) => { if (e.target.id === "modal") $("modal").hidden = true; });
+let armed = false;
+$("restartBtn").addEventListener("click", (e) => {
+  if (!armed) { armed = true; e.target.textContent = "Tap again to erase your progress"; setTimeout(() => { armed = false; e.target.textContent = "Restart Level 1"; }, 4000); return; }
+  state = fresh(); save(); $("modal").hidden = true; e.target.textContent = "Restart Level 1"; armed = false; render();
 });
 
-// ---------- 11. Start the game ----------
-editor.value = state.code;
-refreshGutter();
-drawMission();
-drawJar();
-if (state.hatched) { creature.classList.remove("idle"); creature.classList.add("hatched"); setNametag(state.lastName || "???"); }
-if (state.finished) creature.classList.add("evolved");
-startPython();
+// ---------- 12. Start ----------
+// Opening the game shows the title screen. CONTINUE takes you back to where you were.
+state.i = 0;
+render();
 </script>
-<!-- page:end -->
 </body>
 </html>

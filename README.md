@@ -23,7 +23,7 @@ Open `index.html` in a browser. Python runs right in the page (via [Pyodide](htt
 
 ## Level 1: Hatch Your Creature
 
-Five missions: name your egg, pick an element, set its energy, make it talk with `print()`, and change its name. The creature acts out your code one line at a time, every variable shows up as a labelled box, and errors become bugs you catch by fixing them. Finish the level and your creature evolves and you earn the Variables skill card.
+A cozy pixel-art game, built for phones. Old Moss the frog teaches one small idea at a time, quick quizzes check you got it, and in challenges you type real Python yourself (no answers given) to hatch, colour, power up and name your creature. It acts out your code line by line, errors become bugs you catch by fixing them, and finishing the level makes your creature evolve.
 
 New to code? Read [HOW-IT-WORKS.md](HOW-IT-WORKS.md) for a plain-language tour of the game's code.
 
